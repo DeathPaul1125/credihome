@@ -3,7 +3,7 @@
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
-    return view('welcome');
+    return auth()->check() ? redirect('/dashboard') : redirect('/login');
 });
 
 Route::middleware([
@@ -62,7 +62,7 @@ Route::middleware([
     // Rutas de Usuarios y Roles
     Route::resource('usuarios', \App\Http\Controllers\UserController::class);
     Route::post('usuarios/{user}/asignar-rol', [\App\Http\Controllers\UserController::class, 'asignarRol'])->name('usuarios.asignar-rol');
-    
+
     // Rutas de Roles y Permisos
     Route::resource('roles', \App\Http\Controllers\RoleController::class);
     Route::post('roles/{role}/permisos', [\App\Http\Controllers\RoleController::class, 'actualizarPermisos'])->name('roles.permisos');
