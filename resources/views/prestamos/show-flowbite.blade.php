@@ -116,6 +116,89 @@
         </div>
     </div>
 
+    <!-- Aportadores del Préstamo -->
+    @if($prestamo->aportaciones->count() > 0)
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow mb-4">
+        <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+            <div class="flex items-center justify-between">
+                <h2 class="text-xl font-semibold text-gray-900 dark:text-white">💰 Aportadores que Fondean este Préstamo</h2>
+                <span class="text-sm text-gray-500 dark:text-gray-400">{{ $prestamo->aportaciones->count() }} {{ $prestamo->aportaciones->count() == 1 ? 'aportador' : 'aportadores' }}</span>
+            </div>
+        </div>
+        <div class="p-6">
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
+                    <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+                        <tr>
+                            <th scope="col" class="px-6 py-3">Aportador</th>
+                            <th scope="col" class="px-6 py-3 text-right">Monto Aportado</th>
+                            <th scope="col" class="px-6 py-3 text-right">Participación</th>
+                            <th scope="col" class="px-6 py-3 text-right">Recuperado</th>
+                            <th scope="col" class="px-6 py-3 text-right">Intereses Ganados</th>
+                            <th scope="col" class="px-6 py-3 text-right">Saldo Pendiente</th>
+                            <th scope="col" class="px-6 py-3">Estado</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($prestamo->aportaciones as $aportacion)
+                        <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
+                            <td class="px-6 py-4">
+                                <a href="{{ route('aportadores.show', $aportacion->aportador->id) }}" class="font-medium text-blue-600 dark:text-blue-500 hover:underline">
+                                    {{ $aportacion->aportador->nombre }}
+                                </a>
+                            </td>
+                            <td class="px-6 py-4 text-right font-medium text-gray-900 dark:text-white">
+                                Q{{ number_format($aportacion->monto_aportado, 2) }}
+                            </td>
+                            <td class="px-6 py-4 text-right">
+                                <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded dark:bg-blue-900 dark:text-blue-300">
+                                    {{ number_format($aportacion->porcentaje_participacion, 2) }}%
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 text-right text-green-600 dark:text-green-400">
+                                Q{{ number_format($aportacion->monto_recuperado, 2) }}
+                            </td>
+                            <td class="px-6 py-4 text-right text-green-600 dark:text-green-400">
+                                Q{{ number_format($aportacion->intereses_ganados, 2) }}
+                            </td>
+                            <td class="px-6 py-4 text-right text-gray-900 dark:text-white">
+                                Q{{ number_format($aportacion->saldo_pendiente, 2) }}
+                            </td>
+                            <td class="px-6 py-4">
+                                @if($aportacion->estado === 'Activo')
+                                    <span class="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded dark:bg-green-900 dark:text-green-300">
+                                        Activo
+                                    </span>
+                                @elseif($aportacion->estado === 'Recuperado')
+                                    <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded dark:bg-blue-900 dark:text-blue-300">
+                                        Recuperado
+                                    </span>
+                                @else
+                                    <span class="bg-gray-100 text-gray-800 text-xs font-medium px-2.5 py-0.5 rounded dark:bg-gray-700 dark:text-gray-300">
+                                        {{ $aportacion->estado }}
+                                    </span>
+                                @endif
+                            </td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                    <tfoot>
+                        <tr class="font-semibold text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-700">
+                            <td class="px-6 py-3">TOTAL</td>
+                            <td class="px-6 py-3 text-right">Q{{ number_format($prestamo->aportaciones->sum('monto_aportado'), 2) }}</td>
+                            <td class="px-6 py-3 text-right">{{ number_format($prestamo->aportaciones->sum('porcentaje_participacion'), 2) }}%</td>
+                            <td class="px-6 py-3 text-right text-green-600 dark:text-green-400">Q{{ number_format($prestamo->aportaciones->sum('monto_recuperado'), 2) }}</td>
+                            <td class="px-6 py-3 text-right text-green-600 dark:text-green-400">Q{{ number_format($prestamo->aportaciones->sum('intereses_ganados'), 2) }}</td>
+                            <td class="px-6 py-3 text-right">Q{{ number_format($prestamo->aportaciones->sum('saldo_pendiente'), 2) }}</td>
+                            <td class="px-6 py-3"></td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    </div>
+    @endif
+
     <!-- Información del Cliente -->
     <div class="bg-white dark:bg-gray-800 rounded-lg shadow mb-4">
         <div class="p-6 border-b border-gray-200 dark:border-gray-700">

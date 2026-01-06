@@ -131,6 +131,54 @@
                     @enderror
                 </div>
 
+                <!-- Sección de Aportadores -->
+                <div class="mb-6 p-6 bg-blue-50 dark:bg-gray-700 rounded-lg border border-blue-200 dark:border-gray-600">
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+                        💰 Fondeo del Préstamo
+                    </h3>
+                    <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                        Asigna aportadores para fondear este préstamo. La suma de las aportaciones debe cubrir el monto del préstamo.
+                    </p>
+
+                    <div id="aportadores-container">
+                        <div class="aportador-row grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                            <div>
+                                <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Aportador</label>
+                                <select name="aportadores[0][id]" class="aportador-select bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white">
+                                    <option value="">Seleccionar aportador...</option>
+                                    @foreach($aportadores as $aportador)
+                                    <option value="{{ $aportador->id }}" data-capital="{{ $aportador->capital_disponible }}">
+                                        {{ $aportador->nombre }} - Disponible: Q{{ number_format($aportador->capital_disponible, 2) }}
+                                    </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Monto a Aportar (Q)</label>
+                                <input type="number" name="aportadores[0][monto]" step="0.01" min="0" class="monto-aportacion bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="0.00">
+                            </div>
+                            <div>
+                                <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Porcentaje</label>
+                                <input type="text" readonly class="porcentaje-aportacion bg-gray-100 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white" value="0%">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center justify-between mt-4">
+                        <button type="button" id="add-aportador" class="text-blue-700 hover:text-white border border-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 text-center dark:border-blue-500 dark:text-blue-500 dark:hover:text-white dark:hover:bg-blue-600 dark:focus:ring-blue-800">
+                            + Agregar Aportador
+                        </button>
+                        <div class="text-right">
+                            <p class="text-sm text-gray-600 dark:text-gray-400">Total Fondeado: <span id="total-fondeado" class="font-bold text-blue-600 dark:text-blue-400">Q0.00</span></p>
+                            <p class="text-sm text-gray-600 dark:text-gray-400">Faltante: <span id="total-faltante" class="font-bold text-red-600 dark:text-red-400">Q0.00</span></p>
+                        </div>
+                    </div>
+
+                    @error('aportadores')
+                    <p class="mt-2 text-sm text-red-600 dark:text-red-500">{{ $message }}</p>
+                    @enderror
+                </div>
+
                 <div class="flex items-center space-x-4">
                     <button type="submit" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
                         Guardar Préstamo
@@ -142,4 +190,79 @@
             </form>
         </div>
     </div>
+
+    @push('scripts')
+    <script>
+        let aportadorCount = 1;
+
+        document.getElementById('add-aportador').addEventListener('click', function() {
+            const container = document.getElementById('aportadores-container');
+            const newRow = document.querySelector('.aportador-row').cloneNode(true);
+
+            // Actualizar los nombres de los inputs
+            newRow.querySelectorAll('select, input').forEach(input => {
+                if (input.name) {
+                    input.name = input.name.replace('[0]', `[${aportadorCount}]`);
+                }
+                if (input.type !== 'text' || !input.readOnly) {
+                    input.value = '';
+                }
+            });
+
+            // Agregar botón de eliminar
+            const deleteBtn = document.createElement('button');
+            deleteBtn.type = 'button';
+            deleteBtn.className = 'text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 font-medium text-sm';
+            deleteBtn.innerHTML = '✕ Eliminar';
+            deleteBtn.onclick = function() {
+                newRow.remove();
+                calcularTotales();
+            };
+
+            const lastCol = newRow.querySelector('.grid > div:last-child');
+            lastCol.appendChild(deleteBtn);
+
+            container.appendChild(newRow);
+            aportadorCount++;
+
+            // Agregar event listeners a los nuevos campos
+            attachEventListeners(newRow);
+        });
+
+        function attachEventListeners(row) {
+            row.querySelector('.monto-aportacion').addEventListener('input', calcularTotales);
+        }
+
+        function calcularTotales() {
+            const montoPrestamo = parseFloat(document.getElementById('monto_prestado').value) || 0;
+            let totalFondeado = 0;
+
+            document.querySelectorAll('.aportador-row').forEach(row => {
+                const monto = parseFloat(row.querySelector('.monto-aportacion').value) || 0;
+                totalFondeado += monto;
+
+                // Calcular porcentaje
+                const porcentaje = montoPrestamo > 0 ? (monto / montoPrestamo * 100).toFixed(2) : 0;
+                row.querySelector('.porcentaje-aportacion').value = porcentaje + '%';
+            });
+
+            document.getElementById('total-fondeado').textContent = 'Q' + totalFondeado.toFixed(2);
+
+            const faltante = Math.max(0, montoPrestamo - totalFondeado);
+            document.getElementById('total-faltante').textContent = 'Q' + faltante.toFixed(2);
+
+            // Cambiar color según el estado
+            const faltanteSpan = document.getElementById('total-faltante');
+            if (faltante === 0 && montoPrestamo > 0) {
+                faltanteSpan.className = 'font-bold text-green-600 dark:text-green-400';
+            } else {
+                faltanteSpan.className = 'font-bold text-red-600 dark:text-red-400';
+            }
+        }
+
+        // Agregar event listeners iniciales
+        document.querySelectorAll('.aportador-row').forEach(attachEventListeners);
+        document.getElementById('monto_prestado').addEventListener('input', calcularTotales);
+    </script>
+    @endpush
 </x-flowbite-layout>

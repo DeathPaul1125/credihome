@@ -62,15 +62,6 @@ class Prestamo extends Model
         parent::boot();
 
         static::creating(function ($prestamo) {
-            if (empty($prestamo->numero_prestamo)) {
-                $prestamo->numero_prestamo = 'P-' . date('Y') . '-' . str_pad(
-                    self::whereYear('created_at', date('Y'))->count() + 1,
-                    5,
-                    '0',
-                    STR_PAD_LEFT
-                );
-            }
-
             // Calcular valores si no están definidos
             if (empty($prestamo->saldo_pendiente)) {
                 $prestamo->saldo_pendiente = $prestamo->monto_total;
