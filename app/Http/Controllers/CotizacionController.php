@@ -38,7 +38,7 @@ class CotizacionController extends Controller
 
     public function create()
     {
-        $clientes = Cliente::where('estado', 'activo')->orderBy('nombre')->get();
+        $clientes = Cliente::where('estado', 'activo')->orderBy('nombre_completo')->get();
         $recetas = Receta::where('estado', 'activo')->orderBy('nombre')->get();
         $productos = Producto::where('estado', 'activo')->orderBy('nombre')->get();
 
@@ -125,7 +125,7 @@ class CotizacionController extends Controller
         }
 
         $cotizacion->load('items');
-        $clientes = Cliente::where('estado', 'activo')->orderBy('nombre')->get();
+        $clientes = Cliente::where('estado', 'activo')->orderBy('nombre_completo')->get();
         $recetas = Receta::where('estado', 'activo')->orderBy('nombre')->get();
         $productos = Producto::where('estado', 'activo')->orderBy('nombre')->get();
 

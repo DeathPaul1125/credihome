@@ -70,6 +70,14 @@ class Cliente extends Model
     }
 
     /**
+     * Relación con los archivos del cliente
+     */
+    public function archivos(): HasMany
+    {
+        return $this->hasMany(ClienteArchivo::class);
+    }
+
+    /**
      * Scope para clientes activos
      */
     public function scopeActivos($query)

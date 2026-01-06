@@ -15,6 +15,8 @@ Route::middleware([
 
     // Rutas de Clientes
     Route::resource('clientes', \App\Http\Controllers\ClienteController::class);
+    Route::post('clientes/{cliente}/archivos', [\App\Http\Controllers\ClienteController::class, 'subirArchivo'])->name('clientes.archivos.store');
+    Route::delete('clientes/{cliente}/archivos/{archivo}', [\App\Http\Controllers\ClienteController::class, 'eliminarArchivo'])->name('clientes.archivos.destroy');
 
     // Rutas de Aportadores
     Route::get('aportadores/dashboard', [\App\Http\Controllers\AportadorController::class, 'dashboard'])->name('aportadores.dashboard');

@@ -46,7 +46,7 @@ class RecetaController extends Controller
     public function create()
     {
         $productos = Producto::where('estado', 'activo')->orderBy('nombre')->get();
-        $clientes = Cliente::where('estado', 'activo')->orderBy('nombre')->get();
+        $clientes = Cliente::where('estado', 'activo')->orderBy('nombre_completo')->get();
 
         return view('recetas.create', compact('productos', 'clientes'));
     }
@@ -120,7 +120,7 @@ class RecetaController extends Controller
     {
         $receta->load('items');
         $productos = Producto::where('estado', 'activo')->orderBy('nombre')->get();
-        $clientes = Cliente::where('estado', 'activo')->orderBy('nombre')->get();
+        $clientes = Cliente::where('estado', 'activo')->orderBy('nombre_completo')->get();
 
         return view('recetas.edit', compact('receta', 'productos', 'clientes'));
     }

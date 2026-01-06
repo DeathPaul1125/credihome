@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\Cliente;
+use App\Models\ClienteArchivo;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 
 class ClienteController extends Controller
 {
@@ -88,7 +90,7 @@ class ClienteController extends Controller
      */
     public function show(Cliente $cliente)
     {
-        $cliente->load(['prestamos.pagos', 'usuario']);
+        $cliente->load(['prestamos.pagos', 'usuario', 'archivos.usuario']);
 
         return view('clientes.show-flowbite', compact('cliente'));
     }
@@ -153,5 +155,58 @@ class ClienteController extends Controller
 
         return redirect()->route('clientes.index')
             ->with('success', 'Cliente eliminado exitosamente.');
+    }
+
+    /**
+     * Subir archivo para el cliente
+     */
+    public function subirArchivo(Request $request, Cliente $cliente)
+    {
+        $request->validate([
+            'archivo' => 'required|file|max:10240|mimes:pdf,doc,docx,jpg,jpeg,png,gif',
+            'descripcion' => 'nullable|string|max:255',
+        ]);
+
+        if ($request->hasFile('archivo')) {
+            $file = $request->file('archivo');
+            $nombreOriginal = $file->getClientOriginalName();
+            $extension = $file->getClientOriginalExtension();
+            $nombreArchivo = time() . '_' . uniqid() . '.' . $extension;
+            $ruta = $file->storeAs('clientes/' . $cliente->id, $nombreArchivo, 'public');
+
+            $cliente->archivos()->create([
+                'user_id' => Auth::id(),
+                'nombre_original' => $nombreOriginal,
+                'nombre_archivo' => $nombreArchivo,
+                'ruta' => $ruta,
+                'mime_type' => $file->getMimeType(),
+                'tamano' => $file->getSize(),
+                'extension' => $extension,
+                'descripcion' => $request->descripcion,
+            ]);
+
+            return back()->with('success', 'Archivo subido exitosamente.');
+        }
+
+        return back()->with('error', 'Error al subir el archivo.');
+    }
+
+    /**
+     * Eliminar archivo del cliente
+     */
+    public function eliminarArchivo(Cliente $cliente, ClienteArchivo $archivo)
+    {
+        // Verificar que el archivo pertenece al cliente
+        if ($archivo->cliente_id !== $cliente->id) {
+            abort(403);
+        }
+
+        // Eliminar archivo del storage
+        Storage::disk('public')->delete($archivo->ruta);
+
+        // Eliminar registro de la base de datos
+        $archivo->delete();
+
+        return back()->with('success', 'Archivo eliminado exitosamente.');
     }
 }

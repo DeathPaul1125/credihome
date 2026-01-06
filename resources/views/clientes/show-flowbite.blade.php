@@ -25,244 +25,409 @@
     </div>
     @endif
 
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-4">
-        <!-- Información Personal -->
-        <div class="lg:col-span-2 bg-white dark:bg-gray-800 rounded-lg shadow">
-            <div class="p-6 border-b border-gray-200 dark:border-gray-700">
-                <h2 class="text-xl font-semibold text-gray-900 dark:text-white">Información Personal</h2>
-            </div>
-            <div class="p-6">
-                <dl class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Nombre Completo</dt>
-                        <dd class="mt-1 text-sm text-gray-900 dark:text-white">{{ $cliente->nombre_completo }}</dd>
+    @if(session('error'))
+    <div class="flex items-center p-4 mb-4 text-sm text-red-800 border border-red-300 rounded-lg bg-red-50 dark:bg-gray-800 dark:text-red-400 dark:border-red-800" role="alert">
+        <svg class="flex-shrink-0 inline w-4 h-4 me-3" fill="currentColor" viewBox="0 0 20 20">
+            <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z"/>
+        </svg>
+        <div>{{ session('error') }}</div>
+    </div>
+    @endif
+
+    <!-- Pestañas -->
+    <div class="mb-4 border-b border-gray-200 dark:border-gray-700">
+        <ul class="flex flex-wrap -mb-px text-sm font-medium text-center" id="default-tab" data-tabs-toggle="#default-tab-content" role="tablist">
+            <li class="me-2" role="presentation">
+                <button class="inline-block p-4 border-b-2 rounded-t-lg border-blue-600 text-white bg-blue-600 hover:text-white hover:border-blue-600 dark:text-white dark:border-blue-500 dark:bg-blue-500" id="informacion-tab" data-tabs-target="#informacion" type="button" role="tab" aria-controls="informacion" aria-selected="true">Información General</button>
+            </li>
+            <li class="me-2" role="presentation">
+                <button class="inline-block p-4 border-b-2 rounded-t-lg text-white bg-gray-600 hover:text-white hover:bg-gray-700 dark:text-white dark:bg-gray-700 dark:hover:bg-gray-600" id="prestamos-tab" data-tabs-target="#prestamos" type="button" role="tab" aria-controls="prestamos" aria-selected="false">Préstamos</button>
+            </li>
+            <li class="me-2" role="presentation">
+                <button class="inline-block p-4 border-b-2 rounded-t-lg text-white bg-gray-600 hover:text-white hover:bg-gray-700 dark:text-white dark:bg-gray-700 dark:hover:bg-gray-600" id="archivos-tab" data-tabs-target="#archivos" type="button" role="tab" aria-controls="archivos" aria-selected="false">Archivos</button>
+            </li>
+        </ul>
+    </div>
+
+    <div id="default-tab-content">
+        <!-- Información General -->
+        <div class="p-4 rounded-lg bg-gray-50 dark:bg-gray-800" id="informacion" role="tabpanel" aria-labelledby="informacion-tab">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                <!-- Información Personal -->
+                <div class="lg:col-span-2 bg-white dark:bg-gray-800 rounded-lg shadow">
+                    <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+                        <h2 class="text-xl font-semibold text-gray-900 dark:text-white">Información Personal</h2>
                     </div>
-                    <div>
-                        <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">DPI</dt>
-                        <dd class="mt-1 text-sm text-gray-900 dark:text-white">{{ $cliente->dpi }}</dd>
+                    <div class="p-6">
+                        <dl class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Nombre Completo</dt>
+                                <dd class="mt-1 text-sm text-gray-900 dark:text-white">{{ $cliente->nombre_completo }}</dd>
+                            </div>
+                            <div>
+                                <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">DPI</dt>
+                                <dd class="mt-1 text-sm text-gray-900 dark:text-white">{{ $cliente->dpi }}</dd>
+                            </div>
+                            <div>
+                                <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Fecha de Nacimiento</dt>
+                                <dd class="mt-1 text-sm text-gray-900 dark:text-white">{{ $cliente->fecha_nacimiento ? $cliente->fecha_nacimiento->format('d/m/Y') : 'N/A' }}</dd>
+                            </div>
+                            <div>
+                                <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Género</dt>
+                                <dd class="mt-1 text-sm text-gray-900 dark:text-white">{{ ucfirst($cliente->genero ?? 'N/A') }}</dd>
+                            </div>
+                            <div>
+                                <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Estado Civil</dt>
+                                <dd class="mt-1 text-sm text-gray-900 dark:text-white">{{ ucfirst(str_replace('_', ' ', $cliente->estado_civil ?? 'N/A')) }}</dd>
+                            </div>
+                            <div>
+                                <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Teléfono</dt>
+                                <dd class="mt-1 text-sm text-gray-900 dark:text-white">{{ $cliente->telefono }}</dd>
+                            </div>
+                            <div>
+                                <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Email</dt>
+                                <dd class="mt-1 text-sm text-gray-900 dark:text-white">{{ $cliente->email ?? 'N/A' }}</dd>
+                            </div>
+                            <div>
+                                <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Estado</dt>
+                                <dd class="mt-1 text-sm text-gray-900 dark:text-white">
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $cliente->estado === 'activo' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300' : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300' }}">
+                                        {{ ucfirst($cliente->estado) }}
+                                    </span>
+                                </dd>
+                            </div>
+                        </dl>
                     </div>
-                    <div>
-                        <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Fecha de Nacimiento</dt>
-                        <dd class="mt-1 text-sm text-gray-900 dark:text-white">{{ $cliente->fecha_nacimiento ? $cliente->fecha_nacimiento->format('d/m/Y') : 'N/A' }}</dd>
+                </div>
+
+                <!-- Información Adicional -->
+                <div class="space-y-4">
+                    <!-- Dirección -->
+                    <div class="bg-white dark:bg-gray-800 rounded-lg shadow">
+                        <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+                            <h2 class="text-xl font-semibold text-gray-900 dark:text-white">Dirección</h2>
+                        </div>
+                        <div class="p-6">
+                            <p class="text-sm text-gray-900 dark:text-white">{{ $cliente->direccion_completa }}</p>
+                            <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">
+                                {{ $cliente->departamento }}, {{ $cliente->municipio }}
+                                @if($cliente->zona)
+                                    - Zona {{ $cliente->zona }}
+                                @endif
+                            </p>
+                        </div>
                     </div>
-                    <div>
-                        <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Género</dt>
-                        <dd class="mt-1 text-sm text-gray-900 dark:text-white">{{ ucfirst($cliente->genero ?? 'N/A') }}</dd>
+
+                    <!-- Información Laboral -->
+                    @if($cliente->profesion || $cliente->lugar_trabajo || $cliente->ingreso_mensual)
+                    <div class="bg-white dark:bg-gray-800 rounded-lg shadow">
+                        <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+                            <h2 class="text-xl font-semibold text-gray-900 dark:text-white">Información Laboral</h2>
+                        </div>
+                        <div class="p-6">
+                            <dl class="space-y-2">
+                                @if($cliente->profesion)
+                                <div>
+                                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Profesión</dt>
+                                    <dd class="mt-1 text-sm text-gray-900 dark:text-white">{{ $cliente->profesion }}</dd>
+                                </div>
+                                @endif
+                                @if($cliente->lugar_trabajo)
+                                <div>
+                                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Lugar de Trabajo</dt>
+                                    <dd class="mt-1 text-sm text-gray-900 dark:text-white">{{ $cliente->lugar_trabajo }}</dd>
+                                </div>
+                                @endif
+                                @if($cliente->puesto_trabajo)
+                                <div>
+                                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Puesto</dt>
+                                    <dd class="mt-1 text-sm text-gray-900 dark:text-white">{{ $cliente->puesto_trabajo }}</dd>
+                                </div>
+                                @endif
+                                @if($cliente->ingreso_mensual)
+                                <div>
+                                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Ingreso Mensual</dt>
+                                    <dd class="mt-1 text-sm text-gray-900 dark:text-white">Q{{ number_format($cliente->ingreso_mensual, 2) }}</dd>
+                                </div>
+                                @endif
+                            </dl>
+                        </div>
                     </div>
-                    <div>
-                        <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Estado Civil</dt>
-                        <dd class="mt-1 text-sm text-gray-900 dark:text-white">{{ ucfirst(str_replace('_', ' ', $cliente->estado_civil ?? 'N/A')) }}</dd>
-                    </div>
-                    <div>
-                        <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Estado</dt>
-                        <dd class="mt-1">
-                            @if($cliente->estado == 'activo')
-                            <span class="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded dark:bg-green-900 dark:text-green-300">Activo</span>
-                            @else
-                            <span class="bg-red-100 text-red-800 text-xs font-medium px-2.5 py-0.5 rounded dark:bg-red-900 dark:text-red-300">Inactivo</span>
+                    @endif
+
+                    <!-- Referencias -->
+                    @if($cliente->referencia_nombre_1 || $cliente->referencia_nombre_2)
+                    <div class="bg-white dark:bg-gray-800 rounded-lg shadow">
+                        <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+                            <h2 class="text-xl font-semibold text-gray-900 dark:text-white">Referencias</h2>
+                        </div>
+                        <div class="p-6">
+                            @if($cliente->referencia_nombre_1)
+                            <div class="mb-4">
+                                <h3 class="text-sm font-medium text-gray-900 dark:text-white">Referencia 1</h3>
+                                <p class="text-sm text-gray-600 dark:text-gray-400">{{ $cliente->referencia_nombre_1 }}</p>
+                                @if($cliente->referencia_telefono_1)
+                                <p class="text-sm text-gray-600 dark:text-gray-400">{{ $cliente->referencia_telefono_1 }}</p>
+                                @endif
+                                @if($cliente->referencia_parentesco_1)
+                                <p class="text-sm text-gray-600 dark:text-gray-400">{{ $cliente->referencia_parentesco_1 }}</p>
+                                @endif
+                            </div>
                             @endif
-                        </dd>
+                            @if($cliente->referencia_nombre_2)
+                            <div>
+                                <h3 class="text-sm font-medium text-gray-900 dark:text-white">Referencia 2</h3>
+                                <p class="text-sm text-gray-600 dark:text-gray-400">{{ $cliente->referencia_nombre_2 }}</p>
+                                @if($cliente->referencia_telefono_2)
+                                <p class="text-sm text-gray-600 dark:text-gray-400">{{ $cliente->referencia_telefono_2 }}</p>
+                                @endif
+                                @if($cliente->referencia_parentesco_2)
+                                <p class="text-sm text-gray-600 dark:text-gray-400">{{ $cliente->referencia_parentesco_2 }}</p>
+                                @endif
+                            </div>
+                            @endif
+                        </div>
                     </div>
-                </dl>
-            </div>
-        </div>
-
-        <!-- Resumen -->
-        <div class="bg-white dark:bg-gray-800 rounded-lg shadow">
-            <div class="p-6 border-b border-gray-200 dark:border-gray-700">
-                <h2 class="text-xl font-semibold text-gray-900 dark:text-white">Resumen</h2>
-            </div>
-            <div class="p-6 space-y-4">
-                <div>
-                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Total Préstamos</dt>
-                    <dd class="mt-1 text-2xl font-bold text-gray-900 dark:text-white">{{ $cliente->prestamos->count() }}</dd>
-                </div>
-                <div>
-                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Préstamos Activos</dt>
-                    <dd class="mt-1 text-2xl font-bold text-green-600 dark:text-green-400">{{ $cliente->prestamos->whereIn('estado', ['activo', 'en_mora'])->count() }}</dd>
-                </div>
-                <div>
-                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Deuda Total</dt>
-                    <dd class="mt-1 text-2xl font-bold text-blue-600 dark:text-blue-400">Q{{ number_format($cliente->prestamos->whereIn('estado', ['activo', 'en_mora'])->sum('saldo_pendiente'), 2) }}</dd>
+                    @endif
                 </div>
             </div>
-        </div>
-    </div>
 
-    <!-- Contacto -->
-    <div class="bg-white dark:bg-gray-800 rounded-lg shadow mb-4">
-        <div class="p-6 border-b border-gray-200 dark:border-gray-700">
-            <h2 class="text-xl font-semibold text-gray-900 dark:text-white">Información de Contacto</h2>
+            @if($cliente->notas)
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow mt-4">
+                <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+                    <h2 class="text-xl font-semibold text-gray-900 dark:text-white">Notas</h2>
+                </div>
+                <div class="p-6">
+                    <p class="text-sm text-gray-900 dark:text-white">{{ $cliente->notas }}</p>
+                </div>
+            </div>
+            @endif
         </div>
-        <div class="p-6">
-            <dl class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div>
-                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Teléfono</dt>
-                    <dd class="mt-1 text-sm text-gray-900 dark:text-white">{{ $cliente->telefono }}</dd>
-                </div>
-                <div>
-                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Teléfono Alternativo</dt>
-                    <dd class="mt-1 text-sm text-gray-900 dark:text-white">{{ $cliente->telefono_alternativo ?? 'N/A' }}</dd>
-                </div>
-                <div>
-                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Email</dt>
-                    <dd class="mt-1 text-sm text-gray-900 dark:text-white">{{ $cliente->email ?? 'N/A' }}</dd>
-                </div>
-                <div class="md:col-span-3">
-                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Dirección</dt>
-                    <dd class="mt-1 text-sm text-gray-900 dark:text-white">{{ $cliente->direccion_completa }}</dd>
-                </div>
-                <div>
-                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Departamento</dt>
-                    <dd class="mt-1 text-sm text-gray-900 dark:text-white">{{ $cliente->departamento }}</dd>
-                </div>
-                <div>
-                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Municipio</dt>
-                    <dd class="mt-1 text-sm text-gray-900 dark:text-white">{{ $cliente->municipio }}</dd>
-                </div>
-                <div>
-                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Zona</dt>
-                    <dd class="mt-1 text-sm text-gray-900 dark:text-white">{{ $cliente->zona ?? 'N/A' }}</dd>
-                </div>
-            </dl>
-        </div>
-    </div>
 
-    <!-- Información Laboral -->
-    <div class="bg-white dark:bg-gray-800 rounded-lg shadow mb-4">
-        <div class="p-6 border-b border-gray-200 dark:border-gray-700">
-            <h2 class="text-xl font-semibold text-gray-900 dark:text-white">Información Laboral</h2>
+        <!-- Préstamos -->
+        <div class="hidden p-4 rounded-lg bg-gray-50 dark:bg-gray-800" id="prestamos" role="tabpanel" aria-labelledby="prestamos-tab">
+            @if($cliente->prestamos->count() > 0)
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow">
+                <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+                    <h2 class="text-xl font-semibold text-gray-900 dark:text-white">Historial de Préstamos</h2>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
+                        <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+                            <tr>
+                                <th scope="col" class="px-6 py-3">N° Préstamo</th>
+                                <th scope="col" class="px-6 py-3">Monto</th>
+                                <th scope="col" class="px-6 py-3">Saldo</th>
+                                <th scope="col" class="px-6 py-3">Estado</th>
+                                <th scope="col" class="px-6 py-3">Fecha</th>
+                                <th scope="col" class="px-6 py-3">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($cliente->prestamos as $prestamo)
+                            <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
+                                <td class="px-6 py-4 font-medium text-gray-900 dark:text-white">{{ $prestamo->numero_prestamo }}</td>
+                                <td class="px-6 py-4">Q{{ number_format($prestamo->monto_prestado, 2) }}</td>
+                                <td class="px-6 py-4">Q{{ number_format($prestamo->saldo_pendiente, 2) }}</td>
+                                <td class="px-6 py-4">
+                                    @php
+                                        $colors = [
+                                            'activo' => 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300',
+                                            'en_mora' => 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300',
+                                            'completado' => 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300',
+                                            'cancelado' => 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300',
+                                        ];
+                                    @endphp
+                                    <span class="text-xs font-medium px-2.5 py-0.5 rounded {{ $colors[$prestamo->estado] ?? '' }}">
+                                        {{ ucfirst(str_replace('_', ' ', $prestamo->estado)) }}
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4">{{ $prestamo->fecha_desembolso->format('d/m/Y') }}</td>
+                                <td class="px-6 py-4">
+                                    <a href="{{ route('prestamos.show', $prestamo->id) }}" class="font-medium text-blue-600 dark:text-blue-500 hover:underline">Ver</a>
+                                </td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            @else
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+                <p class="text-gray-500 dark:text-gray-400 text-center">Este cliente no tiene préstamos registrados.</p>
+            </div>
+            @endif
         </div>
-        <div class="p-6">
-            <dl class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Profesión</dt>
-                    <dd class="mt-1 text-sm text-gray-900 dark:text-white">{{ $cliente->profesion ?? 'N/A' }}</dd>
-                </div>
-                <div>
-                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Lugar de Trabajo</dt>
-                    <dd class="mt-1 text-sm text-gray-900 dark:text-white">{{ $cliente->lugar_trabajo ?? 'N/A' }}</dd>
-                </div>
-                <div>
-                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Puesto</dt>
-                    <dd class="mt-1 text-sm text-gray-900 dark:text-white">{{ $cliente->puesto_trabajo ?? 'N/A' }}</dd>
-                </div>
-                <div>
-                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Ingreso Mensual</dt>
-                    <dd class="mt-1 text-sm text-gray-900 dark:text-white">{{ $cliente->ingreso_mensual ? 'Q' . number_format($cliente->ingreso_mensual, 2) : 'N/A' }}</dd>
-                </div>
-            </dl>
-        </div>
-    </div>
 
-    <!-- Referencias -->
-    @if($cliente->referencia_nombre_1 || $cliente->referencia_nombre_2)
-    <div class="bg-white dark:bg-gray-800 rounded-lg shadow mb-4">
-        <div class="p-6 border-b border-gray-200 dark:border-gray-700">
-            <h2 class="text-xl font-semibold text-gray-900 dark:text-white">Referencias</h2>
-        </div>
-        <div class="p-6">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                @if($cliente->referencia_nombre_1)
-                <div>
-                    <h3 class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Referencia 1</h3>
-                    <dl class="space-y-2">
-                        <div>
-                            <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Nombre</dt>
-                            <dd class="text-sm text-gray-900 dark:text-white">{{ $cliente->referencia_nombre_1 }}</dd>
+        <!-- Archivos -->
+        <div class="hidden p-4 rounded-lg bg-gray-50 dark:bg-gray-800" id="archivos" role="tabpanel" aria-labelledby="archivos-tab">
+            <div class="space-y-4">
+                <!-- Formulario para subir archivos -->
+                <div class="bg-white dark:bg-gray-800 rounded-lg shadow">
+                    <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+                        <h2 class="text-xl font-semibold text-gray-900 dark:text-white">Subir Archivo</h2>
+                    </div>
+                    <div class="p-6">
+                        <form action="{{ route('clientes.archivos.store', $cliente) }}" method="POST" enctype="multipart/form-data">
+                            @csrf
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label for="archivo" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Archivo <span class="text-red-500">*</span></label>
+                                    <input type="file" id="archivo" name="archivo" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.gif" required
+                                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                                    <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Formatos permitidos: PDF, DOC, DOCX, JPG, JPEG, PNG, GIF. Máximo 10MB.</p>
+                                </div>
+                                <div>
+                                    <label for="descripcion" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Descripción</label>
+                                    <input type="text" id="descripcion" name="descripcion" maxlength="255"
+                                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                                        placeholder="Descripción opcional del archivo">
+                                </div>
+                            </div>
+                            <div class="mt-4">
+                                <button type="submit" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
+                                    Subir Archivo
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Lista de archivos -->
+                @if($cliente->archivos->count() > 0)
+                <div class="bg-white dark:bg-gray-800 rounded-lg shadow">
+                    <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+                        <h2 class="text-xl font-semibold text-gray-900 dark:text-white">Archivos Subidos ({{ $cliente->archivos->count() }})</h2>
+                    </div>
+                    <div class="p-6">
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            @foreach($cliente->archivos as $archivo)
+                            <div class="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+                                <div class="flex items-start justify-between mb-2">
+                                    <div class="flex-1 min-w-0">
+                                        <h3 class="text-sm font-medium text-gray-900 dark:text-white truncate" title="{{ $archivo->nombre_original }}">
+                                            {{ $archivo->nombre_original }}
+                                        </h3>
+                                        @if($archivo->descripcion)
+                                        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">{{ $archivo->descripcion }}</p>
+                                        @endif
+                                        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                                            {{ $archivo->tamano_formateado }} • {{ strtoupper($archivo->extension) }}
+                                        </p>
+                                        <p class="text-xs text-gray-500 dark:text-gray-400">
+                                            Subido por {{ $archivo->usuario->name }} el {{ $archivo->created_at->format('d/m/Y H:i') }}
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <!-- Vista previa -->
+                                <div class="mt-3 mb-3">
+                                    @if($archivo->es_imagen)
+                                    <div class="relative">
+                                        <img src="{{ $archivo->url }}" alt="{{ $archivo->nombre_original }}" class="w-full h-32 object-cover rounded border">
+                                        <div class="absolute inset-0 bg-black bg-opacity-0 hover:bg-opacity-20 transition-opacity rounded flex items-center justify-center">
+                                            <a href="{{ $archivo->url }}" target="_blank" class="opacity-0 hover:opacity-100 text-white font-medium text-sm bg-blue-600 px-3 py-1 rounded">
+                                                Ver completo
+                                            </a>
+                                        </div>
+                                    </div>
+                                    @elseif($archivo->es_pdf)
+                                    <div class="w-full h-32 bg-gray-100 dark:bg-gray-700 rounded border flex items-center justify-center">
+                                        <div class="text-center">
+                                            <svg class="w-12 h-12 text-red-500 mx-auto mb-2" fill="currentColor" viewBox="0 0 20 20">
+                                                <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                            </svg>
+                                            <p class="text-sm text-gray-600 dark:text-gray-400">PDF</p>
+                                        </div>
+                                    </div>
+                                    @else
+                                    <div class="w-full h-32 bg-gray-100 dark:bg-gray-700 rounded border flex items-center justify-center">
+                                        <div class="text-center">
+                                            <svg class="w-12 h-12 text-blue-500 mx-auto mb-2" fill="currentColor" viewBox="0 0 20 20">
+                                                <path d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm0 2h12v10H4V5z"/>
+                                            </svg>
+                                            <p class="text-sm text-gray-600 dark:text-gray-400">{{ strtoupper($archivo->extension) }}</p>
+                                        </div>
+                                    </div>
+                                    @endif
+                                </div>
+
+                                <!-- Acciones -->
+                                <div class="flex space-x-2">
+                                    <a href="{{ $archivo->url }}" target="_blank" class="flex-1 text-center text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-xs px-3 py-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
+                                        Ver
+                                    </a>
+                                    <form action="{{ route('clientes.archivos.destroy', [$cliente, $archivo]) }}" method="POST" class="flex-1" onsubmit="return confirm('¿Estás seguro de que deseas eliminar este archivo?')">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="w-full text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-xs px-3 py-2 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-800">
+                                            Eliminar
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                            @endforeach
                         </div>
-                        <div>
-                            <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Teléfono</dt>
-                            <dd class="text-sm text-gray-900 dark:text-white">{{ $cliente->referencia_telefono_1 ?? 'N/A' }}</dd>
-                        </div>
-                        <div>
-                            <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Parentesco</dt>
-                            <dd class="text-sm text-gray-900 dark:text-white">{{ $cliente->referencia_parentesco_1 ?? 'N/A' }}</dd>
-                        </div>
-                    </dl>
+                    </div>
+                </div>
+                @else
+                <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+                    <div class="text-center">
+                        <svg class="w-16 h-16 text-gray-400 mx-auto mb-4" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm0 2h12v10H4V5z"/>
+                        </svg>
+                        <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">No hay archivos</h3>
+                        <p class="text-gray-500 dark:text-gray-400">Aún no se han subido archivos para este cliente.</p>
+                    </div>
                 </div>
                 @endif
-                @if($cliente->referencia_nombre_2)
-                <div>
-                    <h3 class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Referencia 2</h3>
-                    <dl class="space-y-2">
-                        <div>
-                            <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Nombre</dt>
-                            <dd class="text-sm text-gray-900 dark:text-white">{{ $cliente->referencia_nombre_2 }}</dd>
-                        </div>
-                        <div>
-                            <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Teléfono</dt>
-                            <dd class="text-sm text-gray-900 dark:text-white">{{ $cliente->referencia_telefono_2 ?? 'N/A' }}</dd>
-                        </div>
-                        <div>
-                            <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Parentesco</dt>
-                            <dd class="text-sm text-gray-900 dark:text-white">{{ $cliente->referencia_parentesco_2 ?? 'N/A' }}</dd>
-                        </div>
-                    </dl>
-                </div>
-                @endif
             </div>
         </div>
     </div>
-    @endif
-
-    <!-- Préstamos -->
-    @if($cliente->prestamos->count() > 0)
-    <div class="bg-white dark:bg-gray-800 rounded-lg shadow">
-        <div class="p-6 border-b border-gray-200 dark:border-gray-700">
-            <h2 class="text-xl font-semibold text-gray-900 dark:text-white">Historial de Préstamos</h2>
-        </div>
-        <div class="overflow-x-auto">
-            <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
-                <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
-                    <tr>
-                        <th scope="col" class="px-6 py-3">N° Préstamo</th>
-                        <th scope="col" class="px-6 py-3">Monto</th>
-                        <th scope="col" class="px-6 py-3">Saldo</th>
-                        <th scope="col" class="px-6 py-3">Estado</th>
-                        <th scope="col" class="px-6 py-3">Fecha</th>
-                        <th scope="col" class="px-6 py-3">Acciones</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach($cliente->prestamos as $prestamo)
-                    <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
-                        <td class="px-6 py-4 font-medium text-gray-900 dark:text-white">{{ $prestamo->numero_prestamo }}</td>
-                        <td class="px-6 py-4">Q{{ number_format($prestamo->monto_prestado, 2) }}</td>
-                        <td class="px-6 py-4">Q{{ number_format($prestamo->saldo_pendiente, 2) }}</td>
-                        <td class="px-6 py-4">
-                            @php
-                                $colors = [
-                                    'activo' => 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300',
-                                    'en_mora' => 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300',
-                                    'completado' => 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300',
-                                    'cancelado' => 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300',
-                                ];
-                            @endphp
-                            <span class="text-xs font-medium px-2.5 py-0.5 rounded {{ $colors[$prestamo->estado] ?? '' }}">
-                                {{ ucfirst(str_replace('_', ' ', $prestamo->estado)) }}
-                            </span>
-                        </td>
-                        <td class="px-6 py-4">{{ $prestamo->fecha_desembolso->format('d/m/Y') }}</td>
-                        <td class="px-6 py-4">
-                            <a href="{{ route('prestamos.show', $prestamo->id) }}" class="font-medium text-blue-600 dark:text-blue-500 hover:underline">Ver</a>
-                        </td>
-                    </tr>
-                    @endforeach
-                </tbody>
-            </table>
-        </div>
-    </div>
-    @endif
-
-    @if($cliente->notas)
-    <div class="bg-white dark:bg-gray-800 rounded-lg shadow mt-4">
-        <div class="p-6 border-b border-gray-200 dark:border-gray-700">
-            <h2 class="text-xl font-semibold text-gray-900 dark:text-white">Notas</h2>
-        </div>
-        <div class="p-6">
-            <p class="text-sm text-gray-900 dark:text-white">{{ $cliente->notas }}</p>
-        </div>
-    </div>
-    @endif
 </x-flowbite-layout>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Inicializar pestañas manualmente
+    const tabs = document.querySelectorAll('[data-tabs-target]');
+    const tabContents = document.querySelectorAll('[role="tabpanel"]');
+
+    // Función para mostrar una pestaña
+    function showTab(targetId) {
+        // Ocultar todos los contenidos
+        tabContents.forEach(content => {
+            content.classList.add('hidden');
+        });
+
+        // Resetear todas las pestañas a estado inactivo
+        tabs.forEach(tab => {
+            tab.classList.remove('border-blue-600', 'text-white', 'bg-blue-600', 'dark:text-white', 'dark:border-blue-500', 'dark:bg-blue-500');
+            tab.classList.add('text-white', 'bg-gray-600', 'hover:bg-gray-700', 'dark:text-white', 'dark:bg-gray-700', 'dark:hover:bg-gray-600');
+        });
+
+        // Mostrar el contenido seleccionado
+        const targetContent = document.querySelector(targetId);
+        if (targetContent) {
+            targetContent.classList.remove('hidden');
+        }
+
+        // Activar el botón seleccionado
+        const activeTab = document.querySelector(`[data-tabs-target="${targetId}"]`);
+        if (activeTab) {
+            activeTab.classList.remove('text-white', 'bg-gray-600', 'hover:bg-gray-700', 'dark:text-white', 'dark:bg-gray-700', 'dark:hover:bg-gray-600');
+            activeTab.classList.add('border-blue-600', 'text-white', 'bg-blue-600', 'hover:text-white', 'hover:border-blue-600', 'dark:text-white', 'dark:border-blue-500', 'dark:bg-blue-500');
+        }
+    }
+
+    // Agregar event listeners a los botones
+    tabs.forEach(tab => {
+        tab.addEventListener('click', function() {
+            const target = this.getAttribute('data-tabs-target');
+            showTab(target);
+        });
+    });
+
+    // Mostrar la primera pestaña por defecto
+    showTab('#informacion');
+});
+</script>

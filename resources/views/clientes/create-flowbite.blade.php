@@ -108,21 +108,39 @@
 
                     <!-- Fecha de Nacimiento -->
                     <div>
-                        <label for="fecha_nacimiento" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Fecha de Nacimiento</label>
-                        <input type="date" id="fecha_nacimiento" name="fecha_nacimiento" value="{{ old('fecha_nacimiento') }}" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 @error('fecha_nacimiento') border-red-500 @enderror">
+                        <label for="fecha_nacimiento" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Fecha de Nacimiento <span class="text-red-500">*</span></label>
+                        <input type="date" id="fecha_nacimiento" name="fecha_nacimiento" value="{{ old('fecha_nacimiento') }}" required class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 @error('fecha_nacimiento') border-red-500 @enderror">
                         @error('fecha_nacimiento')
                         <p class="mt-2 text-sm text-red-600 dark:text-red-500">{{ $message }}</p>
                         @enderror
                     </div>
 
-                    <!-- Estado -->
+                    <!-- Género -->
                     <div>
-                        <label for="estado" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Estado <span class="text-red-500">*</span></label>
-                        <select id="estado" name="estado" required class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 @error('estado') border-red-500 @enderror">
-                            <option value="activo" {{ old('estado', 'activo') == 'activo' ? 'selected' : '' }}>Activo</option>
-                            <option value="inactivo" {{ old('estado') == 'inactivo' ? 'selected' : '' }}>Inactivo</option>
+                        <label for="genero" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Género <span class="text-red-500">*</span></label>
+                        <select id="genero" name="genero" required class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 @error('genero') border-red-500 @enderror">
+                            <option value="">Seleccionar...</option>
+                            <option value="masculino" {{ old('genero') == 'masculino' ? 'selected' : '' }}>Masculino</option>
+                            <option value="femenino" {{ old('genero') == 'femenino' ? 'selected' : '' }}>Femenino</option>
+                            <option value="otro" {{ old('genero') == 'otro' ? 'selected' : '' }}>Otro</option>
                         </select>
-                        @error('estado')
+                        @error('genero')
+                        <p class="mt-2 text-sm text-red-600 dark:text-red-500">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <!-- Estado Civil -->
+                    <div>
+                        <label for="estado_civil" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Estado Civil <span class="text-red-500">*</span></label>
+                        <select id="estado_civil" name="estado_civil" required class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 @error('estado_civil') border-red-500 @enderror">
+                            <option value="">Seleccionar...</option>
+                            <option value="soltero" {{ old('estado_civil') == 'soltero' ? 'selected' : '' }}>Soltero</option>
+                            <option value="casado" {{ old('estado_civil') == 'casado' ? 'selected' : '' }}>Casado</option>
+                            <option value="union_libre" {{ old('estado_civil') == 'union_libre' ? 'selected' : '' }}>Unión Libre</option>
+                            <option value="divorciado" {{ old('estado_civil') == 'divorciado' ? 'selected' : '' }}>Divorciado</option>
+                            <option value="viudo" {{ old('estado_civil') == 'viudo' ? 'selected' : '' }}>Viudo</option>
+                        </select>
+                        @error('estado_civil')
                         <p class="mt-2 text-sm text-red-600 dark:text-red-500">{{ $message }}</p>
                         @enderror
                     </div>
