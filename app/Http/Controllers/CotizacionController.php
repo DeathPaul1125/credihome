@@ -96,9 +96,9 @@ class CotizacionController extends Controller
                 CotizacionItem::create([
                     'cotizacion_id' => $cotizacion->id,
                     'producto_id' => $item['producto_id'],
-                    'descripcion' => $producto->nombre,
+                    'descripcion' => $item['descripcion'] ?? $producto->nombre,
                     'cantidad' => $item['cantidad'],
-                    'unidad' => $producto->unidad,
+                    'unidad' => $producto->unidad_medida,
                     'precio_unitario' => $item['precio_unitario'],
                     'subtotal' => $item['cantidad'] * $item['precio_unitario'],
                 ]);
@@ -181,9 +181,9 @@ class CotizacionController extends Controller
                 CotizacionItem::create([
                     'cotizacion_id' => $cotizacion->id,
                     'producto_id' => $item['producto_id'],
-                    'descripcion' => $producto->nombre,
+                    'descripcion' => $item['descripcion'] ?? $producto->nombre,
                     'cantidad' => $item['cantidad'],
-                    'unidad' => $producto->unidad,
+                    'unidad' => $producto->unidad_medida,
                     'precio_unitario' => $item['precio_unitario'],
                     'subtotal' => $item['cantidad'] * $item['precio_unitario'],
                 ]);

@@ -45,17 +45,30 @@
                     <!-- Tasa de Interés -->
                     <div>
                         <label for="tasa_interes" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Tasa de Interés (%) <span class="text-red-500">*</span></label>
-                        <input type="number" id="tasa_interes" name="tasa_interes" value="{{ old('tasa_interes') }}" step="0.01" min="0" max="100" required class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 @error('tasa_interes') border-red-500 @enderror" placeholder="15.00">
+                        <input type="number" id="tasa_interes" name="tasa_interes" value="{{ old('tasa_interes') }}" step="0.01" min="0" max="20" required class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 @error('tasa_interes') border-red-500 @enderror" placeholder="15.00">
                         @error('tasa_interes')
                         <p class="mt-2 text-sm text-red-600 dark:text-red-500">{{ $message }}</p>
                         @enderror
                     </div>
 
-                    <!-- Plazo en Meses -->
+                    <!-- Tipo de Interés -->
                     <div>
-                        <label for="plazo_meses" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Plazo (meses) <span class="text-red-500">*</span></label>
-                        <input type="number" id="plazo_meses" name="plazo_meses" value="{{ old('plazo_meses') }}" min="1" required class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 @error('plazo_meses') border-red-500 @enderror" placeholder="12">
-                        @error('plazo_meses')
+                        <label for="tipo_interes" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Tipo de Interés <span class="text-red-500">*</span></label>
+                        <select id="tipo_interes" name="tipo_interes" required class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 @error('tipo_interes') border-red-500 @enderror">
+                            <option value="">Seleccionar...</option>
+                            <option value="simple" {{ old('tipo_interes', 'simple') == 'simple' ? 'selected' : '' }}>Simple</option>
+                            <option value="compuesto" {{ old('tipo_interes') == 'compuesto' ? 'selected' : '' }}>Compuesto</option>
+                        </select>
+                        @error('tipo_interes')
+                        <p class="mt-2 text-sm text-red-600 dark:text-red-500">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <!-- Plazo -->
+                    <div>
+                        <label for="plazo" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Plazo <span class="text-red-500">*</span></label>
+                        <input type="number" id="plazo" name="plazo" value="{{ old('plazo') }}" min="1" max="60" required class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 @error('plazo') border-red-500 @enderror" placeholder="12">
+                        @error('plazo')
                         <p class="mt-2 text-sm text-red-600 dark:text-red-500">{{ $message }}</p>
                         @enderror
                     </div>
@@ -65,7 +78,6 @@
                         <label for="frecuencia_pago" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Frecuencia de Pago <span class="text-red-500">*</span></label>
                         <select id="frecuencia_pago" name="frecuencia_pago" required class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 @error('frecuencia_pago') border-red-500 @enderror">
                             <option value="">Seleccionar...</option>
-                            <option value="diaria" {{ old('frecuencia_pago') == 'diaria' ? 'selected' : '' }}>Diaria</option>
                             <option value="semanal" {{ old('frecuencia_pago') == 'semanal' ? 'selected' : '' }}>Semanal</option>
                             <option value="quincenal" {{ old('frecuencia_pago') == 'quincenal' ? 'selected' : '' }}>Quincenal</option>
                             <option value="mensual" {{ old('frecuencia_pago', 'mensual') == 'mensual' ? 'selected' : '' }}>Mensual</option>
@@ -80,6 +92,31 @@
                         <label for="fecha_desembolso" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Fecha de Desembolso <span class="text-red-500">*</span></label>
                         <input type="date" id="fecha_desembolso" name="fecha_desembolso" value="{{ old('fecha_desembolso', date('Y-m-d')) }}" required class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 @error('fecha_desembolso') border-red-500 @enderror">
                         @error('fecha_desembolso')
+                        <p class="mt-2 text-sm text-red-600 dark:text-red-500">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <!-- Tipo de Garantía -->
+                    <div>
+                        <label for="tipo_garantia" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Tipo de Garantía <span class="text-red-500">*</span></label>
+                        <select id="tipo_garantia" name="tipo_garantia" required class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 @error('tipo_garantia') border-red-500 @enderror">
+                            <option value="">Seleccionar...</option>
+                            <option value="ninguna" {{ old('tipo_garantia') == 'ninguna' ? 'selected' : '' }}>Ninguna</option>
+                            <option value="prenda" {{ old('tipo_garantia') == 'prenda' ? 'selected' : '' }}>Prenda</option>
+                            <option value="hipoteca" {{ old('tipo_garantia') == 'hipoteca' ? 'selected' : '' }}>Hipoteca</option>
+                            <option value="fiador" {{ old('tipo_garantia') == 'fiador' ? 'selected' : '' }}>Fiador</option>
+                            <option value="otro" {{ old('tipo_garantia') == 'otro' ? 'selected' : '' }}>Otro</option>
+                        </select>
+                        @error('tipo_garantia')
+                        <p class="mt-2 text-sm text-red-600 dark:text-red-500">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <!-- Descripción de Garantía -->
+                    <div>
+                        <label for="descripcion_garantia" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Descripción de Garantía</label>
+                        <input type="text" id="descripcion_garantia" name="descripcion_garantia" value="{{ old('descripcion_garantia') }}" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 @error('descripcion_garantia') border-red-500 @enderror" placeholder="Detalles de la garantía">
+                        @error('descripcion_garantia')
                         <p class="mt-2 text-sm text-red-600 dark:text-red-500">{{ $message }}</p>
                         @enderror
                     </div>

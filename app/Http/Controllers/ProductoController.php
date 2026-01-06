@@ -195,7 +195,7 @@ class ProductoController extends Controller
                     'stock_minimo' => 'nullable|numeric|min:0',
                     'marca' => 'nullable|string|max:100',
                     'descripcion' => 'nullable|string',
-                    'estado' => 'nullable|in:Activo,Inactivo',
+                    'estado' => 'nullable|in:activo,inactivo,Activo,Inactivo',
                 ]);
 
                 if ($validator->fails()) {
@@ -213,8 +213,8 @@ class ProductoController extends Controller
                     'stock_minimo' => $data['stock_minimo'] ?? 0,
                     'marca' => $data['marca'] ?? null,
                     'descripcion' => $data['descripcion'] ?? null,
-                    'estado' => $data['estado'] ?? 'Activo',
-                    'usuario_id' => Auth::id(),
+                    'estado' => strtolower($data['estado'] ?? 'activo'),
+                    'user_id' => Auth::id(),
                 ];
 
                 // Buscar producto existente por código

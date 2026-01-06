@@ -83,6 +83,11 @@ class PrestamoController extends Controller
         $prestamo->user_id = Auth::id();
         $prestamo->estado = 'activo';
 
+        // Convertir valores numéricos a tipos correctos
+        $validated['plazo'] = (int) $validated['plazo'];
+        $validated['monto_prestado'] = (float) $validated['monto_prestado'];
+        $validated['tasa_interes'] = (float) $validated['tasa_interes'];
+
         // Calcular valores del préstamo
         $prestamo->calcularValores();
 
@@ -90,16 +95,16 @@ class PrestamoController extends Controller
         $fechaDesembolso = Carbon::parse($validated['fecha_desembolso']);
         switch ($validated['frecuencia_pago']) {
             case 'semanal':
-                $prestamo->fecha_primer_pago = $fechaDesembolso->addWeek();
-                $prestamo->fecha_ultimo_pago = $fechaDesembolso->addWeeks($validated['plazo']);
+                $prestamo->fecha_primer_pago = $fechaDesembolso->copy()->addWeek();
+                $prestamo->fecha_ultimo_pago = $fechaDesembolso->copy()->addWeeks($validated['plazo']);
                 break;
             case 'quincenal':
-                $prestamo->fecha_primer_pago = $fechaDesembolso->addWeeks(2);
-                $prestamo->fecha_ultimo_pago = $fechaDesembolso->addWeeks($validated['plazo'] * 2);
+                $prestamo->fecha_primer_pago = $fechaDesembolso->copy()->addWeeks(2);
+                $prestamo->fecha_ultimo_pago = $fechaDesembolso->copy()->addWeeks($validated['plazo'] * 2);
                 break;
             case 'mensual':
-                $prestamo->fecha_primer_pago = $fechaDesembolso->addMonth();
-                $prestamo->fecha_ultimo_pago = $fechaDesembolso->addMonths($validated['plazo']);
+                $prestamo->fecha_primer_pago = $fechaDesembolso->copy()->addMonth();
+                $prestamo->fecha_ultimo_pago = $fechaDesembolso->copy()->addMonths($validated['plazo']);
                 break;
         }
 
@@ -159,6 +164,12 @@ class PrestamoController extends Controller
         ]);
 
         $prestamo->fill($validated);
+
+        // Convertir valores numéricos a tipos correctos
+        $validated['plazo'] = (int) $validated['plazo'];
+        $validated['monto_prestado'] = (float) $validated['monto_prestado'];
+        $validated['tasa_interes'] = (float) $validated['tasa_interes'];
+
         $prestamo->calcularValores();
 
         // Recalcular fechas
