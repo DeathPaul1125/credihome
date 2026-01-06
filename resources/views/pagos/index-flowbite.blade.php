@@ -135,9 +135,6 @@
                                     <a href="{{ route('pagos.show', $pago->id) }}" class="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300" title="Ver Detalle">
                                         <i class="fas fa-eye"></i>
                                     </a>
-                                    <a href="{{ route('pagos.edit', $pago->id) }}" class="text-green-600 hover:text-green-900 dark:text-green-400 dark:hover:text-green-300" title="Editar">
-                                        <i class="fas fa-edit"></i>
-                                    </a>
                                     <form action="{{ route('pagos.destroy', $pago->id) }}" method="POST" class="inline" onsubmit="return confirm('¿Está seguro de eliminar este pago?');">
                                         @csrf
                                         @method('DELETE')

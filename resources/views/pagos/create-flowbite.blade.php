@@ -79,19 +79,19 @@
                                 @enderror
                             </div>
 
-                            <!-- Método de Pago -->
+                            <!-- Tipo de Pago -->
                             <div>
-                                <label for="metodo_pago" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
-                                    Método de Pago <span class="text-red-500">*</span>
+                                <label for="tipo_pago" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                                    Tipo de Pago <span class="text-red-500">*</span>
                                 </label>
-                                <select id="metodo_pago" name="metodo_pago" required class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white @error('metodo_pago') border-red-500 @enderror">
-                                    <option value="">Seleccione método</option>
-                                    <option value="efectivo" {{ old('metodo_pago') == 'efectivo' ? 'selected' : '' }}>Efectivo</option>
-                                    <option value="transferencia_bancaria" {{ old('metodo_pago') == 'transferencia_bancaria' ? 'selected' : '' }}>Transferencia Bancaria</option>
-                                    <option value="deposito_bancario" {{ old('metodo_pago') == 'deposito_bancario' ? 'selected' : '' }}>Depósito Bancario</option>
-                                    <option value="cheque" {{ old('metodo_pago') == 'cheque' ? 'selected' : '' }}>Cheque</option>
+                                <select id="tipo_pago" name="tipo_pago" required class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white @error('tipo_pago') border-red-500 @enderror">
+                                    <option value="">Seleccione tipo</option>
+                                    <option value="efectivo" {{ old('tipo_pago') == 'efectivo' ? 'selected' : '' }}>Efectivo</option>
+                                    <option value="transferencia" {{ old('tipo_pago') == 'transferencia' ? 'selected' : '' }}>Transferencia</option>
+                                    <option value="deposito" {{ old('tipo_pago') == 'deposito' ? 'selected' : '' }}>Depósito</option>
+                                    <option value="cheque" {{ old('tipo_pago') == 'cheque' ? 'selected' : '' }}>Cheque</option>
                                 </select>
-                                @error('metodo_pago')
+                                @error('tipo_pago')
                                     <p class="mt-2 text-sm text-red-600 dark:text-red-500">{{ $message }}</p>
                                 @enderror
                             </div>
@@ -107,13 +107,13 @@
                                 @enderror
                             </div>
 
-                            <!-- Notas -->
+                            <!-- Observaciones -->
                             <div class="md:col-span-2">
-                                <label for="notas" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
-                                    Notas
+                                <label for="observaciones" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                                    Observaciones
                                 </label>
-                                <textarea id="notas" name="notas" rows="4" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white @error('notas') border-red-500 @enderror" placeholder="Observaciones adicionales...">{{ old('notas') }}</textarea>
-                                @error('notas')
+                                <textarea id="observaciones" name="observaciones" rows="4" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white @error('observaciones') border-red-500 @enderror" placeholder="Observaciones adicionales...">{{ old('observaciones') }}</textarea>
+                                @error('observaciones')
                                     <p class="mt-2 text-sm text-red-600 dark:text-red-500">{{ $message }}</p>
                                 @enderror
                             </div>

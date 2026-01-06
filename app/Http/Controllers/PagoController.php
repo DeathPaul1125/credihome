@@ -124,7 +124,7 @@ class PagoController extends Controller
             'tipo_pago' => $validated['tipo_pago'],
             'saldo_anterior' => $prestamo->saldo_pendiente,
             'saldo_nuevo' => $prestamo->saldo_pendiente - $validated['monto_pagado'],
-            'observaciones' => $validated['observaciones'],
+            'observaciones' => $validated['observaciones'] ?? null,
             'user_id' => Auth::id(),
         ]);
 

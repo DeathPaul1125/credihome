@@ -11,9 +11,6 @@
                 <div class="flex items-center justify-between">
                     <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Detalle del Pago #{{ $pago->id }}</h1>
                     <div class="flex gap-2">
-                        <a href="{{ route('pagos.edit', $pago->id) }}" class="text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-green-600 dark:hover:bg-green-700 focus:outline-none dark:focus:ring-green-800">
-                            <i class="fas fa-edit mr-2"></i>Editar
-                        </a>
                         <a href="{{ route('pagos.index') }}" class="text-gray-900 bg-white border border-gray-300 hover:bg-gray-100 focus:ring-4 focus:ring-gray-200 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:border-gray-600 dark:focus:ring-gray-700">
                             <i class="fas fa-arrow-left mr-2"></i>Volver
                         </a>
