@@ -1,0 +1,11 @@
+codigo,nombre,categoria,unidad_medida,precio_unitario,stock_actual,stock_minimo,marca,descripcion,estado
+CEM-001,Cemento Portland Gris 50kg,Cemento,Bolsa,95.50,100,20,Progreso,Cemento gris tipo I para uso general,Activo
+HIE-002,Varilla Corrugada 3/8" x 6m,Hierro,Unidad,45.00,500,50,SIDEGUA,Varilla de acero corrugada grado 40,Activo
+BLO-003,Block de 15x20x40 cm,Blocks,Unidad,3.75,2000,200,Cemacon,Block hueco de concreto,Activo
+ARE-004,Arena de Rio m³,Agregados,Metro Cúbico,150.00,50,10,,Arena lavada para construcción,Activo
+PIE-005,Piedrín 3/4" m³,Agregados,Metro Cúbico,180.00,30,10,,Piedrín triturado calibre 3/4,Activo
+CAL-006,Cal Hidratada 20kg,Cemento,Bolsa,35.00,80,15,Horcalsa,Cal blanca hidratada para mezclas,Activo
+HIE-007,Varilla Corrugada 1/2" x 6m,Hierro,Unidad,78.00,300,40,SIDEGUA,Varilla de acero corrugada grado 40,Activo
+BLO-008,Block de 10x20x40 cm,Blocks,Unidad,3.25,1500,150,Cemacon,Block hueco de concreto delgado,Activo
+TUB-009,Tubo PVC 3" x 6m,Tubería,Unidad,95.00,60,10,Durman,Tubo PVC sanitario presión 160 PSI,Activo
+LAM-010,Lámina Zinc Galvanizado 8',Láminas,Unidad,125.00,150,20,Galtek,Lámina acanalada calibre 26,Activo
