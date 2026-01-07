@@ -1,8 +1,6 @@
 <x-flowbite-layout>
-    <div class="p-4 sm:ml-64">
-        <div class="p-4 mt-14">
-            <!-- Header -->
-            <div class="mb-4">
+    <!-- Header -->
+    <div class="mb-4">
                 <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Nuevo Producto</h1>
             </div>
 
@@ -149,6 +147,4 @@
                     </div>
                 </form>
             </div>
-        </div>
-    </div>
 </x-flowbite-layout>

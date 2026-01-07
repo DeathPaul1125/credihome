@@ -211,7 +211,7 @@
 
     <!-- Main Content -->
     <div class="p-4 sm:ml-64">
-        <div class="p-4 mt-14">
+        <div class="{{ request()->routeIs('recetas.*') ? 'mt-14' : 'p-4 mt-14' }}">
             {{ $slot }}
         </div>
     </div>
