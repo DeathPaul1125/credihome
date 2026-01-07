@@ -31,7 +31,7 @@
                         @if($message->user_id != Auth::id())
                         <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">{{ $message->user->name }}</p>
                         @endif
-                        
+
                         <div class="rounded-lg p-3 {{ $message->user_id == Auth::id() ? 'bg-blue-600 text-white' : 'bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-white' }}">
                             @if($message->message)
                                 <p class="text-sm">{{ $message->message }}</p>
@@ -53,7 +53,7 @@
                                 </div>
                             @endif
                         </div>
-                        
+
                         <p class="text-xs text-gray-400 dark:text-gray-500 mt-1 {{ $message->user_id == Auth::id() ? 'text-right' : '' }}">
                             {{ $message->created_at->format('H:i') }}
                         </p>
@@ -72,10 +72,10 @@
             <form method="POST" action="{{ route('chat.send', $conversation) }}" enctype="multipart/form-data" class="flex items-end space-x-2">
                 @csrf
                 <div class="flex-1">
-                    <textarea 
-                        name="message" 
-                        rows="2" 
-                        class="block w-full p-2.5 text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
+                    <textarea
+                        name="message"
+                        rows="2"
+                        class="block w-full p-2.5 text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                         placeholder="Escribe un mensaje..."
                     ></textarea>
                 </div>
@@ -100,10 +100,137 @@
             container.scrollTop = container.scrollHeight;
         }
 
-        // Auto-refresh cada 5 segundos
+        let lastMessageId = {{ $messages->last() ? $messages->last()->id : 0 }};
+        let isSubmitting = false;
+        const conversationId = {{ $conversation->id }};
+
+        // Elemento de audio para notificaciones
+        const notificationSound = new Audio('/sounds/notification.mp3');
+        notificationSound.volume = 0.5;
+
+        // Función para mostrar notificación
+        function showNotification(message, userName) {
+            // Crear notificación del navegador si está permitido
+            if (Notification.permission === 'granted') {
+                new Notification(`Nuevo mensaje de ${userName}`, {
+                    body: message,
+                    icon: '/favicon.ico'
+                });
+            }
+
+            // Mostrar notificación en la página
+            showToast(`Nuevo mensaje de ${userName}: ${message}`, 'info');
+        }
+
+        // Función para mostrar toast
+        function showToast(message, type = 'info') {
+            const toast = document.createElement('div');
+            toast.className = `fixed top-4 right-4 z-50 p-4 rounded-lg shadow-lg ${
+                type === 'info' ? 'bg-blue-500' : 'bg-green-500'
+            } text-white max-w-sm`;
+            toast.innerHTML = `
+                <div class="flex items-center">
+                    <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path>
+                    </svg>
+                    <span>${message}</span>
+                </div>
+            `;
+
+            document.body.appendChild(toast);
+
+            // Auto-remover después de 5 segundos
+            setTimeout(() => {
+                toast.remove();
+            }, 5000);
+        }
+
+        // Función para agregar mensaje a la interfaz
+        function addMessageToUI(messageData) {
+            const messagesContainer = document.getElementById('messages-container');
+            if (!messagesContainer) return;
+
+            const messageElement = document.createElement('div');
+            messageElement.className = 'flex justify-start';
+
+            messageElement.innerHTML = `
+                <div class="max-w-xs lg:max-w-md">
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">${messageData.user.name}</p>
+                    <div class="rounded-lg p-3 bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-white">
+                        ${messageData.message ? `<p class="text-sm">${messageData.message}</p>` : ''}
+                        ${messageData.attachments.length > 0 ? `
+                            <div class="mt-2 space-y-2">
+                                ${messageData.attachments.map(attachment => `
+                                    <a href="${attachment.download_url}" class="flex items-center space-x-2 p-2 rounded bg-gray-300 dark:bg-gray-600">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"></path>
+                                        </svg>
+                                        <div class="flex-1 min-w-0">
+                                            <p class="text-xs font-medium truncate">${attachment.file_name}</p>
+                                            <p class="text-xs opacity-75">${(attachment.file_size / 1024).toFixed(1)} KB</p>
+                                        </div>
+                                    </a>
+                                `).join('')}
+                            </div>
+                        ` : ''}
+                        <p class="text-xs opacity-75 mt-1">${messageData.created_at}</p>
+                    </div>
+                </div>
+            `;
+
+            messagesContainer.appendChild(messageElement);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+            // Actualizar último ID de mensaje
+            lastMessageId = Math.max(lastMessageId, messageData.id);
+        }
+
+        // Solicitar permiso para notificaciones
+        if ('Notification' in window && Notification.permission === 'default') {
+            Notification.requestPermission();
+        }
+
+        // Configurar formulario
+        const form = document.querySelector('form[action*="/send"]');
+        if (form) {
+            form.addEventListener('submit', function() {
+                isSubmitting = true;
+                // Reset después de un tiempo
+                setTimeout(() => {
+                    isSubmitting = false;
+                }, 2000);
+            });
+        }
+
+        // Verificar mensajes nuevos cada 3 segundos
         setInterval(() => {
-            window.location.reload();
-        }, 5000);
+            if (!isSubmitting) {
+                fetch(`/chat/${conversationId}/messages?last_message_id=${lastMessageId}`, {
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json',
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.has_new_messages) {
+                        data.messages.forEach(message => {
+                            addMessageToUI(message);
+                            showNotification(message.message || 'Archivo adjunto', message.user.name);
+
+                            // Reproducir sonido
+                            notificationSound.play().catch(e => {
+                                // Silenciar error si el navegador bloquea el audio
+                                console.log('Audio blocked:', e);
+                            });
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error('Error checking for new messages:', error);
+                });
+            }
+        }, 3000);
     </script>
     @endpush
 </x-flowbite-layout>

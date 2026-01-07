@@ -15,7 +15,7 @@ class ChatController extends Controller
     public function index()
     {
         $userId = Auth::id();
-        
+
         $conversations = ChatConversation::whereHas('users', function ($query) use ($userId) {
                 $query->where('user_id', $userId);
             })
@@ -54,6 +54,45 @@ class ChatController extends Controller
         return view('chat.show', compact('conversation', 'messages'));
     }
 
+    public function getMessages(ChatConversation $conversation, Request $request)
+    {
+        // Verificar que el usuario pertenece a la conversación
+        if (!$conversation->users->contains(Auth::id())) {
+            abort(403);
+        }
+
+        $lastMessageId = $request->get('last_message_id', 0);
+
+        $messages = $conversation->messages()
+            ->with(['user', 'attachments'])
+            ->where('id', '>', $lastMessageId)
+            ->where('user_id', '!=', Auth::id()) // Solo mensajes de otros usuarios
+            ->orderBy('created_at', 'asc')
+            ->get();
+
+        return response()->json([
+            'messages' => $messages->map(function ($message) {
+                return [
+                    'id' => $message->id,
+                    'message' => $message->message,
+                    'user' => [
+                        'name' => $message->user->name,
+                    ],
+                    'attachments' => $message->attachments->map(function ($attachment) {
+                        return [
+                            'id' => $attachment->id,
+                            'file_name' => $attachment->file_name,
+                            'file_size' => $attachment->file_size,
+                            'download_url' => route('chat.download', $attachment),
+                        ];
+                    }),
+                    'created_at' => $message->created_at->format('H:i'),
+                ];
+            }),
+            'has_new_messages' => $messages->count() > 0,
+        ]);
+    }
+
     public function startConversation(Request $request)
     {
         $request->validate([
@@ -61,27 +100,35 @@ class ChatController extends Controller
         ]);
 
         $conversation = ChatConversation::getOrCreatePrivate(Auth::id(), $request->user_id);
-        
+
         return redirect()->route('chat.show', $conversation);
     }
 
     public function sendMessage(Request $request, ChatConversation $conversation)
     {
         $request->validate([
-            'message' => 'required_without:files|nullable|string',
+            'message' => 'nullable|string',
             'files.*' => 'nullable|file|max:10240', // 10MB
         ]);
 
+        // Si no hay mensaje ni archivos, no hacer nada
+        if (empty($request->message) && !$request->hasFile('files')) {
+            return back()->withErrors(['message' => 'Debe proporcionar un mensaje o adjuntar archivos.']);
+        }
+
+        $messageText = $request->message ?: 'Archivo adjunto';
+        $messageType = $request->hasFile('files') ? 'file' : 'text';
+
         $message = $conversation->messages()->create([
             'user_id' => Auth::id(),
-            'message' => $request->message,
-            'type' => $request->hasFile('files') ? 'file' : 'text',
+            'message' => $messageText,
+            'type' => $messageType,
         ]);
 
         // Procesar archivos adjuntos
         if ($request->hasFile('files')) {
             foreach ($request->file('files') as $file) {
-                $this->storeAttachment($message, $file);
+                $this->saveAttachment($message, $file);
             }
         }
 
@@ -119,9 +166,9 @@ class ChatController extends Controller
         $size = $file->getSize();
 
         $path = $file->store('chat/attachments', 'public');
-        
+
         $thumbnailPath = null;
-        
+
         // Generar miniatura para imágenes si Intervention Image está disponible
         if (in_array($extension, ['jpg', 'jpeg', 'png', 'gif', 'webp'])) {
             // Por ahora sin thumbnail, se puede agregar después con Intervention Image

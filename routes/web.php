@@ -52,6 +52,7 @@ Route::middleware([
     // Rutas de Chat
     Route::get('/chat', [\App\Http\Controllers\ChatController::class, 'index'])->name('chat.index');
     Route::get('/chat/{conversation}', [\App\Http\Controllers\ChatController::class, 'show'])->name('chat.show');
+    Route::get('/chat/{conversation}/messages', [\App\Http\Controllers\ChatController::class, 'getMessages'])->name('chat.messages');
     Route::post('/chat/start', [\App\Http\Controllers\ChatController::class, 'startConversation'])->name('chat.start');
     Route::post('/chat/{conversation}/send', [\App\Http\Controllers\ChatController::class, 'sendMessage'])->name('chat.send');
     Route::post('/chat/attachment', [\App\Http\Controllers\ChatController::class, 'storeAttachment'])->name('chat.attachment');
