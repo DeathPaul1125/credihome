@@ -1,8 +1,6 @@
 <x-flowbite-layout>
-    <div class="p-4 sm:ml-64">
-        <div class="p-4 mt-14">
-            <!-- Header -->
-            <div class="mb-4 flex items-center justify-between">
+    <!-- Header -->
+    <div class="mb-4 flex items-center justify-between">
                 <div>
                     <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Pagos</h1>
                     <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">Gestión de pagos de préstamos</p>
@@ -163,6 +161,4 @@
                 {{ $pagos->links() }}
             </div>
             @endif
-        </div>
-    </div>
 </x-flowbite-layout>

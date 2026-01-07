@@ -1,8 +1,6 @@
 <x-flowbite-layout>
-    <div class="p-4 sm:ml-64">
-        <div class="p-4 mt-14">
-            <!-- Header -->
-            <div class="mb-6">
+    <!-- Header -->
+    <div class="mb-6">
                 <h1 class="text-2xl font-bold text-gray-900 dark:text-white">
                     <i class="fas fa-chart-line mr-2"></i>Reportes y Estadísticas
                 </h1>

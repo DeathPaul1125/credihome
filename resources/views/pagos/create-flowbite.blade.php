@@ -1,8 +1,6 @@
 <x-flowbite-layout>
-    <div class="p-4 sm:ml-64">
-        <div class="p-4 mt-14">
-            <!-- Header -->
-            <div class="mb-6">
+    <!-- Header -->
+    <div class="mb-6">
                 <div class="flex items-center text-sm text-gray-500 dark:text-gray-400 mb-2">
                     <a href="{{ route('pagos.index') }}" class="hover:text-blue-600">Pagos</a>
                     <i class="fas fa-chevron-right mx-2 text-xs"></i>
@@ -131,8 +129,6 @@
                     </form>
                 </div>
             </div>
-        </div>
-    </div>
 
     @push('scripts')
     <script>

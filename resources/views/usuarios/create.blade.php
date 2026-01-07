@@ -1,7 +1,5 @@
 <x-flowbite-layout>
-    <div class="p-4 sm:ml-64">
-        <div class="p-4 mt-14">
-            <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">Nuevo Usuario</h1>
+    <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">Nuevo Usuario</h1>
 
             <form action="{{ route('usuarios.store') }}" method="POST" class="max-w-2xl">
                 @csrf
@@ -46,6 +44,4 @@
                     </div>
                 </div>
             </form>
-        </div>
-    </div>
 </x-flowbite-layout>
