@@ -1,7 +1,5 @@
 <x-flowbite-layout>
-    <div class="p-4 sm:ml-64">
-        <div class="p-4 mt-14">
-            <div class="mb-6 flex items-center justify-between">
+    <div class="mb-6 flex items-center justify-between">
                 <div>
                     <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Usuarios</h1>
                     <p class="text-gray-600 dark:text-gray-400 mt-1">Gestión de usuarios y roles del sistema</p>
@@ -134,8 +132,6 @@
             <div class="mt-4">
                 {{ $usuarios->links() }}
             </div>
-        </div>
-    </div>
 
     <!-- Modal Cambiar Rol -->
     <div id="roleModal" tabindex="-1" class="hidden fixed inset-0 z-50 overflow-y-auto">
