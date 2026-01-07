@@ -18,7 +18,7 @@ class RoleController extends Controller
 
     public function index()
     {
-        $roles = Role::withCount('users')->get();
+        $roles = Role::all();
         return view('roles.index', compact('roles'));
     }
 
@@ -27,7 +27,7 @@ class RoleController extends Controller
         $permissions = Permission::all()->groupBy(function($permission) {
             return explode('-', $permission->name)[1] ?? 'general';
         });
-        
+
         return view('roles.create', compact('permissions'));
     }
 
@@ -39,7 +39,7 @@ class RoleController extends Controller
         ]);
 
         $role = Role::create(['name' => $request->name]);
-        
+
         if ($request->has('permissions')) {
             $role->syncPermissions($request->permissions);
         }
@@ -50,8 +50,9 @@ class RoleController extends Controller
 
     public function show(Role $role)
     {
-        $role->load('permissions', 'users');
-        return view('roles.show', compact('role'));
+        $role->load('permissions');
+        $users = \App\Models\User::role($role->name)->get();
+        return view('roles.show', compact('role', 'users'));
     }
 
     public function edit(Role $role)
@@ -59,9 +60,9 @@ class RoleController extends Controller
         $permissions = Permission::all()->groupBy(function($permission) {
             return explode('-', $permission->name)[1] ?? 'general';
         });
-        
+
         $rolePermissions = $role->permissions->pluck('name')->toArray();
-        
+
         return view('roles.edit', compact('role', 'permissions', 'rolePermissions'));
     }
 
