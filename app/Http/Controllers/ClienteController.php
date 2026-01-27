@@ -246,23 +246,26 @@ class ClienteController extends Controller
         curl_close($curl);
 
         if ($httpCode !== 200) {
-            return response()->json(['error' => 'Error al consultar la API de FEL'], 500);
+            return response()->json(['error' => 'Error al consultar la API de FEL: HTTP ' . $httpCode], 500);
         }
 
         $data = json_decode($response, true);
 
-        if (!$data || !isset($data['Response'])) {
+        if (!$data) {
+            return response()->json(['error' => 'Respuesta no es JSON válido'], 500);
+        }
+
+        if (!isset($data['RESPONSE']) || !is_array($data['RESPONSE']) || empty($data['RESPONSE'])) {
             return response()->json(['error' => 'Respuesta inválida de la API'], 500);
         }
 
         // Procesar la respuesta y devolver los datos relevantes
-        $felData = $data['Response'];
+        $felData = $data['RESPONSE'][0]; // Tomar el primer elemento del array
 
         return response()->json([
-            'nombre_completo' => $felData['NOMBRE_COMPLETO'] ?? null,
-            'fecha_nacimiento' => $felData['FECHA_NACIMIENTO'] ?? null,
-            'genero' => $felData['GENERO'] ?? null,
-            // Agregar otros campos si están disponibles
+            'nombre_completo' => $felData['NOMBRE'] ?? null,
+            'fecha_nacimiento' => null, // La API no devuelve fecha de nacimiento
+            'genero' => null, // La API no devuelve género
         ]);
     }
 }

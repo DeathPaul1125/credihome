@@ -202,15 +202,7 @@ document.getElementById('search-pdi').addEventListener('click', function() {
             if (data.nombre_completo) {
                 document.getElementById('nombre_completo').value = data.nombre_completo;
             }
-            if (data.fecha_nacimiento) {
-                document.getElementById('fecha_nacimiento').value = data.fecha_nacimiento;
-            }
-            if (data.genero) {
-                const generoSelect = document.getElementById('genero');
-                const generoValue = data.genero.toLowerCase() === 'masculino' ? 'masculino' :
-                                   data.genero.toLowerCase() === 'femenino' ? 'femenino' : 'otro';
-                generoSelect.value = generoValue;
-            }
+            // Nota: La API FEL no devuelve fecha de nacimiento ni género
         }
     })
     .catch(error => {
