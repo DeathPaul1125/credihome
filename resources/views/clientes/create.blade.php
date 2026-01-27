@@ -26,7 +26,12 @@
                     <div class="grid grid-cols-2 gap-4">
                         <div>
                             <label class="mb-2 block text-sm font-medium text-gray-900 dark:text-white">DPI * (13 dígitos)</label>
-                            <input type="text" name="dpi" value="{{ old('dpi') }}" maxlength="13" required placeholder="2547854120101" class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-gray-900 focus:border-brand-500 focus:ring-brand-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white @error('dpi') border-red-500 @enderror">
+                            <div class="flex gap-2">
+                                <input type="text" id="dpi" name="dpi" value="{{ old('dpi') }}" maxlength="13" required placeholder="2547854120101" class="flex-1 rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-gray-900 focus:border-brand-500 focus:ring-brand-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white @error('dpi') border-red-500 @enderror">
+                                <button type="button" id="search-pdi" class="px-4 py-2.5 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors">
+                                    Buscar PDI
+                                </button>
+                            </div>
                             @error('dpi')<p class="mt-1 text-sm text-red-500">{{ $message }}</p>@enderror
                         </div>
 
@@ -185,3 +190,55 @@
         </div>
     </form>
 </x-tailadmin-layout>
+
+<script>
+document.getElementById('search-pdi').addEventListener('click', function() {
+    const dpi = document.getElementById('dpi').value;
+    if (!dpi || dpi.length !== 13) {
+        alert('Por favor ingrese un DPI válido de 13 dígitos.');
+        return;
+    }
+
+    // Mostrar loading
+    this.disabled = true;
+    this.textContent = 'Buscando...';
+
+    fetch('{{ route("clientes.search-pdi") }}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+        },
+        body: JSON.stringify({ dpi: dpi })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.error) {
+            alert('Error: ' + data.error);
+        } else {
+            // Llenar los campos
+            if (data.nombre_completo) {
+                document.querySelector('input[name="nombre_completo"]').value = data.nombre_completo;
+            }
+            if (data.fecha_nacimiento) {
+                document.querySelector('input[name="fecha_nacimiento"]').value = data.fecha_nacimiento;
+            }
+            if (data.genero) {
+                const generoSelect = document.querySelector('select[name="genero"]');
+                const generoValue = data.genero.toLowerCase() === 'masculino' ? 'masculino' :
+                                   data.genero.toLowerCase() === 'femenino' ? 'femenino' : 'otro';
+                generoSelect.value = generoValue;
+            }
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error al buscar PDI. Intente nuevamente.');
+    })
+    .finally(() => {
+        // Restaurar botón
+        this.disabled = false;
+        this.textContent = 'Buscar PDI';
+    });
+});
+</script>

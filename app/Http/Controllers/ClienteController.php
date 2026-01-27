@@ -209,4 +209,60 @@ class ClienteController extends Controller
 
         return back()->with('success', 'Archivo eliminado exitosamente.');
     }
+
+    /**
+     * Buscar información del PDI usando la API de FEL
+     */
+    public function searchPdi(Request $request)
+    {
+        $request->validate([
+            'dpi' => 'required|string|size:13',
+        ]);
+
+        $dpi = $request->dpi;
+        $config = config('services.fel');
+
+        $url = $config['url'] . '?NIT=' . $config['nit'] . '&DATA1=' . $config['data1'] . '&DATA2=CUI%7C' . $dpi . '&USERNAME=' . $config['username'];
+
+        $curl = curl_init();
+
+        curl_setopt_array($curl, array(
+            CURLOPT_URL => $url,
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_ENCODING => '',
+            CURLOPT_MAXREDIRS => 10,
+            CURLOPT_TIMEOUT => 0,
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST => 'GET',
+            CURLOPT_HTTPHEADER => array(
+                'Authorization: ' . $config['authorization'],
+                'Content-Type: application/json'
+            ),
+        ));
+
+        $response = curl_exec($curl);
+        $httpCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+        curl_close($curl);
+
+        if ($httpCode !== 200) {
+            return response()->json(['error' => 'Error al consultar la API de FEL'], 500);
+        }
+
+        $data = json_decode($response, true);
+
+        if (!$data || !isset($data['Response'])) {
+            return response()->json(['error' => 'Respuesta inválida de la API'], 500);
+        }
+
+        // Procesar la respuesta y devolver los datos relevantes
+        $felData = $data['Response'];
+
+        return response()->json([
+            'nombre_completo' => $felData['NOMBRE_COMPLETO'] ?? null,
+            'fecha_nacimiento' => $felData['FECHA_NACIMIENTO'] ?? null,
+            'genero' => $felData['GENERO'] ?? null,
+            // Agregar otros campos si están disponibles
+        ]);
+    }
 }

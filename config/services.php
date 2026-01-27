@@ -35,4 +35,12 @@ return [
         ],
     ],
 
+    'fel' => [
+        'url' => env('FEL_API_URL', 'https://felgttestaws.digifact.com.gt/gt.com.fel.api.v3/api/sharedInfo'),
+        'nit' => env('FEL_NIT', '44653948'),
+        'data1' => env('FEL_DATA1', 'SHARED_GETINFOCUI'),
+        'username' => env('FEL_USERNAME', 'CIVERNETTEST'),
+        'authorization' => env('FEL_AUTHORIZATION', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1bmlxdWVfbmFtZSI6IkdULjAwMDA0NDY1Mzk0OC5DSVZFUk5FVFRFU1QiLCJuYmYiOjE3Njg4MzMzMDAsImV4cCI6MTc5OTkzNzMwMCwiaWF0IjoxNzY4ODMzMzAwLCJpc3MiOiJodHRwOi8vbG9jYWxob3N0OjQ5MjIwIiwiYXVkIjoiaHR0cDovL2xvY2FsaG9zdDo0OTIyMCJ9.hUJC4xOvlebXO8OnKZY4jZPemPW3yDww010yapM2hoY'),
+    ],
+
 ];

@@ -17,20 +17,25 @@
                 @csrf
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                    <!-- Nombre -->
+                    <!-- DPI -->
                     <div>
-                        <label for="nombre_completo" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Nombre Completo <span class="text-red-500">*</span></label>
-                        <input type="text" id="nombre_completo" name="nombre_completo" value="{{ old('nombre_completo') }}" required class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 @error('nombre_completo') border-red-500 @enderror">
-                        @error('nombre_completo')
+                        <label for="dpi" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">DPI (13 dígitos) <span class="text-red-500">*</span></label>
+                        <div class="flex gap-2">
+                            <input type="text" id="dpi" name="dpi" value="{{ old('dpi') }}" required maxlength="13" pattern="[0-9]{13}" class="flex-1 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 @error('dpi') border-red-500 @enderror" placeholder="1234567890123">
+                            <button type="button" id="search-pdi" class="px-4 py-2.5 bg-blue-500 text-white text-sm rounded-lg hover:bg-blue-600 focus:ring-4 focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 transition-colors">
+                                Buscar PDI
+                            </button>
+                        </div>
+                        @error('dpi')
                         <p class="mt-2 text-sm text-red-600 dark:text-red-500">{{ $message }}</p>
                         @enderror
                     </div>
 
-                    <!-- DPI -->
+                    <!-- Nombre -->
                     <div>
-                        <label for="dpi" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">DPI (13 dígitos) <span class="text-red-500">*</span></label>
-                        <input type="text" id="dpi" name="dpi" value="{{ old('dpi') }}" required maxlength="13" pattern="[0-9]{13}" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 @error('dpi') border-red-500 @enderror" placeholder="1234567890123">
-                        @error('dpi')
+                        <label for="nombre_completo" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Nombre Completo <span class="text-red-500">*</span></label>
+                        <input type="text" id="nombre_completo" name="nombre_completo" value="{{ old('nombre_completo') }}" required readonly class="bg-gray-100 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 @error('nombre_completo') border-red-500 @enderror">
+                        @error('nombre_completo')
                         <p class="mt-2 text-sm text-red-600 dark:text-red-500">{{ $message }}</p>
                         @enderror
                     </div>
@@ -167,3 +172,55 @@
         </div>
     </div>
 </x-flowbite-layout>
+
+<script>
+document.getElementById('search-pdi').addEventListener('click', function() {
+    const dpi = document.getElementById('dpi').value;
+    if (!dpi || dpi.length !== 13) {
+        alert('Por favor ingrese un DPI válido de 13 dígitos.');
+        return;
+    }
+
+    // Mostrar loading
+    this.disabled = true;
+    this.textContent = 'Buscando...';
+
+    fetch('{{ route("clientes.search-pdi") }}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+        },
+        body: JSON.stringify({ dpi: dpi })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.error) {
+            alert('Error: ' + data.error);
+        } else {
+            // Llenar los campos
+            if (data.nombre_completo) {
+                document.getElementById('nombre_completo').value = data.nombre_completo;
+            }
+            if (data.fecha_nacimiento) {
+                document.getElementById('fecha_nacimiento').value = data.fecha_nacimiento;
+            }
+            if (data.genero) {
+                const generoSelect = document.getElementById('genero');
+                const generoValue = data.genero.toLowerCase() === 'masculino' ? 'masculino' :
+                                   data.genero.toLowerCase() === 'femenino' ? 'femenino' : 'otro';
+                generoSelect.value = generoValue;
+            }
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error al buscar PDI. Intente nuevamente.');
+    })
+    .finally(() => {
+        // Restaurar botón
+        this.disabled = false;
+        this.textContent = 'Buscar PDI';
+    });
+});
+</script>
