@@ -1,8 +1,6 @@
 <x-flowbite-layout>
-    <div class="p-4 sm:ml-64">
-        <div class="p-4 mt-14">
-            <!-- Header -->
-            <div class="mb-6 flex items-center justify-between">
+    <!-- Header -->
+    <div class="mb-6 flex items-center justify-between">
                 <div>
                     <h1 class="text-2xl font-bold text-gray-900 dark:text-white">{{ $aportador->nombre }}</h1>
                     <p class="text-gray-600 dark:text-gray-400 mt-1">
@@ -181,6 +179,7 @@
                                 <th class="px-6 py-3">Ganancias</th>
                                 <th class="px-6 py-3">Saldo</th>
                                 <th class="px-6 py-3">ROI</th>
+                                <th class="px-6 py-3">Acciones</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -198,6 +197,27 @@
                                 <td class="px-6 py-4 text-blue-600">Q {{ number_format($aportacion->intereses_ganados, 2) }}</td>
                                 <td class="px-6 py-4">Q {{ number_format($aportacion->saldo_pendiente, 2) }}</td>
                                 <td class="px-6 py-4 font-medium">{{ number_format($aportacion->roi, 2) }}%</td>
+                                <td class="px-6 py-4">
+                                    <div class="flex items-center gap-2">
+                                        <!-- Editar -->
+                                        <a href="{{ route('aportaciones.edit', $aportacion) }}"
+                                           class="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300"
+                                           title="Editar Aportación">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+
+                                        <!-- Recalcular -->
+                                        <form action="{{ route('aportaciones.recalcular', $aportacion) }}" method="POST" class="inline-block">
+                                            @csrf
+                                            <button type="submit"
+                                                    class="text-purple-600 hover:text-purple-900 dark:text-purple-400 dark:hover:text-purple-300"
+                                                    title="Recalcular desde distribuciones"
+                                                    onclick="return confirm('¿Recalcular esta aportación desde las distribuciones de pagos?');">
+                                                <i class="fas fa-sync-alt"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
                             </tr>
                             @endforeach
                         </tbody>
@@ -303,8 +323,8 @@
             }
         };
 
-        const chart = new ApexCharts(document.querySelector("#capitalChart"), capitalOptions);
-        chart.render();
-    </script>
-    @endpush
+    const chart = new ApexCharts(document.querySelector("#capitalChart"), capitalOptions);
+    chart.render();
+</script>
+@endpush
 </x-flowbite-layout>

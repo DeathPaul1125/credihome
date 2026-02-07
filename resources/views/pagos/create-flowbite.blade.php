@@ -15,6 +15,21 @@
                     <form action="{{ route('pagos.store') }}" method="POST">
                         @csrf
 
+                        @if(isset($numeroCuota))
+                        <input type="hidden" name="numero_cuota" value="{{ $numeroCuota }}">
+                        <div class="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg dark:bg-blue-900/20 dark:border-blue-800">
+                            <div class="flex items-center">
+                                <svg class="w-5 h-5 text-blue-600 dark:text-blue-400 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+                                </svg>
+                                <div>
+                                    <h3 class="text-sm font-medium text-blue-800 dark:text-blue-300">Pago de Cuota #{{ $numeroCuota }}</h3>
+                                    <p class="text-xs text-blue-600 dark:text-blue-400 mt-1">Está registrando el pago de la cuota número {{ $numeroCuota }} de este préstamo.</p>
+                                </div>
+                            </div>
+                        </div>
+                        @endif
+
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <!-- Préstamo -->
                             <div class="md:col-span-2">
@@ -23,12 +38,13 @@
                                 </label>
                                 <select id="prestamo_id" name="prestamo_id" required class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white @error('prestamo_id') border-red-500 @enderror">
                                     <option value="">Seleccione un préstamo</option>
-                                    @foreach($prestamos as $prestamo)
-                                        <option value="{{ $prestamo->id }}" {{ old('prestamo_id') == $prestamo->id ? 'selected' : '' }}
-                                            data-cliente="{{ $prestamo->cliente->nombre }}"
-                                            data-monto="{{ $prestamo->monto_prestamo }}"
-                                            data-saldo="{{ $prestamo->saldo_pendiente }}">
-                                            Préstamo #{{ $prestamo->id }} - {{ $prestamo->cliente->nombre }} - Saldo: Q{{ number_format($prestamo->saldo_pendiente, 2) }}
+                                    @foreach($prestamos as $p)
+                                        <option value="{{ $p->id }}"
+                                            {{ (old('prestamo_id', $prestamo->id ?? null) == $p->id) ? 'selected' : '' }}
+                                            data-cliente="{{ $p->cliente->nombre_completo }}"
+                                            data-monto="{{ $p->monto_prestado }}"
+                                            data-saldo="{{ $p->saldo_pendiente }}">
+                                            {{ $p->numero_prestamo }} - {{ $p->cliente->nombre_completo }} - Saldo: Q{{ number_format($p->saldo_pendiente, 2) }}
                                         </option>
                                     @endforeach
                                 </select>

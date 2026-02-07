@@ -32,6 +32,40 @@ class Aportacion extends Model
         'fecha_recuperacion_completa' => 'date',
     ];
 
+    protected static function boot()
+    {
+        parent::boot();
+
+        // Evento al eliminar una aportación
+        static::deleting(function ($aportacion) {
+            $aportador = $aportacion->aportador;
+
+            if ($aportador) {
+                // Revertir capital invertido
+                $aportador->capital_invertido -= $aportacion->monto_aportado;
+
+                // Devolver capital disponible (restar lo que ya se recuperó)
+                $capitalPendiente = $aportacion->monto_aportado - $aportacion->monto_recuperado;
+                $aportador->capital_disponible += $capitalPendiente;
+
+                // Revertir capital recuperado
+                $aportador->capital_recuperado -= $aportacion->monto_recuperado;
+
+                // Revertir ganancias (intereses)
+                $aportador->ganancias_totales -= $aportacion->intereses_ganados;
+
+                // Asegurar que no queden valores negativos
+                $aportador->capital_invertido = max(0, $aportador->capital_invertido);
+                $aportador->capital_recuperado = max(0, $aportador->capital_recuperado);
+                $aportador->ganancias_totales = max(0, $aportador->ganancias_totales);
+
+                $aportador->save();
+
+                \Log::info("Aportación eliminada - Aportador {$aportador->id} actualizado automáticamente");
+            }
+        });
+    }
+
     // Relaciones
     public function aportador()
     {

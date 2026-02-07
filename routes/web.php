@@ -21,9 +21,15 @@ Route::middleware([
 
     // Rutas de Aportadores
     Route::get('aportadores/dashboard', [\App\Http\Controllers\AportadorController::class, 'dashboard'])->name('aportadores.dashboard');
+    Route::post('aportadores/recalcular', [\App\Http\Controllers\AportadorController::class, 'recalcularTodos'])->name('aportadores.recalcular');
     Route::resource('aportadores', \App\Http\Controllers\AportadorController::class)->parameters(['aportadores' => 'aportador']);
     Route::post('aportadores/{aportador}/agregar-capital', [\App\Http\Controllers\AportadorController::class, 'agregarCapital'])->name('aportadores.agregar-capital');
     Route::post('aportadores/{aportador}/retirar-capital', [\App\Http\Controllers\AportadorController::class, 'retirarCapital'])->name('aportadores.retirar-capital');
+
+    // Rutas de Aportaciones
+    Route::get('aportaciones/{aportacion}/edit', [\App\Http\Controllers\AportacionController::class, 'edit'])->name('aportaciones.edit');
+    Route::put('aportaciones/{aportacion}', [\App\Http\Controllers\AportacionController::class, 'update'])->name('aportaciones.update');
+    Route::post('aportaciones/{aportacion}/recalcular', [\App\Http\Controllers\AportacionController::class, 'recalcular'])->name('aportaciones.recalcular');
 
     // Rutas de Productos/Materiales
     Route::resource('productos', \App\Http\Controllers\ProductoController::class);
@@ -47,7 +53,8 @@ Route::middleware([
     Route::post('prestamos/{prestamo}/aprobar', [\App\Http\Controllers\PrestamoController::class, 'aprobar'])->name('prestamos.aprobar');
 
     // Rutas de Pagos
-    Route::resource('pagos', \App\Http\Controllers\PagoController::class)->except(['edit', 'update']);
+    Route::resource('pagos', \App\Http\Controllers\PagoController::class);
+    Route::get('pagos/{pago}/recibo', [\App\Http\Controllers\PagoController::class, 'recibo'])->name('pagos.recibo');
 
     // Ruta de Reportes
     Route::get('/reportes', [\App\Http\Controllers\ReporteController::class, 'index'])->name('reportes.index');
@@ -72,4 +79,26 @@ Route::middleware([
     // Rutas de Roles y Permisos
     Route::resource('roles', \App\Http\Controllers\RoleController::class);
     Route::post('roles/{role}/permisos', [\App\Http\Controllers\RoleController::class, 'actualizarPermisos'])->name('roles.permisos');
+
+    // Rutas de Comprobantes de Pago (Administrador)
+    Route::prefix('admin/comprobantes')->name('admin.comprobantes.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Admin\ComprobantePagoController::class, 'index'])->name('index');
+        Route::get('/{id}', [\App\Http\Controllers\Admin\ComprobantePagoController::class, 'show'])->name('show');
+        Route::post('/{id}/aprobar', [\App\Http\Controllers\Admin\ComprobantePagoController::class, 'aprobar'])->name('aprobar');
+        Route::post('/{id}/rechazar', [\App\Http\Controllers\Admin\ComprobantePagoController::class, 'rechazar'])->name('rechazar');
+    });
+});
+
+// Rutas del Portal de Clientes
+Route::middleware([
+    'auth:sanctum',
+    config('jetstream.auth_session'),
+    'verified',
+])->prefix('portal')->name('portal.')->group(function () {
+    Route::get('/dashboard', [\App\Http\Controllers\PortalClienteController::class, 'dashboard'])->name('dashboard');
+    Route::get('/prestamo/{id}', [\App\Http\Controllers\PortalClienteController::class, 'verPrestamo'])->name('prestamo');
+    Route::get('/prestamo/{prestamo_id}/subir-comprobante', [\App\Http\Controllers\PortalClienteController::class, 'subirComprobanteForm'])->name('subir-comprobante');
+    Route::post('/prestamo/{prestamo_id}/comprobante', [\App\Http\Controllers\PortalClienteController::class, 'guardarComprobante'])->name('guardar-comprobante');
+    Route::get('/mis-comprobantes', [\App\Http\Controllers\PortalClienteController::class, 'misComprobantes'])->name('mis-comprobantes');
+    Route::get('/comprobante/{id}', [\App\Http\Controllers\PortalClienteController::class, 'verComprobante'])->name('comprobante');
 });

@@ -255,12 +255,16 @@
             const montoPrestamo = parseFloat(document.getElementById('monto_prestado').value) || 0;
             let totalFondeado = 0;
 
+            // Primero calcular el total fondeado
             document.querySelectorAll('.aportador-row').forEach(row => {
                 const monto = parseFloat(row.querySelector('.monto-aportacion').value) || 0;
                 totalFondeado += monto;
+            });
 
-                // Calcular porcentaje
-                const porcentaje = montoPrestamo > 0 ? (monto / montoPrestamo * 100).toFixed(2) : 0;
+            // Luego calcular porcentajes individuales basados en el total fondeado
+            document.querySelectorAll('.aportador-row').forEach(row => {
+                const monto = parseFloat(row.querySelector('.monto-aportacion').value) || 0;
+                const porcentaje = totalFondeado > 0 ? (monto / totalFondeado * 100).toFixed(2) : 0;
                 row.querySelector('.porcentaje-aportacion').value = porcentaje + '%';
             });
 

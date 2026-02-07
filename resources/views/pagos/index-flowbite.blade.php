@@ -54,6 +54,27 @@
                 </form>
             </div>
 
+            <!-- Mensajes de éxito y error -->
+            @if(session('success'))
+            <div class="mb-4 flex items-center p-4 text-sm text-green-800 border border-green-300 rounded-lg bg-green-50 dark:bg-gray-800 dark:text-green-400 dark:border-green-800" role="alert">
+                <svg class="flex-shrink-0 inline w-4 h-4 me-3" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z"/>
+                </svg>
+                <span class="sr-only">Info</span>
+                <div>{{ session('success') }}</div>
+            </div>
+            @endif
+
+            @if(session('error'))
+            <div class="mb-4 flex items-center p-4 text-sm text-red-800 border border-red-300 rounded-lg bg-red-50 dark:bg-gray-800 dark:text-red-400 dark:border-red-800" role="alert">
+                <svg class="flex-shrink-0 inline w-4 h-4 me-3" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z"/>
+                </svg>
+                <span class="sr-only">Error</span>
+                <div>{{ session('error') }}</div>
+            </div>
+            @endif
+
             <!-- Tabla de Pagos -->
             <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
                 <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
@@ -129,15 +150,48 @@
                                 @endswitch
                             </td>
                             <td class="px-6 py-4">
-                                <div class="flex items-center gap-2">
-                                    <a href="{{ route('pagos.show', $pago->id) }}" class="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300" title="Ver Detalle">
-                                        <i class="fas fa-eye"></i>
+                                <div class="flex items-center gap-2 flex-wrap">
+                                    <!-- Ver Detalle -->
+                                    <a href="{{ route('pagos.show', $pago->id) }}"
+                                       class="inline-flex items-center px-3 py-2 text-xs font-medium text-center text-white bg-blue-600 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-500 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+                                       title="Ver Detalle">
+                                        <i class="fas fa-eye mr-1.5"></i>
+                                        <span>Ver</span>
                                     </a>
-                                    <form action="{{ route('pagos.destroy', $pago->id) }}" method="POST" class="inline" onsubmit="return confirm('¿Está seguro de eliminar este pago?');">
+
+                                    <!-- Recibo PDF - Solo para pagos procesados (no pendientes ni rechazados) -->
+                                    @if(!in_array($pago->estado, ['pendiente', 'rechazado']))
+                                        <a href="{{ route('pagos.recibo', $pago->id) }}"
+                                           target="_blank"
+                                           class="inline-flex items-center px-3 py-2 text-xs font-medium text-center text-white bg-green-600 rounded-lg hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-300 dark:bg-green-500 dark:hover:bg-green-700 dark:focus:ring-green-800"
+                                           title="Imprimir Recibo PDF">
+                                            <i class="fas fa-file-pdf mr-1.5"></i>
+                                            <span>Recibo</span>
+                                        </a>
+                                    @else
+                                        <span class="inline-flex items-center px-3 py-2 text-xs font-medium text-gray-400 dark:text-gray-500" title="Solo se pueden imprimir recibos de pagos procesados">
+                                            <i class="fas fa-ban mr-1.5"></i>
+                                            <span>N/D</span>
+                                        </span>
+                                    @endif
+
+                                    <!-- Editar Pago -->
+                                    <a href="{{ route('pagos.edit', $pago->id) }}"
+                                       class="inline-flex items-center px-3 py-2 text-xs font-medium text-center text-white bg-yellow-500 rounded-lg hover:bg-yellow-600 focus:ring-4 focus:outline-none focus:ring-yellow-300 dark:bg-yellow-400 dark:hover:bg-yellow-500 dark:focus:ring-yellow-800"
+                                       title="Editar Pago">
+                                        <i class="fas fa-edit mr-1.5"></i>
+                                        <span>Editar</span>
+                                    </a>
+
+                                    <!-- Eliminar Pago -->
+                                    <form action="{{ route('pagos.destroy', $pago->id) }}" method="POST" class="inline-block" onsubmit="return confirm('¿Está seguro de eliminar este pago? Esta acción revertirá los montos del préstamo.');">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="submit" class="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300" title="Eliminar">
-                                            <i class="fas fa-trash"></i>
+                                        <button type="submit"
+                                                class="inline-flex items-center px-3 py-2 text-xs font-medium text-center text-white bg-red-600 rounded-lg hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 dark:bg-red-500 dark:hover:bg-red-700 dark:focus:ring-red-800"
+                                                title="Eliminar Pago">
+                                            <i class="fas fa-trash mr-1.5"></i>
+                                            <span>Eliminar</span>
                                         </button>
                                     </form>
                                 </div>

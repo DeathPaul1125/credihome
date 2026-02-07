@@ -10,6 +10,7 @@ use App\Models\Cotizacion;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
 
 class PrestamoController extends Controller
@@ -99,7 +100,7 @@ class PrestamoController extends Controller
             $validated = $request->validate([
                 'cliente_id' => 'required|exists:clientes,id',
                 'monto_prestado' => 'required|numeric|min:500|max:100000',
-                'tasa_interes' => 'required|numeric|min:0|max:20',
+                'tasa_interes' => 'required|numeric|min:0|max:100',
                 'tipo_interes' => 'required|in:simple,compuesto',
                 'plazo' => 'required|integer|min:1|max:60',
                 'frecuencia_pago' => 'required|in:semanal,quincenal,mensual',
@@ -158,9 +159,10 @@ class PrestamoController extends Controller
         DB::beginTransaction();
         try {
             \Log::info('Generando número de préstamo');
-            // Generar número de préstamo dentro de la transacción
+            // Generar número de préstamo dentro de la transacción (incluyendo soft deleted para evitar duplicados)
             $year = date('Y');
-            $lastPrestamo = Prestamo::where('numero_prestamo', 'like', "P-{$year}-%")
+            $lastPrestamo = Prestamo::withTrashed()
+                ->where('numero_prestamo', 'like', "P-{$year}-%")
                 ->orderBy('numero_prestamo', 'desc')
                 ->lockForUpdate()
                 ->first();
@@ -272,7 +274,10 @@ class PrestamoController extends Controller
     {
         $prestamo->load(['cliente', 'usuario', 'aprobador', 'pagos.usuario', 'aportaciones.aportador']);
 
-        return view('prestamos.show-flowbite', compact('prestamo'));
+        // Generar tabla de amortización
+        $tablaAmortizacion = $prestamo->generarTablaAmortizacion();
+
+        return view('prestamos.show-flowbite', compact('prestamo', 'tablaAmortizacion'));
     }
 
     /**
@@ -303,7 +308,7 @@ class PrestamoController extends Controller
         $validated = $request->validate([
             'cliente_id' => 'required|exists:clientes,id',
             'monto_prestado' => 'required|numeric|min:500|max:100000',
-            'tasa_interes' => 'required|numeric|min:0|max:20',
+            'tasa_interes' => 'required|numeric|min:0|max:100',
             'tipo_interes' => 'required|in:simple,compuesto',
             'plazo' => 'required|integer|min:1|max:60',
             'frecuencia_pago' => 'required|in:semanal,quincenal,mensual',
@@ -349,17 +354,100 @@ class PrestamoController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Prestamo $prestamo)
+    public function destroy(Prestamo $prestamo, Request $request)
     {
-        // Solo permitir eliminar préstamos sin pagos
-        if ($prestamo->pagos()->exists()) {
-            return back()->with('error', 'No se puede eliminar un préstamo que tiene pagos registrados.');
+        $forzarEliminacion = $request->input('forzar_eliminacion') === 'true';
+
+        // Contar registros relacionados
+        $countPagos = $prestamo->pagos()->count();
+        $countAportaciones = $prestamo->aportaciones()->count();
+
+        // Si se solicita forzar la eliminación, eliminar todo en cascada
+        if ($forzarEliminacion) {
+            if (!Auth::user()->hasPermissionTo('eliminar-prestamos')) {
+                return back()->with('error', 'No tiene permisos para eliminar préstamos.');
+            }
+
+            \DB::beginTransaction();
+            try {
+                // Eliminar distribuciones de pagos
+                if ($countPagos > 0) {
+                    foreach ($prestamo->pagos as $pago) {
+                        \App\Models\DistribucionPago::where('pago_id', $pago->id)->delete();
+                    }
+                    $prestamo->pagos()->delete();
+                }
+
+                // Eliminar aportaciones (el evento boot() del modelo revertirá automáticamente los cambios en los aportadores)
+                if ($countAportaciones > 0) {
+                    $prestamo->aportaciones()->delete();
+                }
+
+                // Eliminar el préstamo
+                $prestamo->delete();
+
+                \DB::commit();
+
+                // Recalcular estadísticas de aportadores automáticamente
+                $this->recalcularAportadoresAutomatico();
+
+                return redirect()->route('prestamos.index')
+                    ->with('success', "Préstamo eliminado exitosamente. Se revirtieron {$countAportaciones} aportación(es) y se eliminaron {$countPagos} pago(s). Estadísticas de aportadores actualizadas.");
+
+            } catch (\Exception $e) {
+                \DB::rollback();
+                \Log::error('Error al eliminar préstamo: ' . $e->getMessage());
+                return back()->with('error', 'Error al eliminar el préstamo: ' . $e->getMessage());
+            }
         }
 
+        // Validación normal sin forzar
+        if ($countPagos > 0) {
+            return back()
+                ->with('error', "No se puede eliminar un préstamo que tiene {$countPagos} pago(s) registrado(s).")
+                ->with('prestamo_id', $prestamo->id)
+                ->with('tiene_pagos', true)
+                ->with('count_pagos', $countPagos)
+                ->with('count_aportaciones', $countAportaciones);
+        }
+
+        if ($countAportaciones > 0) {
+            return back()
+                ->with('error', "No se puede eliminar un préstamo que tiene {$countAportaciones} aportación(es) registrada(s).")
+                ->with('prestamo_id', $prestamo->id)
+                ->with('tiene_aportaciones', true)
+                ->with('count_aportaciones', $countAportaciones)
+                ->with('count_pagos', $countPagos);
+        }
+
+        // Eliminar el préstamo (soft delete) si no tiene relaciones
         $prestamo->delete();
 
         return redirect()->route('prestamos.index')
             ->with('success', 'Préstamo eliminado exitosamente.');
+    }
+
+    /**
+     * Recalcular aportadores automáticamente (método interno)
+     */
+    private function recalcularAportadoresAutomatico()
+    {
+        try {
+            $aportadores = \App\Models\Aportador::all();
+
+            foreach ($aportadores as $aportador) {
+                $aportacionesActivas = \App\Models\Aportacion::where('aportador_id', $aportador->id)
+                    ->whereIn('estado', ['Activo', 'Recuperado'])
+                    ->get();
+
+                $aportador->capital_invertido = $aportacionesActivas->sum('monto_aportado');
+                $aportador->capital_recuperado = $aportacionesActivas->sum('monto_recuperado');
+                $aportador->ganancias_totales = $aportacionesActivas->sum('intereses_ganados');
+                $aportador->save();
+            }
+        } catch (\Exception $e) {
+            \Log::error('Error al recalcular aportadores automáticamente: ' . $e->getMessage());
+        }
     }
 
     /**

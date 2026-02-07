@@ -253,4 +253,94 @@ class Prestamo extends Model
     {
         return 'Q ' . number_format($this->saldo_pendiente, 2, '.', ',');
     }
+
+    /**
+     * Generar tabla de amortización completa
+     */
+    public function generarTablaAmortizacion()
+    {
+        $tabla = [];
+        $saldo = $this->monto_prestado;
+        $tasaPeriodo = $this->tasa_interes / 100;
+
+        // Obtener pagos realizados
+        $pagosRealizados = $this->pagos()
+            ->orderBy('fecha_pago')
+            ->get()
+            ->keyBy(function ($pago) {
+                return $pago->numero_cuota ?? 0;
+            });
+
+        // Calcular fecha de primera cuota según frecuencia
+        $fechaCuota = Carbon::parse($this->fecha_desembolso);
+        switch ($this->frecuencia_pago) {
+            case 'semanal':
+                $fechaCuota->addWeek();
+                break;
+            case 'quincenal':
+                $fechaCuota->addWeeks(2);
+                break;
+            case 'mensual':
+            default:
+                $fechaCuota->addMonth();
+                break;
+        }
+
+        for ($i = 1; $i <= $this->plazo; $i++) {
+            if ($this->tipo_interes === 'simple') {
+                // Interés simple: el interés se calcula sobre el monto original
+                $interes = $this->monto_prestado * $tasaPeriodo;
+                $capital = $this->monto_cuota - $interes;
+            } else {
+                // Interés compuesto (sistema francés): el interés se calcula sobre el saldo
+                $interes = $saldo * $tasaPeriodo;
+                $capital = $this->monto_cuota - $interes;
+            }
+
+            $saldoAnterior = $saldo;
+            $saldo = max(0, $saldo - $capital);
+
+            // Verificar si existe pago para esta cuota
+            $pagoRealizado = $pagosRealizados->get($i);
+            $estado = 'pendiente';
+            $fechaPago = null;
+
+            if ($pagoRealizado) {
+                $estado = 'pagada';
+                $fechaPago = $pagoRealizado->fecha_pago;
+            } elseif ($fechaCuota->isPast()) {
+                $estado = 'vencida';
+            }
+
+            $tabla[] = [
+                'numero_cuota' => $i,
+                'fecha_vencimiento' => $fechaCuota->copy(),
+                'fecha_pago' => $fechaPago,
+                'cuota' => round($this->monto_cuota, 2),
+                'capital' => round($capital, 2),
+                'interes' => round($interes, 2),
+                'saldo_anterior' => round($saldoAnterior, 2),
+                'saldo' => round($saldo, 2),
+                'estado' => $estado,
+                'pago_id' => $pagoRealizado ? $pagoRealizado->id : null,
+                'numero_recibo' => $pagoRealizado ? $pagoRealizado->numero_recibo : null,
+            ];
+
+            // Avanzar fecha según frecuencia
+            switch ($this->frecuencia_pago) {
+                case 'semanal':
+                    $fechaCuota->addWeek();
+                    break;
+                case 'quincenal':
+                    $fechaCuota->addWeeks(2);
+                    break;
+                case 'mensual':
+                default:
+                    $fechaCuota->addMonth();
+                    break;
+            }
+        }
+
+        return $tabla;
+    }
 }

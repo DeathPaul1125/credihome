@@ -81,24 +81,21 @@ class DashboardController extends Controller
             ->get();
 
         // Usuario que realizó más préstamos
-        $usuarioMasPrestamos = DB::table('prestamos')
-            ->join('users', 'prestamos.user_id', '=', 'users.id')
+        $usuarioMasPrestamos = Prestamo::join('users', 'prestamos.user_id', '=', 'users.id')
             ->select('users.id', 'users.name', DB::raw('count(*) as total_prestamos'), DB::raw('sum(prestamos.monto_prestado) as monto_total'))
             ->groupBy('users.id', 'users.name')
             ->orderBy('total_prestamos', 'desc')
             ->first();
 
         // Usuario que realizó más cobros (pagos registrados)
-        $usuarioMasCobros = DB::table('pagos')
-            ->join('users', 'pagos.user_id', '=', 'users.id')
+        $usuarioMasCobros = Pago::join('users', 'pagos.user_id', '=', 'users.id')
             ->select('users.id', 'users.name', DB::raw('count(*) as total_cobros'), DB::raw('sum(pagos.monto_pagado) as monto_total_cobrado'))
             ->groupBy('users.id', 'users.name')
             ->orderBy('total_cobros', 'desc')
             ->first();
 
         // Top 5 usuarios por préstamos creados
-        $topUsuariosPrestamos = DB::table('prestamos')
-            ->join('users', 'prestamos.user_id', '=', 'users.id')
+        $topUsuariosPrestamos = Prestamo::join('users', 'prestamos.user_id', '=', 'users.id')
             ->select('users.name', DB::raw('count(*) as total'), DB::raw('sum(prestamos.monto_prestado) as monto_total'))
             ->groupBy('users.id', 'users.name')
             ->orderBy('total', 'desc')
@@ -106,8 +103,7 @@ class DashboardController extends Controller
             ->get();
 
         // Top 5 usuarios por cobros realizados
-        $topUsuariosCobros = DB::table('pagos')
-            ->join('users', 'pagos.user_id', '=', 'users.id')
+        $topUsuariosCobros = Pago::join('users', 'pagos.user_id', '=', 'users.id')
             ->select('users.name', DB::raw('count(*) as total'), DB::raw('sum(pagos.monto_pagado) as monto_total'))
             ->groupBy('users.id', 'users.name')
             ->orderBy('total', 'desc')

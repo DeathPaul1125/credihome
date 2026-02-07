@@ -1,8 +1,6 @@
 <x-flowbite-layout>
-    <div class="p-4 sm:ml-64">
-        <div class="p-4 mt-14">
-            <!-- Header -->
-            <div class="mb-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+    <!-- Header -->
+    <div class="mb-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <h1 class="text-2xl font-bold text-gray-900 dark:text-white">{{ $producto->nombre }}</h1>
                 <div class="flex gap-2">
                     <a href="{{ route('productos.edit', $producto) }}" class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-900 bg-yellow-400 rounded-lg hover:bg-yellow-500 focus:ring-4 focus:ring-yellow-300 focus:outline-none">
@@ -120,7 +118,5 @@
                 <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-4">Notas</h2>
                 <p class="text-base text-gray-900 dark:text-white whitespace-pre-line">{{ $producto->notas }}</p>
             </div>
-            @endif
-        </div>
-    </div>
+    @endif
 </x-flowbite-layout>

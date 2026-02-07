@@ -1,11 +1,9 @@
 <x-flowbite-layout>
-    <div class="p-4 sm:ml-64">
-        <div class="p-4 mt-14">
-            <!-- Header -->
-            <div class="mb-6">
-                <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Nuevo Inversionista</h1>
-                <p class="text-gray-600 dark:text-gray-400 mt-1">Registra un nuevo inversionista o financiador</p>
-            </div>
+    <!-- Header -->
+    <div class="mb-6">
+        <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Nuevo Inversionista</h1>
+        <p class="text-gray-600 dark:text-gray-400 mt-1">Registra un nuevo inversionista o financiador</p>
+    </div>
 
             <form action="{{ route('aportadores.store') }}" method="POST" class="space-y-6">
                 @csrf
@@ -153,10 +151,8 @@
                     <a href="{{ route('aportadores.index') }}" class="text-gray-900 bg-white border border-gray-300 hover:bg-gray-100 focus:ring-4 focus:ring-gray-200 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:border-gray-600 dark:focus:ring-gray-700">
                         Cancelar
                     </a>
-                </div>
-            </form>
         </div>
-    </div>
+    </form>
 
     @push('scripts')
     <script>

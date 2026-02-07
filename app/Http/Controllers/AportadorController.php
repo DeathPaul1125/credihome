@@ -274,4 +274,37 @@ class AportadorController extends Controller
 
         return back()->with('success', "Se retiraron Q " . number_format($request->monto, 2) . " del capital disponible.");
     }
+
+    /**
+     * Recalcular estadísticas de todos los aportadores
+     */
+    public function recalcularTodos()
+    {
+        try {
+            $aportadores = \App\Models\Aportador::all();
+            $contadorActualizados = 0;
+
+            foreach ($aportadores as $aportador) {
+                $aportacionesActivas = \App\Models\Aportacion::where('aportador_id', $aportador->id)
+                    ->whereIn('estado', ['Activo', 'Recuperado'])
+                    ->get();
+
+                $capitalInvertido = $aportacionesActivas->sum('monto_aportado');
+                $capitalRecuperado = $aportacionesActivas->sum('monto_recuperado');
+                $gananciasTotales = $aportacionesActivas->sum('intereses_ganados');
+
+                $aportador->capital_invertido = $capitalInvertido;
+                $aportador->capital_recuperado = $capitalRecuperado;
+                $aportador->ganancias_totales = $gananciasTotales;
+                $aportador->save();
+
+                $contadorActualizados++;
+            }
+
+            return back()->with('success', "Se recalcularon exitosamente las estadísticas de {$contadorActualizados} aportador(es).");
+        } catch (\Exception $e) {
+            \Log::error('Error al recalcular aportadores: ' . $e->getMessage());
+            return back()->with('error', 'Error al recalcular: ' . $e->getMessage());
+        }
+    }
 }

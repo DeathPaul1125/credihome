@@ -200,4 +200,82 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Historial de Auditoría -->
+            @if($activityLogs->count() > 0)
+            <div class="mt-6 bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700">
+                <div class="p-6">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-4">
+                        <i class="fas fa-history text-blue-600 mr-2"></i>Historial de Cambios
+                    </h2>
+
+                    <div class="relative">
+                        <div class="absolute left-4 top-0 bottom-0 w-0.5 bg-gray-200 dark:bg-gray-700"></div>
+
+                        <div class="space-y-4">
+@foreach($activityLogs as $log)
+                            <div class="relative pl-10">
+                                <div class="absolute left-0 top-0 w-8 h-8 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center">
+                                    @if(str_contains(strtolower($log->description), 'creado'))
+                                        <i class="fas fa-plus text-blue-600 dark:text-blue-400 text-sm"></i>
+                                    @elseif(str_contains(strtolower($log->description), 'editado'))
+                                        <i class="fas fa-edit text-yellow-600 dark:text-yellow-400 text-sm"></i>
+                                    @elseif(str_contains(strtolower($log->description), 'eliminado'))
+                                        <i class="fas fa-trash text-red-600 dark:text-red-400 text-sm"></i>
+                                    @else
+                                        <i class="fas fa-circle text-gray-600 dark:text-gray-400 text-xs"></i>
+                                    @endif
+                                </div>
+
+                                <div class="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
+                                    <div class="flex items-center justify-between mb-2">
+                                        <h3 class="font-semibold text-gray-900 dark:text-white">{{ $log->description }}</h3>
+                                        <span class="text-xs text-gray-500 dark:text-gray-400">
+                                            {{ $log->created_at->diffForHumans() }}
+                                        </span>
+                                    </div>
+
+                                    <p class="text-sm text-gray-600 dark:text-gray-400 mb-2">
+                                        Por: <span class="font-medium">{{ $log->causer->name ?? 'Sistema' }}</span>
+                                        <span class="text-gray-400">•</span>
+                                        {{ $log->created_at->format('d/m/Y H:i:s') }}
+                                    </p>
+
+                                    @if($log->properties && count($log->properties) > 0)
+                                    <div class="mt-2 text-sm">
+                                        @if(isset($log->properties['antes']) && isset($log->properties['despues']))
+                                            <div class="bg-white dark:bg-gray-800 p-3 rounded">
+                                                <p class="font-medium text-gray-700 dark:text-gray-300 mb-2">Cambios realizados:</p>
+                                                @foreach($log->properties['despues'] as $campo => $valor)
+                                                    @if($log->properties['antes'][$campo] != $valor)
+                                                    <div class="flex items-center gap-2 text-xs mb-1">
+                                                        <span class="text-gray-600 dark:text-gray-400">{{ ucfirst($campo) }}:</span>
+                                                        <span class="text-red-600 line-through">{{ $log->properties['antes'][$campo] }}</span>
+                                                        <i class="fas fa-arrow-right text-gray-400"></i>
+                                                        <span class="text-green-600 font-medium">{{ $valor }}</span>
+                                                    </div>
+                                                    @endif
+                                                @endforeach
+                                            </div>
+                                        @else
+                                            <div class="text-gray-600 dark:text-gray-400">
+                                                @foreach($log->properties as $key => $value)
+                                                    @if(!is_array($value))
+                                                    <span class="inline-block mr-3">
+                                                        <strong>{{ ucfirst($key) }}:</strong> {{ $value }}
+                                                    </span>
+                                                    @endif
+                                                @endforeach
+                                            </div>
+                                        @endif
+                                    </div>
+                                    @endif
+                                </div>
+                            </div>
+                            @endforeach
+                        </div>
+                    </div>
+                </div>
+            </div>
+            @endif
 </x-flowbite-layout>

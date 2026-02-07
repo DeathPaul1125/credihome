@@ -30,6 +30,15 @@
     </div>
     @endif
 
+    @if(session('error'))
+    <div class="flex items-center p-4 mb-4 text-sm text-red-800 border border-red-300 rounded-lg bg-red-50 dark:bg-gray-800 dark:text-red-400 dark:border-red-800" role="alert">
+        <svg class="flex-shrink-0 inline w-4 h-4 me-3" fill="currentColor" viewBox="0 0 20 20">
+            <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z"/>
+        </svg>
+        <div>{{ session('error') }}</div>
+    </div>
+    @endif
+
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-4">
         <!-- Información del Préstamo -->
         <div class="lg:col-span-2 bg-white dark:bg-gray-800 rounded-lg shadow">
@@ -199,6 +208,138 @@
     </div>
     @endif
 
+    <!-- Tabla de Amortización -->
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow mb-4">
+        <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+            <div class="flex items-center justify-between">
+                <h2 class="text-xl font-semibold text-gray-900 dark:text-white">📊 Tabla de Amortización</h2>
+                <span class="text-sm text-gray-500 dark:text-gray-400">{{ $prestamo->plazo }} cuotas</span>
+            </div>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
+                <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+                    <tr>
+                        <th scope="col" class="px-4 py-3 text-center">#</th>
+                        <th scope="col" class="px-4 py-3">Fecha Vencimiento</th>
+                        <th scope="col" class="px-4 py-3 text-right">Cuota</th>
+                        <th scope="col" class="px-4 py-3 text-right">Capital</th>
+                        <th scope="col" class="px-4 py-3 text-right">Interés</th>
+                        <th scope="col" class="px-4 py-3 text-right">Saldo</th>
+                        <th scope="col" class="px-4 py-3 text-center">Estado</th>
+                        <th scope="col" class="px-4 py-3 text-center">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach($tablaAmortizacion as $cuota)
+                    <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600
+                        {{ $cuota['estado'] === 'vencida' ? 'bg-red-50 dark:bg-red-900/20' : '' }}
+                        {{ $cuota['estado'] === 'pagada' ? 'bg-green-50 dark:bg-green-900/20' : '' }}">
+                        <td class="px-4 py-3 text-center font-medium text-gray-900 dark:text-white">
+                            {{ $cuota['numero_cuota'] }}
+                        </td>
+                        <td class="px-4 py-3">
+                            <div class="flex flex-col">
+                                <span class="text-gray-900 dark:text-white">{{ $cuota['fecha_vencimiento']->format('d/m/Y') }}</span>
+                                @if($cuota['fecha_pago'])
+                                <span class="text-xs text-green-600 dark:text-green-400">Pagado: {{ $cuota['fecha_pago']->format('d/m/Y') }}</span>
+                                @endif
+                            </div>
+                        </td>
+                        <td class="px-4 py-3 text-right font-medium text-gray-900 dark:text-white">
+                            Q{{ number_format($cuota['cuota'], 2) }}
+                        </td>
+                        <td class="px-4 py-3 text-right text-blue-600 dark:text-blue-400">
+                            Q{{ number_format($cuota['capital'], 2) }}
+                        </td>
+                        <td class="px-4 py-3 text-right text-orange-600 dark:text-orange-400">
+                            Q{{ number_format($cuota['interes'], 2) }}
+                        </td>
+                        <td class="px-4 py-3 text-right text-gray-900 dark:text-white">
+                            Q{{ number_format($cuota['saldo'], 2) }}
+                        </td>
+                        <td class="px-4 py-3 text-center">
+                            @if($cuota['estado'] === 'pagada')
+                                <span class="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded dark:bg-green-900 dark:text-green-300">
+                                    ✓ Pagada
+                                </span>
+                            @elseif($cuota['estado'] === 'vencida')
+                                <span class="bg-red-100 text-red-800 text-xs font-medium px-2.5 py-0.5 rounded dark:bg-red-900 dark:text-red-300">
+                                    ⚠ Vencida
+                                </span>
+                            @else
+                                <span class="bg-yellow-100 text-yellow-800 text-xs font-medium px-2.5 py-0.5 rounded dark:bg-yellow-900 dark:text-yellow-300">
+                                    ⏱ Pendiente
+                                </span>
+                            @endif
+                        </td>
+                        <td class="px-4 py-3 text-center">
+                            @if($cuota['estado'] === 'pagada')
+                                @if($cuota['numero_recibo'])
+                                <a href="{{ route('pagos.recibo', $cuota['pago_id']) }}" target="_blank"
+                                   class="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 font-medium text-xs"
+                                   title="Ver recibo">
+                                    📄 {{ $cuota['numero_recibo'] }}
+                                </a>
+                                @endif
+                            @elseif($prestamo->estado === 'activo' || $prestamo->estado === 'en_mora')
+                                <a href="{{ route('pagos.create', ['prestamo_id' => $prestamo->id, 'numero_cuota' => $cuota['numero_cuota']]) }}"
+                                   class="inline-flex items-center text-white bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 font-medium rounded text-xs px-3 py-1.5 dark:bg-blue-500 dark:hover:bg-blue-600 dark:focus:ring-blue-800"
+                                   title="Registrar pago">
+                                    💰 Pagar
+                                </a>
+                            @endif
+                        </td>
+                    </tr>
+                    @endforeach
+                </tbody>
+                <tfoot class="text-xs font-semibold text-gray-700 uppercase bg-gray-100 dark:bg-gray-700 dark:text-gray-300">
+                    <tr>
+                        <td colspan="2" class="px-4 py-3 text-right">TOTALES:</td>
+                        <td class="px-4 py-3 text-right text-gray-900 dark:text-white">
+                            Q{{ number_format($prestamo->monto_total, 2) }}
+                        </td>
+                        <td class="px-4 py-3 text-right text-blue-600 dark:text-blue-400">
+                            Q{{ number_format($prestamo->monto_prestado, 2) }}
+                        </td>
+                        <td class="px-4 py-3 text-right text-orange-600 dark:text-orange-400">
+                            Q{{ number_format($prestamo->interes_total, 2) }}
+                        </td>
+                        <td colspan="3" class="px-4 py-3"></td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+        <div class="p-4 bg-gray-50 dark:bg-gray-700 border-t border-gray-200 dark:border-gray-600">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 text-sm">
+                <div>
+                    <span class="text-gray-600 dark:text-gray-400">Cuotas Pagadas:</span>
+                    <span class="font-semibold text-green-600 dark:text-green-400 ml-2">
+                        {{ collect($tablaAmortizacion)->where('estado', 'pagada')->count() }} / {{ $prestamo->plazo }}
+                    </span>
+                </div>
+                <div>
+                    <span class="text-gray-600 dark:text-gray-400">Cuotas Vencidas:</span>
+                    <span class="font-semibold text-red-600 dark:text-red-400 ml-2">
+                        {{ collect($tablaAmortizacion)->where('estado', 'vencida')->count() }}
+                    </span>
+                </div>
+                <div>
+                    <span class="text-gray-600 dark:text-gray-400">Cuotas Pendientes:</span>
+                    <span class="font-semibold text-yellow-600 dark:text-yellow-400 ml-2">
+                        {{ collect($tablaAmortizacion)->where('estado', 'pendiente')->count() }}
+                    </span>
+                </div>
+                <div>
+                    <span class="text-gray-600 dark:text-gray-400">Progreso:</span>
+                    <span class="font-semibold text-blue-600 dark:text-blue-400 ml-2">
+                        {{ round((collect($tablaAmortizacion)->where('estado', 'pagada')->count() / $prestamo->plazo) * 100, 1) }}%
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Información del Cliente -->
     <div class="bg-white dark:bg-gray-800 rounded-lg shadow mb-4">
         <div class="p-6 border-b border-gray-200 dark:border-gray-700">
@@ -248,6 +389,9 @@
                         <th scope="col" class="px-6 py-3">Saldo Después</th>
                         <th scope="col" class="px-6 py-3">Método</th>
                         <th scope="col" class="px-6 py-3">Notas</th>
+                        @if(Auth::check() && Auth::user()->hasPermissionTo('eliminar-pagos'))
+                        <th scope="col" class="px-6 py-3">Acciones</th>
+                        @endif
                     </tr>
                 </thead>
                 <tbody>
@@ -260,6 +404,17 @@
                         <td class="px-6 py-4">Q{{ number_format($pago->saldo_despues ?? 0, 2) }}</td>
                         <td class="px-6 py-4">{{ ucfirst($pago->metodo_pago ?? 'N/A') }}</td>
                         <td class="px-6 py-4">{{ $pago->notas ?? '-' }}</td>
+                        @if(Auth::check() && Auth::user()->hasPermissionTo('eliminar-pagos'))
+                        <td class="px-6 py-4">
+                            <form action="{{ route('pagos.destroy', $pago->id) }}" method="POST" class="inline" onsubmit="return confirm('¿Está seguro de eliminar este pago? Solo se puede eliminar el último pago registrado.');">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300" title="Eliminar">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </form>
+                        </td>
+                        @endif
                     </tr>
                     @endforeach
                 </tbody>

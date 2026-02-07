@@ -24,6 +24,37 @@
     </div>
     @endif
 
+    @if(session('error'))
+    <div class="flex items-center p-4 mb-4 text-sm text-red-800 border border-red-300 rounded-lg bg-red-50 dark:bg-gray-800 dark:text-red-400 dark:border-red-800" role="alert">
+        <svg class="flex-shrink-0 inline w-4 h-4 me-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+            <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z"/>
+        </svg>
+        <span class="sr-only">Error</span>
+        <div>
+            <div class="font-medium mb-2">{{ session('error') }}</div>
+            @if(session('tiene_aportaciones') || session('tiene_pagos'))
+                <div class="mt-3">
+                    <p class="mb-2 text-xs">Este préstamo tiene:</p>
+                    <ul class="list-disc list-inside text-xs mb-3">
+                        @if(session('count_pagos') > 0)
+                            <li>{{ session('count_pagos') }} pago(s) registrado(s)</li>
+                        @endif
+                        @if(session('count_aportaciones') > 0)
+                            <li>{{ session('count_aportaciones') }} aportación(es) registrada(s)</li>
+                        @endif
+                    </ul>
+                    <button type="button"
+                            onclick="forceDeletePrestamo({{ session('prestamo_id') }})"
+                            class="text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-xs px-4 py-2 dark:bg-red-600 dark:hover:bg-red-700 focus:outline-none dark:focus:ring-red-800">
+                        <i class="fas fa-trash mr-1"></i>
+                        Eliminar de todas formas (incluye pagos y aportaciones)
+                    </button>
+                </div>
+            @endif
+        </div>
+    </div>
+    @endif
+
     <!-- Search and Filter -->
     <div class="bg-white dark:bg-gray-800 rounded-lg shadow mb-4">
         <div class="p-4">
@@ -146,6 +177,39 @@
         function confirmDelete(id) {
             if (confirm('¿Estás seguro de que deseas eliminar este préstamo?')) {
                 document.getElementById('delete-form-' + id).submit();
+            }
+        }
+
+        function forceDeletePrestamo(prestamoId) {
+            if (confirm('⚠️ ADVERTENCIA: Esta acción eliminará el préstamo y TODOS sus registros relacionados (pagos, aportaciones, distribuciones).\n\n¿Está ABSOLUTAMENTE SEGURO de continuar?')) {
+                // Crear formulario para enviar con parámetro forzar_eliminacion
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = '/prestamos/' + prestamoId;
+
+                // Token CSRF
+                const csrfInput = document.createElement('input');
+                csrfInput.type = 'hidden';
+                csrfInput.name = '_token';
+                csrfInput.value = '{{ csrf_token() }}';
+                form.appendChild(csrfInput);
+
+                // Method DELETE
+                const methodInput = document.createElement('input');
+                methodInput.type = 'hidden';
+                methodInput.name = '_method';
+                methodInput.value = 'DELETE';
+                form.appendChild(methodInput);
+
+                // Parámetro para forzar
+                const forceInput = document.createElement('input');
+                forceInput.type = 'hidden';
+                forceInput.name = 'forzar_eliminacion';
+                forceInput.value = 'true';
+                form.appendChild(forceInput);
+
+                document.body.appendChild(form);
+                form.submit();
             }
         }
     </script>

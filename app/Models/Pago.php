@@ -63,16 +63,24 @@ class Pago extends Model
                 $pago->dias_atraso = $dias < 0 ? abs($dias) : 0;
             }
 
-            // Determinar estado del pago
+            // Determinar estado del pago - Por defecto 'completado' para pagos procesados
             if (empty($pago->estado)) {
+                // Todos los pagos registrados se consideran completados por defecto
+                $pago->estado = 'completado';
+
+                // Guardar información adicional en observaciones si es necesario
+                $estadoInfo = [];
                 if ($pago->dias_atraso > 0) {
-                    $pago->estado = 'atrasado';
+                    $estadoInfo[] = 'pago con atraso de ' . $pago->dias_atraso . ' días';
                 } elseif ($pago->monto_pagado < $pago->monto_cuota_esperado) {
-                    $pago->estado = 'parcial';
+                    $estadoInfo[] = 'pago parcial';
                 } elseif ($pago->fecha_pago < $pago->fecha_vencimiento) {
-                    $pago->estado = 'anticipado';
-                } else {
-                    $pago->estado = 'puntual';
+                    $estadoInfo[] = 'pago anticipado';
+                }
+
+                // Opcional: agregar info al final de observaciones
+                if (!empty($estadoInfo) && empty($pago->observaciones)) {
+                    $pago->observaciones = ucfirst(implode(', ', $estadoInfo));
                 }
             }
         });
@@ -87,7 +95,8 @@ class Pago extends Model
             $prestamo->saldo_pendiente -= $pago->monto_pagado;
             $prestamo->cuotas_pagadas++;
 
-            if ($pago->estado === 'atrasado') {
+            // Reducir cuotas vencidas si el pago se realizó (incluso con atraso)
+            if ($pago->dias_atraso > 0 || $prestamo->cuotas_vencidas > 0) {
                 $prestamo->cuotas_vencidas = max(0, $prestamo->cuotas_vencidas - 1);
             }
 

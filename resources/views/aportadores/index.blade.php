@@ -1,7 +1,6 @@
 <x-flowbite-layout>
-    <div class="p-4">
-        <!-- Header -->
-        <div class="mb-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+    <!-- Header -->
+    <div class="mb-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <div>
                 <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Inversionistas</h1>
                 <p class="text-gray-600 dark:text-gray-400 mt-1">Gestión de financiadores del sistema</p>
@@ -164,5 +163,4 @@
                 {{ $aportadores->links() }}
             </div>
         @endif
-    </div>
 </x-flowbite-layout>

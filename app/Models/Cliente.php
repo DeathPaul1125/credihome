@@ -38,6 +38,8 @@ class Cliente extends Model
         'estado',
         'notas',
         'user_id',
+        'portal_user_id',
+        'portal_activo',
     ];
 
     protected $casts = [
@@ -54,6 +56,14 @@ class Cliente extends Model
     }
 
     /**
+     * Relación con el usuario del portal del cliente
+     */
+    public function portalUser(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'portal_user_id');
+    }
+
+    /**
      * Relación con los préstamos del cliente
      */
     public function prestamos(): HasMany
@@ -67,6 +77,14 @@ class Cliente extends Model
     public function pagos(): HasMany
     {
         return $this->hasMany(Pago::class);
+    }
+
+    /**
+     * Relación con los comprobantes de pago del cliente
+     */
+    public function comprobantes(): HasMany
+    {
+        return $this->hasMany(ComprobantePago::class);
     }
 
     /**

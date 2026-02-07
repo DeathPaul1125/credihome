@@ -4,9 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Models\Pago;
 use App\Models\Prestamo;
+use App\Models\ActivityLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class PagoController extends Controller
 {
@@ -55,8 +57,15 @@ class PagoController extends Controller
     public function create(Request $request)
     {
         $prestamo = null;
+        $numeroCuota = null;
+
         if ($request->filled('prestamo_id')) {
             $prestamo = Prestamo::with('cliente')->find($request->prestamo_id);
+
+            // Si viene un número de cuota específico
+            if ($request->filled('numero_cuota')) {
+                $numeroCuota = $request->numero_cuota;
+            }
         }
 
         // Obtener préstamos activos
@@ -65,7 +74,7 @@ class PagoController extends Controller
             ->orderBy('fecha_desembolso', 'desc')
             ->get();
 
-        return view('pagos.create-flowbite', compact('prestamos', 'prestamo'));
+        return view('pagos.create-flowbite', compact('prestamos', 'prestamo', 'numeroCuota'));
     }
 
     /**
@@ -79,6 +88,7 @@ class PagoController extends Controller
             'fecha_pago' => 'required|date',
             'tipo_pago' => 'required|in:efectivo,transferencia,cheque,deposito',
             'observaciones' => 'nullable|string',
+            'numero_cuota' => 'nullable|integer|min:1',
         ]);
 
         $prestamo = Prestamo::findOrFail($validated['prestamo_id']);
@@ -88,8 +98,12 @@ class PagoController extends Controller
             return back()->with('error', 'Este préstamo no está activo.');
         }
 
-        // Calcular número de cuota
-        $numeroCuota = $prestamo->cuotas_pagadas + 1;
+        // Usar número de cuota proporcionado o calcular automáticamente
+        if (isset($validated['numero_cuota'])) {
+            $numeroCuota = $validated['numero_cuota'];
+        } else {
+            $numeroCuota = $prestamo->cuotas_pagadas + 1;
+        }
 
         // Calcular fecha de vencimiento de esta cuota
         $fechaBase = Carbon::parse($prestamo->fecha_primer_pago);
@@ -130,6 +144,20 @@ class PagoController extends Controller
 
         $pago->save();
 
+        // Registrar en auditoría
+        ActivityLog::log(
+            'Pago creado',
+            $pago,
+            [
+                'prestamo_id' => $prestamo->id,
+                'numero_prestamo' => $prestamo->numero_prestamo,
+                'cliente' => $prestamo->cliente->nombre_completo,
+                'monto' => $pago->monto_pagado,
+                'metodo' => $pago->tipo_pago,
+            ],
+            'pagos'
+        );
+
         return redirect()->route('prestamos.show', $prestamo)
             ->with('success', 'Pago registrado exitosamente.');
     }
@@ -141,7 +169,74 @@ class PagoController extends Controller
     {
         $pago->load(['prestamo.cliente', 'usuario']);
 
-        return view('pagos.show-flowbite', compact('pago'));
+        // Cargar historial de auditoría
+        $activityLogs = ActivityLog::where('subject_type', Pago::class)
+            ->where('subject_id', $pago->id)
+            ->with('causer')
+            ->latest()
+            ->get();
+
+        return view('pagos.show-flowbite', compact('pago', 'activityLogs'));
+    }
+
+    /**
+     * Show the form for editing the specified resource.
+     */
+    public function edit(Pago $pago)
+    {
+        // Verificar permiso
+        if (!Auth::user()->can('eliminar-pagos')) {
+            return back()->with('error', 'No tiene permisos para editar pagos.');
+        }
+
+        $pago->load(['prestamo.cliente']);
+
+        return view('pagos.edit-flowbite', compact('pago'));
+    }
+
+    /**
+     * Update the specified resource in storage.
+     */
+    public function update(Request $request, Pago $pago)
+    {
+        // Verificar permiso
+        if (!Auth::user()->can('eliminar-pagos')) {
+            return back()->with('error', 'No tiene permisos para editar pagos.');
+        }
+
+        $validated = $request->validate([
+            'monto_pagado' => 'required|numeric|min:0.01',
+            'fecha_pago' => 'required|date',
+            'tipo_pago' => 'required|in:efectivo,transferencia,cheque,deposito',
+            'observaciones' => 'nullable|string',
+        ]);
+
+        // Guardar valores anteriores para auditoría
+        $valoresAnteriores = [
+            'monto_pagado' => $pago->monto_pagado,
+            'fecha_pago' => $pago->fecha_pago->format('Y-m-d'),
+            'tipo_pago' => $pago->tipo_pago,
+            'observaciones' => $pago->observaciones,
+        ];
+
+        // Actualizar el pago
+        $pago->update($validated);
+
+        // Registrar en auditoría
+        ActivityLog::log(
+            'Pago editado',
+            $pago,
+            [
+                'antes' => $valoresAnteriores,
+                'despues' => $validated,
+                'prestamo' => $pago->prestamo->numero_prestamo,
+                'cliente' => $pago->prestamo->cliente->nombre_completo,
+            ],
+            'pagos'
+        );
+
+        return redirect()->route('pagos.show', $pago)
+            ->with('success', 'Pago actualizado exitosamente.');
     }
 
     /**
@@ -149,6 +244,11 @@ class PagoController extends Controller
      */
     public function destroy(Pago $pago)
     {
+        // Verificar permiso
+        if (!Auth::user()->can('eliminar-pagos')) {
+            return back()->with('error', 'No tiene permisos para eliminar pagos.');
+        }
+
         // Solo permitir eliminar el último pago
         $ultimoPago = $pago->prestamo->pagos()->latest('id')->first();
 
@@ -176,9 +276,67 @@ class PagoController extends Controller
         }
 
         $prestamo->save();
+
+        // Registrar en auditoría antes de eliminar
+        ActivityLog::log(
+            'Pago eliminado',
+            $pago,
+            [
+                'numero_recibo' => $pago->numero_recibo,
+            ],
+            'pagos'
+        );
+
+        // Eliminar distribuciones del pago si existen
+        \App\Models\DistribucionPago::where('pago_id', $pago->id)->delete();
+
         $pago->delete();
 
+        // Recalcular estadísticas de aportadores automáticamente
+        $this->recalcularAportadoresAutomatico();
+
         return redirect()->route('prestamos.show', $prestamo)
-            ->with('success', 'Pago eliminado exitosamente.');
+            ->with('success', 'Pago eliminado exitosamente. Estadísticas de aportadores actualizadas.');
+    }
+
+    /**
+     * Recalcular aportadores automáticamente (método interno)
+     */
+    private function recalcularAportadoresAutomatico()
+    {
+        try {
+            $aportadores = \App\Models\Aportador::all();
+
+            foreach ($aportadores as $aportador) {
+                $aportacionesActivas = \App\Models\Aportacion::where('aportador_id', $aportador->id)
+                    ->whereIn('estado', ['Activo', 'Recuperado'])
+                    ->get();
+
+                $aportador->capital_invertido = $aportacionesActivas->sum('monto_aportado');
+                $aportador->capital_recuperado = $aportacionesActivas->sum('monto_recuperado');
+                $aportador->ganancias_totales = $aportacionesActivas->sum('intereses_ganados');
+                $aportador->save();
+            }
+        } catch (\Exception $e) {
+            \Log::error('Error al recalcular aportadores automáticamente: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Generar recibo PDF del pago
+     */
+    public function recibo(Pago $pago)
+    {
+        // Validar que el pago no esté pendiente o rechazado antes de generar el recibo
+        if (in_array($pago->estado, ['pendiente', 'rechazado'])) {
+            return redirect()->back()->with('error', 'No se puede generar recibo de pagos pendientes o rechazados.');
+        }
+
+        $pago->load(['prestamo.cliente', 'usuario']);
+
+        $pdf = Pdf::loadView('pagos.recibo-pdf', compact('pago'));
+        $pdf->setPaper('letter');
+
+        return $pdf->stream('recibo-pago-' . ($pago->numero_recibo ?? 'pago-' . $pago->id) . '.pdf');
     }
 }
