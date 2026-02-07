@@ -2,7 +2,7 @@
     <div class="mb-6 flex items-center justify-between">
                 <div>
                     <h1 class="text-2xl font-bold text-gray-900 dark:text-white">{{ $cotizacion->numero_cotizacion }}</h1>
-                    <p class="text-gray-600 dark:text-gray-400 mt-1">Cliente: {{ $cotizacion->cliente->nombre }}</p>
+                    <p class="text-gray-600 dark:text-gray-400 mt-1">Cliente: {{ $cotizacion->cliente->nombre_completo }}</p>
                 </div>
                 <div class="flex gap-3">
                     @can('editar-cotizaciones')
@@ -19,12 +19,14 @@
                         </svg>
                         PDF Completo
                     </a>
+                    @if($cotizacion->plazo_meses && $cotizacion->tasa_interes_anual)
                     <a href="{{ route('cotizaciones.pdf-amortizacion', $cotizacion) }}" target="_blank" class="inline-flex items-center text-white bg-purple-700 hover:bg-purple-800 rounded-lg text-sm px-5 py-2.5">
                         <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
                             <path d="M9 2a2 2 0 00-2 2v8a2 2 0 002 2h6a2 2 0 002-2V6.414A2 2 0 0016.414 5L14 2.586A2 2 0 0012.586 2H9z"/>
                         </svg>
                         PDF Amortización
                     </a>
+                    @endif
 
                     <a href="{{ route('cotizaciones.index') }}" class="text-gray-900 bg-white border border-gray-300 hover:bg-gray-100 rounded-lg text-sm px-5 py-2.5">Volver</a>
                 </div>
