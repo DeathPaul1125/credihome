@@ -62,7 +62,7 @@ class PortalClienteController extends Controller
 
         $prestamo = Prestamo::where('id', $id)
             ->where('cliente_id', $cliente->id)
-            ->with(['pagos.usuario', 'aportaciones.aportador'])
+            ->with(['pagos.usuario', 'aportaciones.aportador', 'comprobantes'])
             ->firstOrFail();
 
         // Generar tabla de amortización

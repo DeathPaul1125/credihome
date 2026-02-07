@@ -3,7 +3,23 @@
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
-    return auth()->check() ? redirect('/dashboard') : redirect('/login');
+    // Si el usuario está autenticado
+    if (auth()->check()) {
+        $user = auth()->user();
+
+        // Verificar si es un cliente con portal
+        $cliente = \App\Models\Cliente::where('portal_user_id', $user->id)->first();
+
+        if ($cliente && $cliente->portal_activo) {
+            return redirect('/portal/dashboard');
+        }
+
+        // Si no es cliente, redirigir al dashboard admin
+        return redirect('/dashboard');
+    }
+
+    // Si no está autenticado, mostrar página de login
+    return redirect('/login');
 });
 
 Route::middleware([
@@ -11,13 +27,29 @@ Route::middleware([
     config('jetstream.auth_session'),
     'verified',
 ])->group(function () {
-    Route::get('/dashboard', [\App\Http\Controllers\DashboardController::class, 'index'])->name('dashboard');
+    // Dashboard - redirigir según tipo de usuario
+    Route::get('/dashboard', function() {
+        $user = auth()->user();
+
+        // Verificar si es un cliente con portal
+        $cliente = \App\Models\Cliente::where('portal_user_id', $user->id)->first();
+
+        if ($cliente && $cliente->portal_activo) {
+            return redirect('/portal/dashboard');
+        }
+
+        // Dashboard admin
+        return app(\App\Http\Controllers\DashboardController::class)->index();
+    })->name('dashboard');
 
     // Rutas de Clientes
     Route::resource('clientes', \App\Http\Controllers\ClienteController::class);
     Route::post('clientes/{cliente}/archivos', [\App\Http\Controllers\ClienteController::class, 'subirArchivo'])->name('clientes.archivos.store');
     Route::delete('clientes/{cliente}/archivos/{archivo}', [\App\Http\Controllers\ClienteController::class, 'eliminarArchivo'])->name('clientes.archivos.destroy');
     Route::post('clientes/search-pdi', [\App\Http\Controllers\ClienteController::class, 'searchPdi'])->name('clientes.search-pdi')->withoutMiddleware(['auth:sanctum', 'auth', 'verified']);
+    Route::post('clientes/{cliente}/activar-portal', [\App\Http\Controllers\ClienteController::class, 'activarPortal'])->name('clientes.activar-portal');
+    Route::post('clientes/{cliente}/desactivar-portal', [\App\Http\Controllers\ClienteController::class, 'desactivarPortal'])->name('clientes.desactivar-portal');
+    Route::post('clientes/{cliente}/regenerar-password', [\App\Http\Controllers\ClienteController::class, 'regenerarPassword'])->name('clientes.regenerar-password');
 
     // Rutas de Aportadores
     Route::get('aportadores/dashboard', [\App\Http\Controllers\AportadorController::class, 'dashboard'])->name('aportadores.dashboard');

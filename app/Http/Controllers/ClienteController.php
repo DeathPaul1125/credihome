@@ -4,9 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Models\Cliente;
 use App\Models\ClienteArchivo;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class ClienteController extends Controller
 {
@@ -267,5 +270,150 @@ class ClienteController extends Controller
             'fecha_nacimiento' => null, // La API no devuelve fecha de nacimiento
             'genero' => null, // La API no devuelve género
         ]);
+    }
+
+    /**
+     * Activar portal del cliente y crear credenciales
+     */
+    public function activarPortal($id)
+    {
+        $cliente = Cliente::findOrFail($id);
+
+        // Verificar si ya tiene usuario
+        if ($cliente->portal_user_id) {
+            $user = User::find($cliente->portal_user_id);
+            if ($user) {
+                // Reactivar si estaba desactivado
+                $cliente->update(['portal_activo' => true]);
+
+                return back()->with('info', 'El cliente ya tiene acceso al portal. Se ha reactivado el acceso.');
+            }
+        }
+
+        // Generar email y contraseña
+        $email = $this->generarEmailUnico($cliente);
+        $password = Str::random(8); // Contraseña aleatoria de 8 caracteres
+
+        // Crear usuario
+        $user = User::create([
+            'name' => $cliente->nombre_completo,
+            'email' => $email,
+            'password' => Hash::make($password),
+            'email_verified_at' => now(), // Auto-verificar el email
+        ]);
+
+        // Actualizar cliente con el user_id y activar portal
+        $cliente->update([
+            'portal_user_id' => $user->id,
+            'portal_activo' => true,
+        ]);
+
+        // Preparar mensaje para WhatsApp
+        $mensaje = $this->generarMensajeCredenciales($cliente, $email, $password);
+
+        return back()->with([
+            'success' => 'Portal activado correctamente.',
+            'credentials' => [
+                'email' => $email,
+                'password' => $password,
+                'whatsapp_message' => $mensaje,
+                'telefono' => $this->limpiarTelefono($cliente->telefono),
+            ]
+        ]);
+    }
+
+    /**
+     * Desactivar portal del cliente
+     */
+    public function desactivarPortal($id)
+    {
+        $cliente = Cliente::findOrFail($id);
+
+        $cliente->update(['portal_activo' => false]);
+
+        return back()->with('success', 'Portal desactivado correctamente.');
+    }
+
+    /**
+     * Regenerar contraseña del portal
+     */
+    public function regenerarPassword($id)
+    {
+        $cliente = Cliente::findOrFail($id);
+
+        if (!$cliente->portal_user_id) {
+            return back()->with('error', 'El cliente no tiene acceso al portal.');
+        }
+
+        $user = User::findOrFail($cliente->portal_user_id);
+        $password = Str::random(8);
+
+        $user->update([
+            'password' => Hash::make($password),
+        ]);
+
+        // Preparar mensaje para WhatsApp
+        $mensaje = $this->generarMensajeCredenciales($cliente, $user->email, $password);
+
+        return back()->with([
+            'success' => 'Contraseña regenerada correctamente.',
+            'credentials' => [
+                'email' => $user->email,
+                'password' => $password,
+                'whatsapp_message' => $mensaje,
+                'telefono' => $this->limpiarTelefono($cliente->telefono),
+            ]
+        ]);
+    }
+
+    /**
+     * Generar email único para el cliente
+     */
+    private function generarEmailUnico($cliente)
+    {
+        // Intentar con DPI primero
+        $baseEmail = 'cliente-' . $cliente->dpi;
+        $email = $baseEmail . '@credihome.gt';
+        $counter = 1;
+
+        while (User::where('email', $email)->exists()) {
+            $email = $baseEmail . '-' . $counter . '@credihome.gt';
+            $counter++;
+        }
+
+        return $email;
+    }
+
+    /**
+     * Limpiar número de teléfono para WhatsApp
+     */
+    private function limpiarTelefono($telefono)
+    {
+        // Remover cualquier caracter que no sea número
+        $telefono = preg_replace('/[^0-9]/', '', $telefono);
+
+        // Si tiene 8 dígitos, agregar código de país de Guatemala (502)
+        if (strlen($telefono) === 8) {
+            $telefono = '502' . $telefono;
+        }
+
+        return $telefono;
+    }
+
+    /**
+     * Generar mensaje de credenciales para WhatsApp
+     */
+    private function generarMensajeCredenciales($cliente, $email, $password)
+    {
+        $url = url('/login');
+
+        return "🏦 *CREDIHOME - Acceso al Portal de Clientes*\n\n"
+            . "Hola *{$cliente->nombre_completo}*,\n\n"
+            . "Ya puedes acceder a tu portal de clientes para consultar tus préstamos y subir comprobantes de pago.\n\n"
+            . "📧 *Usuario:* {$email}\n"
+            . "🔑 *Contraseña:* {$password}\n\n"
+            . "🌐 *Acceder al portal:*\n{$url}\n\n"
+            . "⚠️ Te recomendamos cambiar tu contraseña después del primer acceso.\n\n"
+            . "Si tienes alguna duda, contáctanos.";
     }
 }

@@ -230,7 +230,7 @@
                             </label>
                             <div class="flex gap-2">
                                 <input type="color" name="color_primario" id="color_primario" value="{{ old('color_primario', $configuracion->color_primario) }}" class="h-10 w-14 bg-gray-50 border border-gray-300 rounded-lg cursor-pointer">
-                                <input type="text" value="{{ old('color_primario', $configuracion->color_primario) }}" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white" readonly>
+                                <input type="text" id="color_primario_text" value="{{ old('color_primario', $configuracion->color_primario) }}" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white" readonly>
                             </div>
                         </div>
 
@@ -240,7 +240,7 @@
                             </label>
                             <div class="flex gap-2">
                                 <input type="color" name="color_secundario" id="color_secundario" value="{{ old('color_secundario', $configuracion->color_secundario) }}" class="h-10 w-14 bg-gray-50 border border-gray-300 rounded-lg cursor-pointer">
-                                <input type="text" value="{{ old('color_secundario', $configuracion->color_secundario) }}" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white" readonly>
+                                <input type="text" id="color_secundario_text" value="{{ old('color_secundario', $configuracion->color_secundario) }}" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white" readonly>
                             </div>
                         </div>
                     </div>
@@ -334,10 +334,10 @@
     <script>
         // Sincronizar color picker con input de texto
         document.getElementById('color_primario').addEventListener('input', function() {
-            this.nextElementSibling.value = this.value;
+            document.getElementById('color_primario_text').value = this.value;
         });
         document.getElementById('color_secundario').addEventListener('input', function() {
-            this.nextElementSibling.value = this.value;
+            document.getElementById('color_secundario_text').value = this.value;
         });
     </script>
     @endpush

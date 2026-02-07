@@ -132,7 +132,7 @@
                                         {{ \Carbon\Carbon::parse($cuota['fecha_vencimiento'])->format('d/m/Y') }}
                                     </td>
                                     <td class="px-4 py-3 font-semibold">
-                                        Q {{ number_format($cuota['cuota_total'], 2) }}
+                                        Q {{ number_format($cuota['cuota'], 2) }}
                                     </td>
                                     <td class="px-4 py-3">
                                         Q {{ number_format($cuota['capital'], 2) }}
@@ -141,14 +141,14 @@
                                         Q {{ number_format($cuota['interes'], 2) }}
                                     </td>
                                     <td class="px-4 py-3">
-                                        Q {{ number_format($cuota['saldo_restante'], 2) }}
+                                        Q {{ number_format($cuota['saldo'], 2) }}
                                     </td>
                                     <td class="px-4 py-3">
                                         @php
                                             $colorEstado = match($cuota['estado']) {
-                                                'pagado' => 'green',
+                                                'pagada' => 'green',
                                                 'pendiente' => 'yellow',
-                                                'vencido' => 'red',
+                                                'vencida' => 'red',
                                                 default => 'gray'
                                             };
                                         @endphp
@@ -163,7 +163,7 @@
                             <tr>
                                 <td colspan="2" class="px-4 py-3 font-bold">TOTALES</td>
                                 <td class="px-4 py-3 font-bold">
-                                    Q {{ number_format(collect($tablaAmortizacion)->sum('cuota_total'), 2) }}
+                                    Q {{ number_format(collect($tablaAmortizacion)->sum('cuota'), 2) }}
                                 </td>
                                 <td class="px-4 py-3 font-bold">
                                     Q {{ number_format(collect($tablaAmortizacion)->sum('capital'), 2) }}
