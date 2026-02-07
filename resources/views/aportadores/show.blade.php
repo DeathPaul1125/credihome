@@ -35,7 +35,7 @@
                             <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-13a1 1 0 10-2 0v.092a4.535 4.535 0 00-1.676.662C6.602 6.234 6 7.009 6 8c0 .99.602 1.765 1.324 2.246.48.32 1.054.545 1.676.662v1.941c-.391-.127-.68-.317-.843-.504a1 1 0 10-1.51 1.31c.562.649 1.413 1.076 2.353 1.253V15a1 1 0 102 0v-.092a4.535 4.535 0 001.676-.662C13.398 13.766 14 12.991 14 12c0-.99-.602-1.765-1.324-2.246A4.535 4.535 0 0011 9.092V7.151c.391.127.68.317.843.504a1 1 0 101.511-1.31c-.563-.649-1.413-1.076-2.354-1.253V5z" clip-rule="evenodd"/>
                         </svg>
                     </div>
-                    <p class="text-2xl font-bold text-gray-900 dark:text-white">Q {{ number_format($total_aportado, 2) }}</p>
+                    <p class="text-2xl font-bold text-gray-900 dark:text-white">Q {{ number_format($stats['total_aportado'], 2) }}</p>
                 </div>
 
                 <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
@@ -57,7 +57,7 @@
                         </svg>
                     </div>
                     <p class="text-2xl font-bold text-gray-900 dark:text-white">Q {{ number_format($aportador->capital_invertido, 2) }}</p>
-                    <p class="text-xs text-gray-600 dark:text-gray-400 mt-1">{{ $prestamos_activos }} préstamos</p>
+                    <p class="text-xs text-gray-600 dark:text-gray-400 mt-1">{{ $stats['prestamos_activos'] }} préstamos</p>
                 </div>
 
                 <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
@@ -166,7 +166,7 @@
             </div>
 
             <!-- Inversiones Activas -->
-            @if($aportaciones_activas->count() > 0)
+            @if($aportacionesActivas->count() > 0)
             <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 mb-6">
                 <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Inversiones Activas</h2>
                 <div class="relative overflow-x-auto">
@@ -184,7 +184,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach($aportaciones_activas as $aportacion)
+                            @foreach($aportacionesActivas as $aportacion)
                             <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
                                 <td class="px-6 py-4">
                                     <a href="{{ route('prestamos.show', $aportacion->prestamo) }}" class="text-blue-600 hover:underline dark:text-blue-500">
@@ -207,7 +207,7 @@
             @endif
 
             <!-- Historial de Distribuciones -->
-            @if($distribuciones->count() > 0)
+            @if($distribucionesPagos->count() > 0)
             <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
                 <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Historial de Distribuciones</h2>
                 <div class="relative overflow-x-auto">
@@ -223,7 +223,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach($distribuciones as $distribucion)
+                            @foreach($distribucionesPagos as $distribucion)
                             <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
                                 <td class="px-6 py-4">{{ $distribucion->fecha_distribucion->format('d/m/Y') }}</td>
                                 <td class="px-6 py-4">
@@ -241,7 +241,7 @@
                     </table>
                 </div>
                 <div class="mt-4">
-                    {{ $distribuciones->links() }}
+                    {{ $distribucionesPagos->links() }}
                 </div>
             </div>
             @endif
@@ -260,10 +260,10 @@
             },
             series: [{
                 name: 'Capital + Ganancias',
-                data: @json($evolucion_mensual)
+                data: @json($evolucion->pluck('total'))
             }],
             xaxis: {
-                categories: @json($meses_labels),
+                categories: @json($evolucion->pluck('mes')),
                 labels: {
                     style: {
                         colors: getComputedStyle(document.documentElement).getPropertyValue('--color-text')

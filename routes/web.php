@@ -21,7 +21,7 @@ Route::middleware([
 
     // Rutas de Aportadores
     Route::get('aportadores/dashboard', [\App\Http\Controllers\AportadorController::class, 'dashboard'])->name('aportadores.dashboard');
-    Route::resource('aportadores', \App\Http\Controllers\AportadorController::class);
+    Route::resource('aportadores', \App\Http\Controllers\AportadorController::class)->parameters(['aportadores' => 'aportador']);
     Route::post('aportadores/{aportador}/agregar-capital', [\App\Http\Controllers\AportadorController::class, 'agregarCapital'])->name('aportadores.agregar-capital');
     Route::post('aportadores/{aportador}/retirar-capital', [\App\Http\Controllers\AportadorController::class, 'retirarCapital'])->name('aportadores.retirar-capital');
 
