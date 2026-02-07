@@ -10,6 +10,7 @@ use App\Models\Producto;
 use App\Models\Prestamo;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class CotizacionController extends Controller
 {
@@ -49,16 +50,18 @@ class CotizacionController extends Controller
     {
         $request->validate([
             'cliente_id' => 'required|exists:clientes,id',
-            'receta_id' => 'nullable|exists:recetas,id',
+            'receta_id' => 'required',
             'fecha_emision' => 'required|date',
             'fecha_vencimiento' => 'required|date|after_or_equal:fecha_emision',
-            'descuento' => 'nullable|numeric|min:0',
             'notas' => 'nullable|string',
             'terminos_condiciones' => 'nullable|string',
             'productos' => 'required|array|min:1',
             'productos.*.producto_id' => 'required|exists:productos,id',
             'productos.*.cantidad' => 'required|numeric|min:0.01',
             'productos.*.precio_unitario' => 'required|numeric|min:0',
+            'plazo_meses' => 'nullable|integer|min:1',
+            'tasa_interes_anual' => 'nullable|numeric|min:0|max:100',
+            'enganche' => 'nullable|numeric|min:0',
         ]);
 
         DB::beginTransaction();
@@ -73,18 +76,23 @@ class CotizacionController extends Controller
                 $subtotal += $item['cantidad'] * $item['precio_unitario'];
             }
 
-            $descuento = $request->descuento ?? 0;
-            $total = $subtotal - $descuento;
+            $total = $subtotal;
+
+            // Si receta_id es "libre", guardarlo como null
+            $recetaId = ($request->receta_id === 'libre') ? null : $request->receta_id;
 
             $cotizacion = Cotizacion::create([
                 'numero_cotizacion' => $numeroCotizacion,
                 'cliente_id' => $request->cliente_id,
-                'receta_id' => $request->receta_id,
+                'receta_id' => $recetaId,
                 'fecha_emision' => $request->fecha_emision,
                 'fecha_vencimiento' => $request->fecha_vencimiento,
                 'subtotal' => $subtotal,
-                'descuento' => $descuento,
+                'descuento' => 0,
                 'total' => $total,
+                'plazo_meses' => $request->plazo_meses,
+                'tasa_interes_anual' => $request->tasa_interes_anual,
+                'enganche' => $request->enganche,
                 'estado' => 'pendiente',
                 'notas' => $request->notas,
                 'terminos_condiciones' => $request->terminos_condiciones,
@@ -234,5 +242,72 @@ class CotizacionController extends Controller
 
         return redirect()->route('prestamos.create', ['cotizacion_id' => $cotizacion->id])
             ->with('info', 'Completa los datos del préstamo basado en la cotización.');
+    }
+
+    public function exportPdf(Cotizacion $cotizacion)
+    {
+        $cotizacion->load(['items.producto', 'cliente', 'user', 'receta']);
+
+        // Calcular tabla de amortización si existe financiamiento en la cotización
+        $planPagos = null;
+        if ($cotizacion->plazo_meses && $cotizacion->tasa_interes_anual) {
+            $planPagos = $this->calcularPlanPagos(
+                $cotizacion->total - ($cotizacion->enganche ?? 0),
+                $cotizacion->plazo_meses,
+                $cotizacion->tasa_interes_anual
+            );
+        }
+
+        $pdf = Pdf::loadView('cotizaciones.pdf-full', compact('cotizacion', 'planPagos'));
+        return $pdf->download('cotizacion-' . $cotizacion->numero_cotizacion . '.pdf');
+    }
+
+    public function exportPdfAmortizacion(Cotizacion $cotizacion)
+    {
+        $cotizacion->load(['cliente']);
+
+        if (!$cotizacion->plazo_meses || !$cotizacion->tasa_interes_anual) {
+            return back()->with('error', 'Esta cotización no tiene plan de financiamiento.');
+        }
+
+        $planPagos = $this->calcularPlanPagos(
+            $cotizacion->total - ($cotizacion->enganche ?? 0),
+            $cotizacion->plazo_meses,
+            $cotizacion->tasa_interes_anual
+        );
+
+        $pdf = Pdf::loadView('cotizaciones.pdf-amortizacion', compact('cotizacion', 'planPagos'));
+        return $pdf->download('amortizacion-' . $cotizacion->numero_cotizacion . '.pdf');
+    }
+
+    private function calcularPlanPagos($monto, $plazoMeses, $tasaAnual)
+    {
+        $tasaMensual = $tasaAnual / 12 / 100;
+        $cuotaMensual = $monto * ($tasaMensual * pow(1 + $tasaMensual, $plazoMeses)) / (pow(1 + $tasaMensual, $plazoMeses) - 1);
+
+        $planPagos = [];
+        $saldoRestante = $monto;
+
+        for ($i = 1; $i <= $plazoMeses; $i++) {
+            $interesMes = $saldoRestante * $tasaMensual;
+            $capitalMes = $cuotaMensual - $interesMes;
+            $saldoRestante -= $capitalMes;
+
+            // Ajustar última cuota por redondeo
+            if ($i == $plazoMeses) {
+                $capitalMes += $saldoRestante;
+                $saldoRestante = 0;
+            }
+
+            $planPagos[] = [
+                'mes' => $i,
+                'cuota' => round($cuotaMensual, 2),
+                'capital' => round($capitalMes, 2),
+                'interes' => round($interesMes, 2),
+                'saldo' => round($saldoRestante, 2)
+            ];
+        }
+
+        return $planPagos;
     }
 }

@@ -20,6 +20,9 @@ class Cotizacion extends Model
         'subtotal',
         'descuento',
         'total',
+        'plazo_meses',
+        'tasa_interes_anual',
+        'enganche',
         'estado',
         'prestamo_id',
         'notas',
@@ -35,6 +38,8 @@ class Cotizacion extends Model
         'subtotal' => 'decimal:2',
         'descuento' => 'decimal:2',
         'total' => 'decimal:2',
+        'tasa_interes_anual' => 'decimal:2',
+        'enganche' => 'decimal:2',
         'aprobada_en' => 'datetime',
     ];
 

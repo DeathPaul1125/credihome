@@ -85,7 +85,6 @@ class RecetaController extends Controller
 
             $costoTotal = 0;
             foreach ($request->productos as $item) {
-                $producto = Producto::find($item['producto_id']);
                 $subtotal = $item['cantidad'] * $item['precio_unitario'];
                 $costoTotal += $subtotal;
 
@@ -93,7 +92,6 @@ class RecetaController extends Controller
                     'receta_id' => $receta->id,
                     'producto_id' => $item['producto_id'],
                     'cantidad' => $item['cantidad'],
-                    'unidad' => $producto->unidad_medida,
                     'precio_unitario' => $item['precio_unitario'],
                     'subtotal' => $subtotal,
                     'notas' => $item['notas'] ?? null,
@@ -160,7 +158,6 @@ class RecetaController extends Controller
 
             $costoTotal = 0;
             foreach ($request->productos as $item) {
-                $producto = Producto::find($item['producto_id']);
                 $subtotal = $item['cantidad'] * $item['precio_unitario'];
                 $costoTotal += $subtotal;
 
@@ -168,7 +165,6 @@ class RecetaController extends Controller
                     'receta_id' => $receta->id,
                     'producto_id' => $item['producto_id'],
                     'cantidad' => $item['cantidad'],
-                    'unidad' => $producto->unidad_medida,
                     'precio_unitario' => $item['precio_unitario'],
                     'subtotal' => $subtotal,
                     'notas' => $item['notas'] ?? null,

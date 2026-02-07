@@ -5,6 +5,23 @@
                 <p class="text-gray-600 dark:text-gray-400 mt-1">Crear una nueva cotización para un cliente</p>
             </div>
 
+            <!-- Mensajes de error -->
+            @if(session('error'))
+                <div class="mb-4 p-4 text-sm text-red-800 rounded-lg bg-red-50 dark:bg-gray-800 dark:text-red-400">
+                    {{ session('error') }}
+                </div>
+            @endif
+
+            @if($errors->any())
+                <div class="mb-4 p-4 text-sm text-red-800 rounded-lg bg-red-50 dark:bg-gray-800 dark:text-red-400">
+                    <ul class="list-disc list-inside">
+                        @foreach($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
+
             <!-- Formulario -->
             <div class="bg-white rounded-lg shadow dark:bg-gray-800 p-6">
                 <form action="{{ route('cotizaciones.store') }}" method="POST" id="cotizacionForm">
@@ -27,17 +44,19 @@
                             @enderror
                         </div>
 
-                        <!-- Receta (Opcional) -->
+                        <!-- Receta Base -->
                         <div>
-                            <label for="receta_id" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Receta Base (Opcional)</label>
-                            <select id="receta_id" name="receta_id" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 @error('receta_id') border-red-500 @enderror">
-                                <option value="">Sin receta base</option>
+                            <label for="receta_id" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Receta Base <span class="text-red-600">*</span></label>
+                            <select id="receta_id" name="receta_id" required class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 @error('receta_id') border-red-500 @enderror">
+                                <option value="">Seleccione una receta</option>
+                                <option value="libre" {{ old('receta_id') == 'libre' ? 'selected' : '' }}>Receta Libre (Personalizada)</option>
                                 @foreach($recetas as $receta)
-                                    <option value="{{ $receta->id }}" {{ old('receta_id') == $receta->id ? 'selected' : '' }}>
-                                        {{ $receta->nombre }} - {{ $receta->tipo_vivienda }}
+                                    <option value="{{ $receta->id }}" data-costo="{{ $receta->costo_total }}" {{ old('receta_id') == $receta->id ? 'selected' : '' }}>
+                                        {{ $receta->nombre }} - {{ $receta->tipo_vivienda }} (Q {{ number_format($receta->costo_total, 2) }})
                                     </option>
                                 @endforeach
                             </select>
+                            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Seleccione "Receta Libre" para crear una cotización personalizada sin receta base</p>
                             @error('receta_id')
                                 <p class="mt-2 text-sm text-red-600 dark:text-red-500">{{ $message }}</p>
                             @enderror
@@ -55,19 +74,93 @@
                         <!-- Fecha de Vencimiento -->
                         <div>
                             <label for="fecha_vencimiento" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Fecha de Vencimiento <span class="text-red-600">*</span></label>
-                            <input type="date" id="fecha_vencimiento" name="fecha_vencimiento" value="{{ old('fecha_vencimiento', date('Y-m-d', strtotime('+30 days'))) }}" required class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 @error('fecha_vencimiento') border-red-500 @enderror">
+                            <input type="date" id="fecha_vencimiento" name="fecha_vencimiento" value="{{ old('fecha_vencimiento', date('Y-m-t')) }}" required class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 @error('fecha_vencimiento') border-red-500 @enderror">
                             @error('fecha_vencimiento')
                                 <p class="mt-2 text-sm text-red-600 dark:text-red-500">{{ $message }}</p>
                             @enderror
                         </div>
 
-                        <!-- Descuento -->
-                        <div>
-                            <label for="descuento" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Descuento (Q)</label>
-                            <input type="number" id="descuento" name="descuento" value="{{ old('descuento', '0.00') }}" step="0.01" min="0" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 @error('descuento') border-red-500 @enderror">
-                            @error('descuento')
-                                <p class="mt-2 text-sm text-red-600 dark:text-red-500">{{ $message }}</p>
-                            @enderror
+                    </div>
+
+                    <!-- Sección de Financiamiento -->
+                    <div class="mb-6 p-4 bg-blue-50 dark:bg-gray-700 rounded-lg border border-blue-200 dark:border-gray-600">
+                        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Opciones de Financiamiento</h3>
+
+                        <div class="grid gap-4 md:grid-cols-3">
+                            <!-- Plazo -->
+                            <div>
+                                <label for="plazo_meses" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Plazo (Meses)</label>
+                                <input type="number" id="plazo_meses" name="plazo_meses" value="{{ old('plazo_meses', 12) }}" min="1" max="360" step="1" class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:text-white">
+                                <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Número de cuotas mensuales</p>
+                            </div>
+
+                            <!-- Tasa de Interés Anual -->
+                            <div>
+                                <label for="tasa_interes_anual" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Tasa de Interés Anual (%)</label>
+                                <input type="number" id="tasa_interes_anual" name="tasa_interes_anual" value="{{ old('tasa_interes_anual', 24) }}" min="0" max="100" step="0.01" class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:text-white">
+                                <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Tasa anual efectiva</p>
+                            </div>
+
+                            <!-- Enganche -->
+                            <div>
+                                <label for="enganche" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Enganche (Q)</label>
+                                <input type="number" id="enganche" name="enganche" value="{{ old('enganche', 0) }}" min="0" step="0.01" class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:text-white">
+                                <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Pago inicial (opcional)</p>
+                            </div>
+                        </div>
+
+                        <div class="mt-4">
+                            <button type="button" id="calcularCuotasBtn" class="text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-green-600 dark:hover:bg-green-700 focus:outline-none dark:focus:ring-green-800">
+                                <svg class="w-4 h-4 inline-block mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/>
+                                    <path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clip-rule="evenodd"/>
+                                </svg>
+                                Calcular Plan de Pagos
+                            </button>
+                        </div>
+
+                        <!-- Resultados de cálculo -->
+                        <div id="resultadosFinanciamiento" class="mt-4 hidden">
+                            <div class="grid gap-4 md:grid-cols-4">
+                                <div class="bg-white dark:bg-gray-800 p-4 rounded-lg">
+                                    <p class="text-xs text-gray-600 dark:text-gray-400">Monto a Financiar</p>
+                                    <p class="text-lg font-bold text-blue-600 dark:text-blue-400" id="montoFinanciar">Q 0.00</p>
+                                </div>
+                                <div class="bg-white dark:bg-gray-800 p-4 rounded-lg">
+                                    <p class="text-xs text-gray-600 dark:text-gray-400">Cuota Mensual</p>
+                                    <p class="text-lg font-bold text-green-600 dark:text-green-400" id="cuotaMensual">Q 0.00</p>
+                                </div>
+                                <div class="bg-white dark:bg-gray-800 p-4 rounded-lg">
+                                    <p class="text-xs text-gray-600 dark:text-gray-400">Total de Intereses</p>
+                                    <p class="text-lg font-bold text-yellow-600 dark:text-yellow-400" id="totalIntereses">Q 0.00</p>
+                                </div>
+                                <div class="bg-white dark:bg-gray-800 p-4 rounded-lg">
+                                    <p class="text-xs text-gray-600 dark:text-gray-400">Total a Pagar</p>
+                                    <p class="text-lg font-bold text-purple-600 dark:text-purple-400" id="totalPagar">Q 0.00</p>
+                                </div>
+                            </div>
+
+                            <!-- Tabla de amortización -->
+                            <div class="mt-4">
+                                <button type="button" id="toggleAmortizacionBtn" class="text-sm text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300">
+                                    Ver Tabla de Amortización
+                                </button>
+                                <div id="tablaAmortizacion" class="mt-4 hidden overflow-x-auto">
+                                    <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
+                                        <thead class="text-xs text-gray-700 uppercase bg-gray-100 dark:bg-gray-700 dark:text-gray-400">
+                                            <tr>
+                                                <th class="px-4 py-2">#</th>
+                                                <th class="px-4 py-2">Cuota</th>
+                                                <th class="px-4 py-2">Capital</th>
+                                                <th class="px-4 py-2">Interés</th>
+                                                <th class="px-4 py-2">Saldo</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="amortizacionBody">
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
@@ -91,14 +184,8 @@
 
                     <!-- Productos -->
                     <div class="mb-6">
-                        <div class="flex items-center justify-between mb-4">
-                            <h3 class="text-lg font-medium text-gray-900 dark:text-white">Productos</h3>
-                            <button type="button" id="addProductoBtn" class="inline-flex items-center text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-4 py-2 dark:bg-green-600 dark:hover:bg-green-700 focus:outline-none dark:focus:ring-green-800">
-                                <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                                    <path d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z"/>
-                                </svg>
-                                Agregar Producto
-                            </button>
+                        <div class="mb-4">
+                            <h3 class="text-lg font-medium text-gray-900 dark:text-white">Productos de la Receta</h3>
                         </div>
 
                         <div id="productosContainer" class="space-y-4">
@@ -106,14 +193,10 @@
                         </div>
 
                         <div class="mt-4 p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div class="flex justify-between items-center">
                                     <span class="text-sm font-medium text-gray-900 dark:text-white">Subtotal:</span>
                                     <span id="subtotalDisplay" class="text-sm font-bold text-gray-900 dark:text-white">Q 0.00</span>
-                                </div>
-                                <div class="flex justify-between items-center">
-                                    <span class="text-sm font-medium text-gray-900 dark:text-white">Descuento:</span>
-                                    <span id="descuentoDisplay" class="text-sm font-bold text-green-600 dark:text-green-400">Q 0.00</span>
                                 </div>
                                 <div class="flex justify-between items-center">
                                     <span class="text-lg font-medium text-gray-900 dark:text-white">Total:</span>
@@ -184,15 +267,19 @@
     <script>
         let productoIndex = 0;
 
-        document.getElementById('addProductoBtn').addEventListener('click', function() {
-            addProducto();
-        });
-
         // Cargar productos desde receta si se selecciona
         document.getElementById('receta_id').addEventListener('change', function() {
             const recetaId = this.value;
-            if (recetaId) {
+            const container = document.getElementById('productosContainer');
+
+            if (recetaId && recetaId !== 'libre') {
+                // Cargar productos de la receta
                 loadRecetaProductos(recetaId);
+            } else if (recetaId === 'libre') {
+                // Limpiar productos para receta libre
+                container.innerHTML = '';
+                productoIndex = 0;
+                addProducto();
             }
         });
 
@@ -273,32 +360,187 @@
         }
 
         function updateTotal() {
-            let subtotal = 0;
+            let total = 0;
             document.querySelectorAll('.producto-subtotal').forEach(function(input) {
-                subtotal += parseFloat(input.value) || 0;
+                total += parseFloat(input.value) || 0;
             });
 
-            const descuento = parseFloat(document.getElementById('descuento').value) || 0;
-            const total = subtotal - descuento;
-
-            document.getElementById('subtotalDisplay').textContent = 'Q ' + subtotal.toFixed(2);
-            document.getElementById('descuentoDisplay').textContent = 'Q ' + descuento.toFixed(2);
+            document.getElementById('subtotalDisplay').textContent = 'Q ' + total.toFixed(2);
             document.getElementById('totalDisplay').textContent = 'Q ' + total.toFixed(2);
         }
 
         function loadRecetaProductos(recetaId) {
             // Limpiar productos existentes
             document.getElementById('productosContainer').innerHTML = '';
+            productoIndex = 0;
 
-            // Aquí iría una llamada AJAX para cargar los productos de la receta
-            // Por ahora, solo limpiamos y esperamos que el usuario agregue manualmente
-            console.log('Cargando productos de receta:', recetaId);
+            // Cargar productos de la receta mediante AJAX
+            fetch(`/api/recetas/${recetaId}/items`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.items && data.items.length > 0) {
+                        data.items.forEach(item => {
+                            addProducto({
+                                producto_id: item.producto_id,
+                                cantidad: item.cantidad,
+                                precio_unitario: item.precio_unitario,
+                                descripcion: item.producto.nombre
+                            });
+                        });
+                    } else {
+                        alert('Esta receta no tiene productos asociados.');
+                        addProducto();
+                    }
+                })
+                .catch(error => {
+                    console.error('Error cargando productos de receta:', error);
+                    alert('Error al cargar los productos de la receta. Agregue productos manualmente.');
+                    addProducto();
+                });
         }
 
-        // Agregar un producto inicial
-        addProducto();
+        // Inicialización: verificar si hay una receta seleccionada al cargar
+        document.addEventListener('DOMContentLoaded', function() {
+            const recetaId = document.getElementById('receta_id').value;
+            if (recetaId && recetaId !== 'libre') {
+                loadRecetaProductos(recetaId);
+            } else if (recetaId === 'libre') {
+                addProducto();
+            }
+            // Si no hay receta seleccionada, no cargar productos hasta que se seleccione una
+        });
 
-        // Actualizar total cuando cambia el descuento
-        document.getElementById('descuento').addEventListener('input', updateTotal);
+        // Validación del formulario antes de enviar
+        document.getElementById('cotizacionForm').addEventListener('submit', function(e) {
+            const productosCount = document.querySelectorAll('.producto-row').length;
+
+            if (productosCount === 0) {
+                e.preventDefault();
+                alert('Debe seleccionar una receta para cargar los productos.');
+                return false;
+            }
+
+            // Validar que todos los productos tengan datos completos
+            let valid = true;
+            document.querySelectorAll('.producto-row').forEach(function(row) {
+                const productoId = row.querySelector('.producto-select').value;
+                const cantidad = row.querySelector('.producto-cantidad').value;
+                const precio = row.querySelector('.producto-precio').value;
+
+                if (!productoId || !cantidad || !precio || parseFloat(cantidad) <= 0 || parseFloat(precio) < 0) {
+                    valid = false;
+                }
+            });
+
+            if (!valid) {
+                e.preventDefault();
+                alert('Por favor complete todos los campos de los productos correctamente.');
+                return false;
+            }
+        });
+
+        // Calcular cuotas
+        document.getElementById('calcularCuotasBtn').addEventListener('click', function() {
+            calcularPlanPagos();
+        });
+
+        // Toggle tabla de amortización
+        document.getElementById('toggleAmortizacionBtn').addEventListener('click', function() {
+            const tabla = document.getElementById('tablaAmortizacion');
+            tabla.classList.toggle('hidden');
+            this.textContent = tabla.classList.contains('hidden') ? 'Ver Tabla de Amortización' : 'Ocultar Tabla de Amortización';
+        });
+
+        function calcularPlanPagos() {
+            // Obtener valores
+            const total = parseFloat(document.getElementById('totalDisplay').textContent.replace('Q ', '').replace(/,/g, '')) || 0;
+            const enganche = parseFloat(document.getElementById('enganche').value) || 0;
+            const plazo = parseInt(document.getElementById('plazo_meses').value) || 12;
+            const tasaAnual = parseFloat(document.getElementById('tasa_interes_anual').value) || 0;
+
+            if (total <= 0) {
+                alert('Debe agregar productos antes de calcular el plan de pagos.');
+                return;
+            }
+
+            if (plazo <= 0) {
+                alert('El plazo debe ser mayor a 0 meses.');
+                return;
+            }
+
+            // Calcular monto a financiar
+            const montoFinanciar = total - enganche;
+
+            if (montoFinanciar <= 0) {
+                alert('El enganche no puede ser mayor o igual al total.');
+                return;
+            }
+
+            // Calcular tasa mensual
+            const tasaMensual = tasaAnual / 12 / 100;
+
+            // Calcular cuota nivelada usando la fórmula: C = P * (i * (1 + i)^n) / ((1 + i)^n - 1)
+            let cuotaMensual;
+            let totalIntereses;
+            let totalPagar;
+
+            if (tasaMensual === 0) {
+                // Sin interés
+                cuotaMensual = montoFinanciar / plazo;
+                totalIntereses = 0;
+                totalPagar = montoFinanciar;
+            } else {
+                // Con interés - Fórmula de cuota nivelada (sistema francés)
+                const factor = Math.pow(1 + tasaMensual, plazo);
+                cuotaMensual = montoFinanciar * (tasaMensual * factor) / (factor - 1);
+                totalPagar = cuotaMensual * plazo;
+                totalIntereses = totalPagar - montoFinanciar;
+            }
+
+            // Mostrar resultados
+            document.getElementById('montoFinanciar').textContent = 'Q ' + formatMoney(montoFinanciar);
+            document.getElementById('cuotaMensual').textContent = 'Q ' + formatMoney(cuotaMensual);
+            document.getElementById('totalIntereses').textContent = 'Q ' + formatMoney(totalIntereses);
+            document.getElementById('totalPagar').textContent = 'Q ' + formatMoney(totalPagar + enganche);
+
+            // Mostrar sección de resultados
+            document.getElementById('resultadosFinanciamiento').classList.remove('hidden');
+
+            // Generar tabla de amortización
+            generarTablaAmortizacion(montoFinanciar, cuotaMensual, tasaMensual, plazo);
+        }
+
+        function generarTablaAmortizacion(montoInicial, cuota, tasaMensual, plazo) {
+            const tbody = document.getElementById('amortizacionBody');
+            tbody.innerHTML = '';
+
+            let saldo = montoInicial;
+
+            for (let i = 1; i <= plazo; i++) {
+                const interes = saldo * tasaMensual;
+                const capital = cuota - interes;
+                saldo = saldo - capital;
+
+                // Evitar saldos negativos por redondeo
+                if (i === plazo) {
+                    saldo = 0;
+                }
+
+                const row = `
+                    <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
+                        <td class="px-4 py-2">${i}</td>
+                        <td class="px-4 py-2 font-medium">Q ${formatMoney(cuota)}</td>
+                        <td class="px-4 py-2 text-blue-600">Q ${formatMoney(capital)}</td>
+                        <td class="px-4 py-2 text-yellow-600">Q ${formatMoney(interes)}</td>
+                        <td class="px-4 py-2 font-medium">Q ${formatMoney(saldo)}</td>
+                    </tr>
+                `;
+                tbody.insertAdjacentHTML('beforeend', row);
+            }
+        }
+
+        function formatMoney(value) {
+            return value.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+        }
     </script>
 </x-flowbite-layout>

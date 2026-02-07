@@ -39,6 +39,8 @@ Route::middleware([
     Route::resource('cotizaciones', \App\Http\Controllers\CotizacionController::class);
     Route::post('cotizaciones/{cotizacion}/aprobar', [\App\Http\Controllers\CotizacionController::class, 'aprobar'])->name('cotizaciones.aprobar');
     Route::post('cotizaciones/{cotizacion}/convertir-prestamo', [\App\Http\Controllers\CotizacionController::class, 'convertirPrestamo'])->name('cotizaciones.convertir');
+    Route::get('cotizaciones/{cotizacion}/pdf', [\App\Http\Controllers\CotizacionController::class, 'exportPdf'])->name('cotizaciones.pdf');
+    Route::get('cotizaciones/{cotizacion}/pdf-amortizacion', [\App\Http\Controllers\CotizacionController::class, 'exportPdfAmortizacion'])->name('cotizaciones.pdf-amortizacion');
 
     // Rutas de Préstamos
     Route::resource('prestamos', \App\Http\Controllers\PrestamoController::class);

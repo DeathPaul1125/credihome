@@ -10,6 +10,22 @@
                     <a href="{{ route('cotizaciones.edit', $cotizacion) }}" class="text-white bg-blue-700 hover:bg-blue-800 rounded-lg text-sm px-5 py-2.5">Editar</a>
                     @endif
                     @endcan
+
+                    <!-- Botones de PDF -->
+                    <a href="{{ route('cotizaciones.pdf', $cotizacion) }}" target="_blank" class="inline-flex items-center text-white bg-red-700 hover:bg-red-800 rounded-lg text-sm px-5 py-2.5">
+                        <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M9 2a2 2 0 00-2 2v8a2 2 0 002 2h6a2 2 0 002-2V6.414A2 2 0 0016.414 5L14 2.586A2 2 0 0012.586 2H9z"/>
+                            <path d="M3 8a2 2 0 012-2v10h8a2 2 0 01-2 2H5a2 2 0 01-2-2V8z"/>
+                        </svg>
+                        PDF Completo
+                    </a>
+                    <a href="{{ route('cotizaciones.pdf-amortizacion', $cotizacion) }}" target="_blank" class="inline-flex items-center text-white bg-purple-700 hover:bg-purple-800 rounded-lg text-sm px-5 py-2.5">
+                        <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M9 2a2 2 0 00-2 2v8a2 2 0 002 2h6a2 2 0 002-2V6.414A2 2 0 0016.414 5L14 2.586A2 2 0 0012.586 2H9z"/>
+                        </svg>
+                        PDF Amortización
+                    </a>
+
                     <a href="{{ route('cotizaciones.index') }}" class="text-gray-900 bg-white border border-gray-300 hover:bg-gray-100 rounded-lg text-sm px-5 py-2.5">Volver</a>
                 </div>
             </div>
@@ -68,7 +84,39 @@
                 </table>
             </div>
 
-            <div class="flex gap-3">
+            @if($cotizacion->plazo_meses && $cotizacion->tasa_interes_anual)
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 mt-6">
+                <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-4">Plan de Financiamiento</h2>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                    <div>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">Plazo</p>
+                        <p class="text-lg font-semibold text-gray-900 dark:text-white">{{ $cotizacion->plazo_meses }} meses</p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">Tasa de Interés Anual</p>
+                        <p class="text-lg font-semibold text-gray-900 dark:text-white">{{ number_format($cotizacion->tasa_interes_anual, 2) }}%</p>
+                    </div>
+                    @if($cotizacion->enganche > 0)
+                    <div>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">Enganche</p>
+                        <p class="text-lg font-semibold text-gray-900 dark:text-white">Q{{ number_format($cotizacion->enganche, 2) }}</p>
+                    </div>
+                    @endif
+                </div>
+
+                <div class="bg-blue-50 dark:bg-gray-700 p-4 rounded-lg">
+                    <p class="text-sm text-gray-600 dark:text-gray-300">
+                        Monto a Financiar: <span class="font-bold">Q{{ number_format($cotizacion->total - ($cotizacion->enganche ?? 0), 2) }}</span>
+                    </p>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                        * Para ver la tabla de amortización completa, descargue el PDF de Amortización
+                    </p>
+                </div>
+            </div>
+            @endif
+
+            <div class="flex gap-3 mt-6">
                 @can('aprobar-cotizaciones')
                 @if($cotizacion->estado === 'pendiente')
                 <form action="{{ route('cotizaciones.aprobar', $cotizacion) }}" method="POST">

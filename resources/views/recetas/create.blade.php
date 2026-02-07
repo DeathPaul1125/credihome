@@ -5,6 +5,23 @@
                 <p class="text-gray-600 dark:text-gray-400 mt-1">Crear una nueva plantilla de materiales</p>
             </div>
 
+            <!-- Mensajes de error -->
+            @if(session('error'))
+                <div class="mb-4 p-4 text-sm text-red-800 rounded-lg bg-red-50 dark:bg-gray-800 dark:text-red-400">
+                    {{ session('error') }}
+                </div>
+            @endif
+
+            @if($errors->any())
+                <div class="mb-4 p-4 text-sm text-red-800 rounded-lg bg-red-50 dark:bg-gray-800 dark:text-red-400">
+                    <ul class="list-disc list-inside">
+                        @foreach($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
+
             <!-- Formulario -->
             <div class="bg-white rounded-lg shadow dark:bg-gray-800 p-6">
                 <form action="{{ route('recetas.store') }}" method="POST" id="recetaForm">
@@ -145,8 +162,8 @@
         <div class="item-row bg-gray-50 dark:bg-gray-700 p-4 rounded-lg border">
             <div class="grid gap-4 md:grid-cols-5 items-end">
                 <div>
-                    <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Producto</label>
-                    <select name="productos[{index}][producto_id]" required class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:text-white">
+                    <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Producto <span class="text-red-600">*</span></label>
+                    <select name="productos[{index}][producto_id]" required class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:text-white producto-select">
                         <option value="">Seleccione un producto</option>
                         @foreach($productos as $producto)
                             <option value="{{ $producto->id }}" data-precio="{{ $producto->precio_unitario }}" data-unidad="{{ $producto->unidad_medida }}">
@@ -156,23 +173,23 @@
                     </select>
                 </div>
                 <div>
-                    <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Cantidad</label>
+                    <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Cantidad <span class="text-red-600">*</span></label>
                     <input type="number" name="productos[{index}][cantidad]" step="0.01" min="0.01" required class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:text-white item-cantidad">
                 </div>
                 <div>
                     <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Unidad</label>
-                    <input type="text" name="productos[{index}][unidad]" readonly class="bg-gray-100 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:text-white item-unidad">
+                    <input type="text" readonly class="bg-gray-100 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:text-white item-unidad">
                 </div>
                 <div>
-                    <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Precio Unit.</label>
+                    <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Precio Unit. <span class="text-red-600">*</span></label>
                     <input type="number" name="productos[{index}][precio_unitario]" step="0.01" min="0" required class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:text-white item-precio">
                 </div>
                 <div class="flex gap-2">
                     <div class="flex-1">
                         <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Subtotal</label>
-                        <input type="number" name="productos[{index}][subtotal]" step="0.01" readonly class="bg-gray-100 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:text-white item-subtotal">
+                        <input type="text" readonly class="bg-gray-100 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:text-white item-subtotal">
                     </div>
-                    <button type="button" class="remove-item-btn text-red-600 hover:text-red-800 p-2">
+                    <button type="button" class="remove-item-btn text-red-600 hover:text-red-800 p-2 mt-7">
                         <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                             <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd"/>
                         </svg>
@@ -207,7 +224,7 @@
         }
 
         function setupItemListeners(item) {
-            const productoSelect = item.querySelector('select[name*="[producto_id]"]');
+            const productoSelect = item.querySelector('.producto-select');
             const cantidadInput = item.querySelector('.item-cantidad');
             const precioInput = item.querySelector('.item-precio');
             const subtotalInput = item.querySelector('.item-subtotal');
@@ -216,10 +233,10 @@
 
             productoSelect.addEventListener('change', function() {
                 const selectedOption = this.options[this.selectedIndex];
-                const precio = selectedOption.getAttribute('data-precio') || 0;
+                const precio = parseFloat(selectedOption.getAttribute('data-precio')) || 0;
                 const unidad = selectedOption.getAttribute('data-unidad') || '';
 
-                precioInput.value = precio;
+                precioInput.value = precio.toFixed(2);
                 unidadInput.value = unidad;
                 calculateSubtotal(cantidadInput, precioInput, subtotalInput);
                 updateTotal();
@@ -236,8 +253,12 @@
             });
 
             removeBtn.addEventListener('click', function() {
-                item.remove();
-                updateTotal();
+                if (document.querySelectorAll('.item-row').length > 1) {
+                    item.remove();
+                    updateTotal();
+                } else {
+                    alert('Debe tener al menos un material en la receta.');
+                }
             });
         }
 
@@ -253,8 +274,36 @@
             document.querySelectorAll('.item-subtotal').forEach(function(input) {
                 total += parseFloat(input.value) || 0;
             });
-            document.getElementById('costoTotal').textContent = 'Q ' + total.toFixed(2);
+            document.getElementById('costoTotal').textContent = 'Q ' + total.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
         }
+
+        // Validación del formulario antes de enviar
+        document.getElementById('recetaForm').addEventListener('submit', function(e) {
+            const itemsCount = document.querySelectorAll('.item-row').length;
+            if (itemsCount === 0) {
+                e.preventDefault();
+                alert('Debe agregar al menos un material a la receta.');
+                return false;
+            }
+
+            // Validar que todos los productos tengan datos completos
+            let valid = true;
+            document.querySelectorAll('.item-row').forEach(function(item) {
+                const productoId = item.querySelector('.producto-select').value;
+                const cantidad = item.querySelector('.item-cantidad').value;
+                const precio = item.querySelector('.item-precio').value;
+
+                if (!productoId || !cantidad || !precio) {
+                    valid = false;
+                }
+            });
+
+            if (!valid) {
+                e.preventDefault();
+                alert('Por favor complete todos los campos de los materiales agregados.');
+                return false;
+            }
+        });
 
         // Agregar un item inicial
         addItem();
