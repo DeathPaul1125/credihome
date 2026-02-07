@@ -1,7 +1,7 @@
 <x-flowbite-layout>
     <!-- Header -->
     <div class="mb-4">
-                <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Nueva Receta de Construcción</h1>
+                <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Nuevo Plan de Construcción</h1>
                 <p class="text-gray-600 dark:text-gray-400 mt-1">Crear una nueva plantilla de materiales</p>
             </div>
 
@@ -30,7 +30,7 @@
                     <div class="grid gap-6 mb-6 md:grid-cols-2">
                         <!-- Nombre -->
                         <div>
-                            <label for="nombre" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Nombre de la Receta <span class="text-red-600">*</span></label>
+                            <label for="nombre" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Nombre del Plan <span class="text-red-600">*</span></label>
                             <input type="text" id="nombre" name="nombre" value="{{ old('nombre') }}" required class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 @error('nombre') border-red-500 @enderror">
                             @error('nombre')
                                 <p class="mt-2 text-sm text-red-600 dark:text-red-500">{{ $message }}</p>
@@ -148,7 +148,7 @@
                     <!-- Botones -->
                     <div class="flex gap-4">
                         <button type="submit" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
-                            Guardar Receta
+                            Guardar Plan
                         </button>
                         <a href="{{ route('recetas.index') }}" class="text-gray-900 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-200 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:border-gray-600 dark:focus:ring-gray-700">
                             Cancelar
@@ -257,7 +257,7 @@
                     item.remove();
                     updateTotal();
                 } else {
-                    alert('Debe tener al menos un material en la receta.');
+                    alert('Debe tener al menos un material en el plan.');
                 }
             });
         }
@@ -282,7 +282,7 @@
             const itemsCount = document.querySelectorAll('.item-row').length;
             if (itemsCount === 0) {
                 e.preventDefault();
-                alert('Debe agregar al menos un material a la receta.');
+                alert('Debe agregar al menos un material al plan.');
                 return false;
             }
 

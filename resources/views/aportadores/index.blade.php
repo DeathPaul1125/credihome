@@ -3,7 +3,7 @@
         <!-- Header -->
         <div class="mb-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <div>
-                <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Aportadores / Inversionistas</h1>
+                <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Inversionistas</h1>
                 <p class="text-gray-600 dark:text-gray-400 mt-1">Gestión de financiadores del sistema</p>
             </div>
             <div class="flex gap-2">
@@ -17,7 +17,7 @@
                     <svg class="w-5 h-5 inline-block mr-1 -mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
                     </svg>
-                    Nuevo Aportador
+                    Nuevo Inversionista
                 </a>
             </div>
         </div>
@@ -81,7 +81,7 @@
             <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
                 <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                     <tr>
-                        <th scope="col" class="px-6 py-3">Aportador</th>
+                        <th scope="col" class="px-6 py-3">Inversionista</th>
                         <th scope="col" class="px-6 py-3">Tipo</th>
                         <th scope="col" class="px-6 py-3">Capital Disponible</th>
                         <th scope="col" class="px-6 py-3">Capital Invertido</th>
@@ -150,7 +150,7 @@
                     @empty
                         <tr>
                             <td colspan="8" class="px-6 py-8 text-center text-gray-500 dark:text-gray-400">
-                                No hay aportadores registrados. <a href="{{ route('aportadores.create') }}" class="text-blue-600 hover:underline dark:text-blue-400">Crear primero</a>
+                                No hay inversionistas registrados. <a href="{{ route('aportadores.create') }}" class="text-blue-600 hover:underline dark:text-blue-400">Crear primero</a>
                             </td>
                         </tr>
                     @endforelse

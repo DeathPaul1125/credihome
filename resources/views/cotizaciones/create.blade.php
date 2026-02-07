@@ -44,19 +44,19 @@
                             @enderror
                         </div>
 
-                        <!-- Receta Base -->
+                        <!-- Plan de Construcción Base -->
                         <div>
-                            <label for="receta_id" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Receta Base <span class="text-red-600">*</span></label>
+                            <label for="receta_id" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Plan de Construcción Base <span class="text-red-600">*</span></label>
                             <select id="receta_id" name="receta_id" required class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 @error('receta_id') border-red-500 @enderror">
-                                <option value="">Seleccione una receta</option>
-                                <option value="libre" {{ old('receta_id') == 'libre' ? 'selected' : '' }}>Receta Libre (Personalizada)</option>
+                                <option value="">Seleccione un plan</option>
+                                <option value="libre" {{ old('receta_id') == 'libre' ? 'selected' : '' }}>Plan Libre (Personalizado)</option>
                                 @foreach($recetas as $receta)
                                     <option value="{{ $receta->id }}" data-costo="{{ $receta->costo_total }}" {{ old('receta_id') == $receta->id ? 'selected' : '' }}>
                                         {{ $receta->nombre }} - {{ $receta->tipo_vivienda }} (Q {{ number_format($receta->costo_total, 2) }})
                                     </option>
                                 @endforeach
                             </select>
-                            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Seleccione "Receta Libre" para crear una cotización personalizada sin receta base</p>
+                            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Seleccione "Plan Libre" para crear una cotización personalizada sin plan base</p>
                             @error('receta_id')
                                 <p class="mt-2 text-sm text-red-600 dark:text-red-500">{{ $message }}</p>
                             @enderror

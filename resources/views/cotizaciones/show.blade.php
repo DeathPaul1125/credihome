@@ -2,7 +2,11 @@
     <div class="mb-6 flex items-center justify-between">
                 <div>
                     <h1 class="text-2xl font-bold text-gray-900 dark:text-white">{{ $cotizacion->numero_cotizacion }}</h1>
+                    @if($cotizacion->cliente)
                     <p class="text-gray-600 dark:text-gray-400 mt-1">Cliente: {{ $cotizacion->cliente->nombre_completo }}</p>
+                    @else
+                    <p class="text-red-600 dark:text-red-400 mt-1">Cliente no disponible</p>
+                    @endif
                 </div>
                 <div class="flex gap-3">
                     @can('editar-cotizaciones')
@@ -36,7 +40,7 @@
             <div class="p-4 mb-4 text-sm text-green-800 rounded-lg bg-green-50 dark:bg-gray-800 dark:text-green-400">{{ session('success') }}</div>
             @endif
 
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
                 <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
                     <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">Estado</h3>
                     <span class="inline-flex items-center px-2.5 py-0.5 rounded text-sm font-medium
@@ -49,10 +53,6 @@
                 <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
                     <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">Subtotal</h3>
                     <p class="text-lg font-semibold text-gray-900 dark:text-white">Q {{ number_format($cotizacion->subtotal, 2) }}</p>
-                </div>
-                <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
-                    <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">Descuento</h3>
-                    <p class="text-lg font-semibold text-red-600">Q {{ number_format($cotizacion->descuento, 2) }}</p>
                 </div>
                 <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
                     <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">Total</h3>

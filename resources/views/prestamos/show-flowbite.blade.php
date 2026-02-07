@@ -116,13 +116,13 @@
         </div>
     </div>
 
-    <!-- Aportadores del Préstamo -->
+    <!-- Inversionistas del Préstamo -->
     @if($prestamo->aportaciones->count() > 0)
     <div class="bg-white dark:bg-gray-800 rounded-lg shadow mb-4">
         <div class="p-6 border-b border-gray-200 dark:border-gray-700">
             <div class="flex items-center justify-between">
-                <h2 class="text-xl font-semibold text-gray-900 dark:text-white">💰 Aportadores que Fondean este Préstamo</h2>
-                <span class="text-sm text-gray-500 dark:text-gray-400">{{ $prestamo->aportaciones->count() }} {{ $prestamo->aportaciones->count() == 1 ? 'aportador' : 'aportadores' }}</span>
+                <h2 class="text-xl font-semibold text-gray-900 dark:text-white">💰 Inversionistas que Fondean este Préstamo</h2>
+                <span class="text-sm text-gray-500 dark:text-gray-400">{{ $prestamo->aportaciones->count() }} {{ $prestamo->aportaciones->count() == 1 ? 'inversionista' : 'inversionistas' }}</span>
             </div>
         </div>
         <div class="p-6">
@@ -130,7 +130,7 @@
                 <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
                     <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                         <tr>
-                            <th scope="col" class="px-6 py-3">Aportador</th>
+                            <th scope="col" class="px-6 py-3">Inversionista</th>
                             <th scope="col" class="px-6 py-3 text-right">Monto Aportado</th>
                             <th scope="col" class="px-6 py-3 text-right">Participación</th>
                             <th scope="col" class="px-6 py-3 text-right">Recuperado</th>

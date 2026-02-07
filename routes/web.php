@@ -36,7 +36,7 @@ Route::middleware([
     Route::post('recetas/{receta}/clonar', [\App\Http\Controllers\RecetaController::class, 'clonar'])->name('recetas.clonar');
 
     // Rutas de Cotizaciones
-    Route::resource('cotizaciones', \App\Http\Controllers\CotizacionController::class);
+    Route::resource('cotizaciones', \App\Http\Controllers\CotizacionController::class)->parameters(['cotizaciones' => 'cotizacion']);
     Route::post('cotizaciones/{cotizacion}/aprobar', [\App\Http\Controllers\CotizacionController::class, 'aprobar'])->name('cotizaciones.aprobar');
     Route::post('cotizaciones/{cotizacion}/convertir-prestamo', [\App\Http\Controllers\CotizacionController::class, 'convertirPrestamo'])->name('cotizaciones.convertir');
     Route::get('cotizaciones/{cotizacion}/pdf', [\App\Http\Controllers\CotizacionController::class, 'exportPdf'])->name('cotizaciones.pdf');

@@ -2,7 +2,7 @@
     <div class="p-4">
         <!-- Header -->
         <div class="mb-6">
-            <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Dashboard de Aportadores</h1>
+            <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Dashboard de Inversionistas</h1>
             <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
                 Vista general de inversionistas y capital del sistema
             </p>
@@ -25,7 +25,7 @@
                     </div>
                 </div>
                 <div class="mt-4 flex items-center text-sm">
-                    <span class="text-blue-100">{{ $stats['total_aportadores'] }} aportadores registrados</span>
+                    <span class="text-blue-100">{{ $stats['total_aportadores'] }} inversionistas registrados</span>
                 </div>
             </div>
 
@@ -85,9 +85,9 @@
                 <div id="evolucionChart"></div>
             </div>
 
-            <!-- Top Aportadores -->
+            <!-- Top Inversionistas -->
             <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-                <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Top 10 Aportadores por Capital</h3>
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Top 10 Inversionistas por Capital</h3>
                 <div class="overflow-y-auto max-h-96">
                     @foreach($topAportadores as $index => $aportador)
                         <div class="flex items-center justify-between py-3 border-b border-gray-200 dark:border-gray-700 last:border-0">
@@ -120,7 +120,7 @@
                     <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                         <tr>
                             <th class="px-6 py-3">Fecha</th>
-                            <th class="px-6 py-3">Aportador</th>
+                            <th class="px-6 py-3">Inversionista</th>
                             <th class="px-6 py-3">Cliente</th>
                             <th class="px-6 py-3">Préstamo</th>
                             <th class="px-6 py-3">Capital</th>
@@ -170,10 +170,10 @@
         <!-- Acciones Rápidas -->
         <div class="mt-6 flex gap-4">
             <a href="{{ route('aportadores.index') }}" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">
-                Ver Todos los Aportadores
+                Ver Todos los Inversionistas
             </a>
             <a href="{{ route('aportadores.create') }}" class="text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-green-600 dark:hover:bg-green-700 focus:outline-none dark:focus:ring-green-800">
-                + Nuevo Aportador
+                + Nuevo Inversionista
             </a>
         </div>
     </div>

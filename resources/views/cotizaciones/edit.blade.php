@@ -28,11 +28,11 @@
                             @enderror
                         </div>
 
-                        <!-- Receta (Opcional) -->
+                        <!-- Plan de Construcción (Opcional) -->
                         <div>
-                            <label for="receta_id" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Receta Base (Opcional)</label>
+                            <label for="receta_id" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Plan de Construcción Base (Opcional)</label>
                             <select id="receta_id" name="receta_id" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 @error('receta_id') border-red-500 @enderror">
-                                <option value="">Sin receta base</option>
+                                <option value="">Sin plan base</option>
                                 @foreach($recetas as $receta)
                                     <option value="{{ $receta->id }}" {{ old('receta_id', $cotizacion->receta_id) == $receta->id ? 'selected' : '' }}>
                                         {{ $receta->nombre }} - {{ $receta->tipo_vivienda }}

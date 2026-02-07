@@ -3,8 +3,8 @@
         <div class="p-4 mt-14">
             <!-- Header -->
             <div class="mb-6">
-                <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Editar Aportador</h1>
-                <p class="text-gray-600 dark:text-gray-400 mt-1">Modifica la información del aportador</p>
+                <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Editar Inversionista</h1>
+                <p class="text-gray-600 dark:text-gray-400 mt-1">Modifica la información del inversionista</p>
             </div>
 
             <form action="{{ route('aportadores.update', $aportador) }}" method="POST" class="space-y-6">

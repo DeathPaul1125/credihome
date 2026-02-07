@@ -6,6 +6,7 @@ use App\Models\Cliente;
 use App\Models\Prestamo;
 use App\Models\Aportador;
 use App\Models\Aportacion;
+use App\Models\Cotizacion;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -61,11 +62,19 @@ class PrestamoController extends Controller
             ->get();
 
         $clienteSeleccionado = null;
-        if ($request->filled('cliente_id')) {
+        $cotizacion = null;
+
+        // Si viene de una cotización, cargar los datos
+        if ($request->filled('cotizacion_id')) {
+            $cotizacion = Cotizacion::with('cliente')->find($request->cotizacion_id);
+            if ($cotizacion) {
+                $clienteSeleccionado = $cotizacion->cliente;
+            }
+        } elseif ($request->filled('cliente_id')) {
             $clienteSeleccionado = Cliente::find($request->cliente_id);
         }
 
-        return view('prestamos.create-flowbite', compact('clientes', 'clienteSeleccionado', 'aportadores'));
+        return view('prestamos.create-flowbite', compact('clientes', 'clienteSeleccionado', 'aportadores', 'cotizacion'));
     }
 
     /**

@@ -135,7 +135,7 @@
         </div>
         @if($cotizacion->receta)
         <div class="info-row">
-            <span class="info-label">Receta:</span>
+            <span class="info-label">Plan de Construcción:</span>
             <span>{{ $cotizacion->receta->nombre }}</span>
         </div>
         @endif

@@ -1,14 +1,14 @@
 <x-flowbite-layout>
     <div class="mb-6 flex items-center justify-between">
                 <div>
-                    <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Recetas de Construcción</h1>
+                    <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Planes de Construcción</h1>
                     <p class="text-gray-600 dark:text-gray-400 mt-1">Plantillas de materiales para proyectos</p>
                 </div>
                 <a href="{{ route('recetas.create') }}" class="inline-flex items-center text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">
                     <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
                         <path d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z"/>
                     </svg>
-                    Nueva Receta
+                    Nuevo Plan
                 </a>
             </div>
 
@@ -108,7 +108,7 @@
                         </tr>
                         @empty
                         <tr>
-                            <td colspan="8" class="px-6 py-4 text-center text-gray-500">No se encontraron recetas</td>
+                            <td colspan="8" class="px-6 py-4 text-center text-gray-500">No se encontraron planes de construcción</td>
                         </tr>
                         @endforelse
                     </tbody>
