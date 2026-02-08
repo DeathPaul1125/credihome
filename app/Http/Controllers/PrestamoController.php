@@ -99,6 +99,7 @@ class PrestamoController extends Controller
         try {
             $validated = $request->validate([
                 'cliente_id' => 'required|exists:clientes,id',
+                'cotizacion_id' => 'nullable|exists:cotizaciones,id',
                 'monto_prestado' => 'required|numeric|min:500|max:100000',
                 'tasa_interes' => 'required|numeric|min:0|max:100',
                 'tipo_interes' => 'required|in:simple,compuesto',
@@ -214,6 +215,18 @@ class PrestamoController extends Controller
             $prestamo->save();
             \Log::info('Préstamo guardado con ID: ' . $prestamo->id);
 
+            // Si el préstamo viene de una cotización, actualizar la relación bidireccional
+            if (!empty($validated['cotizacion_id'])) {
+                \Log::info('Actualizando relación con cotización ID: ' . $validated['cotizacion_id']);
+                $cotizacion = Cotizacion::find($validated['cotizacion_id']);
+                if ($cotizacion) {
+                    $cotizacion->prestamo_id = $prestamo->id;
+                    $cotizacion->estado = 'convertida';
+                    $cotizacion->save();
+                    \Log::info('Cotización actualizada con préstamo ID: ' . $prestamo->id);
+                }
+            }
+
             // Crear aportaciones si se especificaron
             if (!empty($validated['aportadores'])) {
                 \Log::info('Creando aportaciones');
@@ -272,7 +285,7 @@ class PrestamoController extends Controller
      */
     public function show(Prestamo $prestamo)
     {
-        $prestamo->load(['cliente', 'usuario', 'aprobador', 'pagos.usuario', 'aportaciones.aportador']);
+        $prestamo->load(['cliente', 'usuario', 'aprobador', 'pagos.usuario', 'aportaciones.aportador', 'cotizacion']);
 
         // Generar tabla de amortización
         $tablaAmortizacion = $prestamo->generarTablaAmortizacion();

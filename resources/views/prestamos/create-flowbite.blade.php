@@ -1,4 +1,4 @@
-<x-flowbite-layout>
+﻿<x-flowbite-layout>
     <div class="mb-4">
         <div class="flex items-center justify-between">
             <div>
@@ -166,7 +166,7 @@
                                     <option value="">Seleccionar inversionista...</option>
                                     @foreach($aportadores as $aportador)
                                     <option value="{{ $aportador->id }}" data-capital="{{ $aportador->capital_disponible }}">
-                                        {{ $aportador->nombre }} - Disponible: Q{{ number_format($aportador->capital_disponible, 2) }}
+                                        {{ $aportador->nombre }} - Disponible: {{ money_symbol($aportador->capital_disponible) }}
                                     </option>
                                     @endforeach
                                 </select>
@@ -268,10 +268,10 @@
                 row.querySelector('.porcentaje-aportacion').value = porcentaje + '%';
             });
 
-            document.getElementById('total-fondeado').textContent = 'Q' + totalFondeado.toFixed(2);
+            document.getElementById('total-fondeado').textContent = formatMoneySymbol(totalFondeado);
 
             const faltante = Math.max(0, montoPrestamo - totalFondeado);
-            document.getElementById('total-faltante').textContent = 'Q' + faltante.toFixed(2);
+            document.getElementById('total-faltante').textContent = formatMoneySymbol(faltante);
 
             // Cambiar color según el estado
             const faltanteSpan = document.getElementById('total-faltante');

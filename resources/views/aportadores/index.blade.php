@@ -1,4 +1,4 @@
-<x-flowbite-layout>
+﻿<x-flowbite-layout>
     <!-- Header -->
     <div class="mb-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <div>
@@ -6,14 +6,14 @@
                 <p class="text-gray-600 dark:text-gray-400 mt-1">Gestión de financiadores del sistema</p>
             </div>
             <div class="flex gap-2">
-                <a href="{{ route('aportadores.dashboard') }}" class="text-white bg-purple-700 hover:bg-purple-800 focus:ring-4 focus:ring-purple-300 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-purple-600 dark:hover:bg-purple-700 focus:outline-none dark:focus:ring-purple-800">
-                    <svg class="w-5 h-5 inline-block mr-1 -mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                <a href="{{ route('aportadores.dashboard') }}" class="inline-flex items-center text-white bg-purple-700 hover:bg-purple-800 focus:ring-4 focus:ring-purple-300 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-purple-600 dark:hover:bg-purple-700 focus:outline-none dark:focus:ring-purple-800">
+                    <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
                         <path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zM8 7a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zM14 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z"/>
                     </svg>
                     Dashboard
                 </a>
-                <a href="{{ route('aportadores.create') }}" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">
-                    <svg class="w-5 h-5 inline-block mr-1 -mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <a href="{{ route('aportadores.create') }}" class="inline-flex items-center text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
                     </svg>
                     Nuevo Inversionista
@@ -110,16 +110,16 @@
                                 </span>
                             </td>
                             <td class="px-6 py-4 font-semibold text-green-600 dark:text-green-400">
-                                Q {{ number_format($aportador->capital_disponible, 2) }}
+                                {{ money_symbol($aportador->capital_disponible) }}
                             </td>
                             <td class="px-6 py-4 font-semibold text-yellow-600 dark:text-yellow-400">
-                                Q {{ number_format($aportador->capital_invertido, 2) }}
+                                {{ money_symbol($aportador->capital_invertido) }}
                             </td>
                             <td class="px-6 py-4 font-semibold text-blue-600 dark:text-blue-400">
-                                Q {{ number_format($aportador->ganancias_totales, 2) }}
+                                {{ money_symbol($aportador->ganancias_totales) }}
                             </td>
                             <td class="px-6 py-4 font-semibold">
-                                {{ number_format($aportador->getRoiAttribute(), 2) }}%
+                                {{ percentage($aportador->getRoiAttribute()) }}
                             </td>
                             <td class="px-6 py-4">
                                 @if($aportador->estado == 'Activo')

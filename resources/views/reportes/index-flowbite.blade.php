@@ -1,4 +1,4 @@
-<x-flowbite-layout>
+﻿<x-flowbite-layout>
     <!-- Header -->
     <div class="mb-6">
                 <h1 class="text-2xl font-bold text-gray-900 dark:text-white">
@@ -33,7 +33,7 @@
                     <div class="flex items-center justify-between">
                         <div>
                             <p class="text-blue-100 text-sm font-medium mb-1">Total Prestado</p>
-                            <h3 class="text-3xl font-bold">Q{{ number_format($metricas['total_prestado'], 2) }}</h3>
+                            <h3 class="text-3xl font-bold">{{ money_symbol($metricas['total_prestado']) }}</h3>
                             <p class="text-blue-100 text-xs mt-2">
                                 <i class="fas fa-hand-holding-usd mr-1"></i>
                                 {{ $metricas['cantidad_prestamos'] }} préstamos
@@ -50,7 +50,7 @@
                     <div class="flex items-center justify-between">
                         <div>
                             <p class="text-green-100 text-sm font-medium mb-1">Total Cobrado</p>
-                            <h3 class="text-3xl font-bold">Q{{ number_format($metricas['total_cobrado'], 2) }}</h3>
+                            <h3 class="text-3xl font-bold">{{ money_symbol($metricas['total_cobrado']) }}</h3>
                             <p class="text-green-100 text-xs mt-2">
                                 <i class="fas fa-check-circle mr-1"></i>
                                 {{ $metricas['cantidad_pagos'] }} pagos
@@ -84,7 +84,7 @@
                     <div class="flex items-center justify-between">
                         <div>
                             <p class="text-red-100 text-sm font-medium mb-1">Morosidad</p>
-                            <h3 class="text-3xl font-bold">Q{{ number_format($metricas['morosidad'], 2) }}</h3>
+                            <h3 class="text-3xl font-bold">{{ money_symbol($metricas['morosidad']) }}</h3>
                             <p class="text-red-100 text-xs mt-2">
                                 <i class="fas fa-exclamation-triangle mr-1"></i>
                                 {{ $metricas['prestamos_vencidos'] }} vencidos
@@ -147,13 +147,13 @@
                                         {{ $prestamo->cliente->nombre }}
                                     </td>
                                     <td class="px-6 py-4">
-                                        Q{{ number_format($prestamo->monto_prestamo, 2) }}
+                                        {{ money_symbol($prestamo->monto_prestamo) }}
                                     </td>
                                     <td class="px-6 py-4 text-green-600 dark:text-green-400 font-semibold">
-                                        Q{{ number_format($prestamo->monto_prestamo - $prestamo->saldo_pendiente, 2) }}
+                                        {{ money_symbol($prestamo->monto_prestamo - $prestamo->saldo_pendiente) }}
                                     </td>
                                     <td class="px-6 py-4 text-red-600 dark:text-red-400 font-semibold">
-                                        Q{{ number_format($prestamo->saldo_pendiente, 2) }}
+                                        {{ money_symbol($prestamo->saldo_pendiente) }}
                                     </td>
                                     <td class="px-6 py-4">
                                         @php
@@ -163,7 +163,7 @@
                                             <div class="w-full bg-gray-200 rounded-full h-2 dark:bg-gray-700 mr-2">
                                                 <div class="bg-blue-600 h-2 rounded-full" style="width: {{ $porcentaje }}%"></div>
                                             </div>
-                                            <span class="text-xs font-medium">{{ number_format($porcentaje, 1) }}%</span>
+                                            <span class="text-xs font-medium">{{ percentage($porcentaje, 1) }}</span>
                                         </div>
                                     </td>
                                     <td class="px-6 py-4">
@@ -232,7 +232,7 @@
             yaxis: {
                 labels: {
                     formatter: function(val) {
-                        return 'Q' + val.toFixed(0);
+                        return formatMoneySymbol(val, 0);
                     }
                 }
             }

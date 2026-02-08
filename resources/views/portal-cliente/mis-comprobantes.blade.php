@@ -1,4 +1,4 @@
-<x-app-layout>
+﻿<x-app-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
             Mis Comprobantes de Pago
@@ -43,7 +43,7 @@
                                                 </a>
                                             </td>
                                             <td class="px-6 py-4">
-                                                Q {{ number_format($comprobante->monto_pagado, 2) }}
+                                                {{ money_symbol($comprobante->monto_pagado) }}
                                             </td>
                                             <td class="px-6 py-4">
                                                 {{ \Carbon\Carbon::parse($comprobante->fecha_pago)->format('d/m/Y') }}

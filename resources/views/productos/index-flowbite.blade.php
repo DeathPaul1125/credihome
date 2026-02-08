@@ -1,4 +1,4 @@
-<x-flowbite-layout>
+﻿<x-flowbite-layout>
     <!-- Header -->
     <div class="mb-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
@@ -120,7 +120,7 @@
                                 {{ $producto->unidad_medida }}
                             </td>
                             <td class="px-6 py-4">
-                                Q{{ number_format($producto->precio_unitario, 2) }}
+                                {{ money_symbol($producto->precio_unitario) }}
                             </td>
                             <td class="px-6 py-4">
                                 <span class="{{ $producto->stock_actual <= $producto->stock_minimo ? 'text-red-600 font-bold' : '' }}">

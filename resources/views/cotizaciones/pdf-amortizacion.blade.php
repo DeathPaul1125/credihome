@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
@@ -121,21 +121,21 @@
         <h3 style="margin-top: 0;">Resumen del Financiamiento</h3>
         <div class="summary-item">
             <span>Monto Total:</span>
-            <span>Q{{ number_format($cotizacion->total, 2) }}</span>
+            <span>{{ money_symbol($cotizacion->total) }}</span>
         </div>
         @if($cotizacion->enganche > 0)
         <div class="summary-item">
             <span>Enganche:</span>
-            <span>Q{{ number_format($cotizacion->enganche, 2) }}</span>
+            <span>{{ money_symbol($cotizacion->enganche) }}</span>
         </div>
         <div class="summary-item">
             <span>Monto a Financiar:</span>
-            <span>Q{{ number_format($cotizacion->total - $cotizacion->enganche, 2) }}</span>
+            <span>{{ money_symbol($cotizacion->total - $cotizacion->enganche) }}</span>
         </div>
         @else
         <div class="summary-item">
             <span>Monto a Financiar:</span>
-            <span>Q{{ number_format($cotizacion->total, 2) }}</span>
+            <span>{{ money_symbol($cotizacion->total) }}</span>
         </div>
         @endif
         <div class="summary-item">
@@ -144,15 +144,15 @@
         </div>
         <div class="summary-item">
             <span>Tasa de Interés Anual:</span>
-            <span>{{ number_format($cotizacion->tasa_interes_anual, 2) }}%</span>
+            <span>{{ percentage($cotizacion->tasa_interes_anual) }}</span>
         </div>
         <div class="summary-item">
             <span>Tasa de Interés Mensual:</span>
-            <span>{{ number_format($cotizacion->tasa_interes_anual / 12, 2) }}%</span>
+            <span>{{ percentage($cotizacion->tasa_interes_anual / 12) }}</span>
         </div>
         <div class="summary-item highlight">
             <span>Cuota Mensual:</span>
-            <span>Q{{ number_format($planPagos[0]['cuota'], 2) }}</span>
+            <span>{{ money_symbol($planPagos[0]['cuota']) }}</span>
         </div>
         <div class="summary-item highlight">
             <span>Total a Pagar:</span>
@@ -178,10 +178,10 @@
             @foreach($planPagos as $pago)
             <tr>
                 <td>{{ $pago['mes'] }}</td>
-                <td>Q{{ number_format($pago['cuota'], 2) }}</td>
-                <td>Q{{ number_format($pago['capital'], 2) }}</td>
-                <td>Q{{ number_format($pago['interes'], 2) }}</td>
-                <td>Q{{ number_format($pago['saldo'], 2) }}</td>
+                <td>{{ money_symbol($pago['cuota']) }}</td>
+                <td>{{ money_symbol($pago['capital']) }}</td>
+                <td>{{ money_symbol($pago['interes']) }}</td>
+                <td>{{ money_symbol($pago['saldo']) }}</td>
             </tr>
             @endforeach
         </tbody>

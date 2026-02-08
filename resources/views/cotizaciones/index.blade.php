@@ -1,4 +1,4 @@
-<x-flowbite-layout>
+﻿<x-flowbite-layout>
     <div class="mb-6 flex items-center justify-between">
                 <div>
                     <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Cotizaciones</h1>
@@ -68,7 +68,7 @@
                             <td class="px-6 py-4">{{ $cotizacion->cliente->nombre }}</td>
                             <td class="px-6 py-4">{{ $cotizacion->fecha_emision->format('d/m/Y') }}</td>
                             <td class="px-6 py-4">{{ $cotizacion->fecha_vencimiento->format('d/m/Y') }}</td>
-                            <td class="px-6 py-4 font-medium">Q {{ number_format($cotizacion->total, 2) }}</td>
+                            <td class="px-6 py-4 font-medium">{{ money_symbol($cotizacion->total) }}</td>
                             <td class="px-6 py-4">
                                 <span class="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium
                                     @if($cotizacion->estado === 'pendiente') bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300

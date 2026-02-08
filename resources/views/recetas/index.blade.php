@@ -1,4 +1,4 @@
-<x-flowbite-layout>
+﻿<x-flowbite-layout>
     <div class="mb-6 flex items-center justify-between">
                 <div>
                     <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Planes de Construcción</h1>
@@ -65,7 +65,7 @@
                             <td class="px-6 py-4">{{ $receta->tipo_vivienda }}</td>
                             <td class="px-6 py-4">{{ $receta->cliente->nombre ?? 'N/A' }}</td>
                             <td class="px-6 py-4">{{ $receta->area_construccion ? number_format($receta->area_construccion, 2) : 'N/A' }}</td>
-                            <td class="px-6 py-4 font-medium">Q {{ number_format($receta->costo_total, 2) }}</td>
+                            <td class="px-6 py-4 font-medium">{{ money_symbol($receta->costo_total) }}</td>
                             <td class="px-6 py-4">
                                 @if($receta->es_plantilla)
                                     <span class="bg-purple-100 text-purple-800 text-xs font-medium px-2.5 py-0.5 rounded dark:bg-purple-900 dark:text-purple-300">Plantilla</span>

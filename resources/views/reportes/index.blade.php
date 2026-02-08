@@ -1,4 +1,4 @@
-<x-tailadmin-layout>
+﻿<x-tailadmin-layout>
     <div class="mx-auto max-w-screen-2xl p-4 md:p-6 2xl:p-10">
         <!-- Header -->
         <div class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -68,7 +68,7 @@
             <div class="rounded-lg border border-stroke bg-white p-6 shadow-default dark:border-strokedark dark:bg-boxdark">
                 <div class="flex items-center justify-between">
                     <div>
-                        <h4 class="text-title-md font-bold text-warning dark:text-white">Q {{ number_format($carteraTotal, 2) }}</h4>
+                        <h4 class="text-title-md font-bold text-warning dark:text-white">{{ money_symbol($carteraTotal) }}</h4>
                         <span class="text-sm font-medium">Cartera Total</span>
                     </div>
                     <div class="flex h-11.5 w-11.5 items-center justify-center rounded-full bg-warning bg-opacity-10">
@@ -83,7 +83,7 @@
             <div class="rounded-lg border border-stroke bg-white p-6 shadow-default dark:border-strokedark dark:bg-boxdark">
                 <div class="flex items-center justify-between">
                     <div>
-                        <h4 class="text-title-md font-bold text-primary dark:text-white">Q {{ number_format($totalPagosDelPeriodo, 2) }}</h4>
+                        <h4 class="text-title-md font-bold text-primary dark:text-white">{{ money_symbol($totalPagosDelPeriodo) }}</h4>
                         <span class="text-sm font-medium">Pagos del Período</span>
                     </div>
                     <div class="flex h-11.5 w-11.5 items-center justify-center rounded-full bg-primary bg-opacity-10">
@@ -110,7 +110,7 @@
                                     <span class="font-medium text-black dark:text-white">{{ ucfirst(str_replace('_', ' ', $estado->estado)) }}</span>
                                     <p class="text-sm text-body-secondary">{{ $estado->total }} préstamos</p>
                                 </div>
-                                <span class="font-bold text-black dark:text-white">Q {{ number_format($estado->monto, 2) }}</span>
+                                <span class="font-bold text-black dark:text-white">{{ money_symbol($estado->monto) }}</span>
                             </div>
                             <div class="h-2 w-full rounded-full bg-gray-200 dark:bg-gray-700">
                                 <div class="h-full rounded-full
@@ -139,7 +139,7 @@
                             <div class="mb-2 flex items-center justify-between">
                                 <span class="text-sm font-medium text-black dark:text-white">Tasa de Morosidad</span>
                                 <span class="text-2xl font-bold {{ $tasaMorosidad > 10 ? 'text-danger' : ($tasaMorosidad > 5 ? 'text-warning' : 'text-success') }}">
-                                    {{ number_format($tasaMorosidad, 2) }}%
+                                    {{ percentage($tasaMorosidad) }}
                                 </span>
                             </div>
                             <div class="h-4 w-full rounded-full bg-gray-200 dark:bg-gray-700">
@@ -152,7 +152,7 @@
                         <div class="rounded-lg bg-red-50 p-4 dark:bg-red-900/20">
                             <div class="flex items-center justify-between mb-2">
                                 <span class="font-medium text-black dark:text-white">Cartera Vencida</span>
-                                <span class="text-danger font-bold">Q {{ number_format($carteraVencida, 2) }}</span>
+                                <span class="text-danger font-bold">{{ money_symbol($carteraVencida) }}</span>
                             </div>
                             <p class="text-sm text-body-secondary">{{ $prestamosVencidos }} préstamos en mora</p>
                         </div>
@@ -160,7 +160,7 @@
                         <div class="rounded-lg bg-yellow-50 p-4 dark:bg-yellow-900/20">
                             <div class="flex items-center justify-between mb-2">
                                 <span class="font-medium text-black dark:text-white">Mora Acumulada</span>
-                                <span class="text-warning font-bold">Q {{ number_format($moraTotal, 2) }}</span>
+                                <span class="text-warning font-bold">{{ money_symbol($moraTotal) }}</span>
                             </div>
                             <p class="text-sm text-body-secondary">Mora cobrada en el período</p>
                         </div>
@@ -183,7 +183,7 @@
                                 <div>
                                     <div class="mb-2 flex items-center justify-between">
                                         <span class="font-medium text-black dark:text-white">{{ ucfirst($dist->frecuencia_pago) }}</span>
-                                        <span class="text-body-secondary">{{ $dist->total }} préstamos - Q {{ number_format($dist->monto, 2) }}</span>
+                                        <span class="text-body-secondary">{{ $dist->total }} préstamos - {{ money_symbol($dist->monto) }}</span>
                                     </div>
                                     <div class="h-3 w-full rounded-full bg-gray-200 dark:bg-gray-700">
                                         <div class="h-full rounded-full bg-primary" style="width: {{ $carteraTotal > 0 ? ($dist->monto / $carteraTotal * 100) : 0 }}%"></div>
@@ -209,7 +209,7 @@
                                 <div>
                                     <div class="mb-2 flex items-center justify-between">
                                         <span class="font-medium text-black dark:text-white">{{ ucfirst($dist->tipo_interes) }}</span>
-                                        <span class="text-body-secondary">{{ $dist->total }} préstamos - Q {{ number_format($dist->monto, 2) }}</span>
+                                        <span class="text-body-secondary">{{ $dist->total }} préstamos - {{ money_symbol($dist->monto) }}</span>
                                     </div>
                                     <div class="h-3 w-full rounded-full bg-gray-200 dark:bg-gray-700">
                                         <div class="h-full rounded-full bg-warning" style="width: {{ $carteraTotal > 0 ? ($dist->monto / $carteraTotal * 100) : 0 }}%"></div>
@@ -249,7 +249,7 @@
                                             <td class="px-4 py-3">{{ $index + 1 }}</td>
                                             <td class="px-4 py-3">{{ $cliente->nombre_completo }}</td>
                                             <td class="px-4 py-3">{{ $cliente->dpi_formateado }}</td>
-                                            <td class="px-4 py-3 font-semibold text-danger">Q {{ number_format($cliente->prestamos_sum_saldo_pendiente, 2) }}</td>
+                                            <td class="px-4 py-3 font-semibold text-danger">{{ money_symbol($cliente->prestamos_sum_saldo_pendiente) }}</td>
                                             <td class="px-4 py-3">
                                                 <a href="{{ route('clientes.show', $cliente) }}" class="text-primary hover:underline">Ver</a>
                                             </td>
@@ -278,7 +278,7 @@
                             @foreach($prestamosDelPeriodo->take(10) as $dia)
                                 <div class="flex items-center justify-between text-sm">
                                     <span class="text-body-secondary">{{ \Carbon\Carbon::parse($dia->fecha)->format('d/m/Y') }}</span>
-                                    <span class="font-medium text-black dark:text-white">{{ $dia->total }} préstamos - Q {{ number_format($dia->monto, 2) }}</span>
+                                    <span class="font-medium text-black dark:text-white">{{ $dia->total }} préstamos - {{ money_symbol($dia->monto) }}</span>
                                 </div>
                             @endforeach
                         </div>
@@ -299,7 +299,7 @@
                             @foreach($pagosDelPeriodo->take(10) as $dia)
                                 <div class="flex items-center justify-between text-sm">
                                     <span class="text-body-secondary">{{ \Carbon\Carbon::parse($dia->fecha)->format('d/m/Y') }}</span>
-                                    <span class="font-medium text-success">{{ $dia->total }} pagos - Q {{ number_format($dia->monto, 2) }}</span>
+                                    <span class="font-medium text-success">{{ $dia->total }} pagos - {{ money_symbol($dia->monto) }}</span>
                                 </div>
                             @endforeach
                         </div>

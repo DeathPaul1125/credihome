@@ -1,4 +1,4 @@
-<x-tailadmin-layout>
+﻿<x-tailadmin-layout>
     @section('page-title', 'Registrar Pago')
 
     <div class="mb-6">
@@ -27,7 +27,7 @@
                                     data-monto-cuota="{{ $prest->monto_cuota }}"
                                     data-saldo="{{ $prest->saldo_pendiente }}"
                                     {{ old('prestamo_id', request('prestamo_id')) == $prest->id ? 'selected' : '' }}>
-                                    {{ $prest->numero_prestamo }} - {{ $prest->cliente->nombre_completo }} (Q{{ number_format($prest->saldo_pendiente, 2) }})
+                                    {{ $prest->numero_prestamo }} - {{ $prest->cliente->nombre_completo }} ({{ money_symbol($prest->saldo_pendiente) }})
                                 </option>
                             @endforeach
                         </select>
@@ -138,8 +138,8 @@
 
             if (option.value) {
                 document.getElementById('info-cliente').textContent = option.dataset.cliente;
-                document.getElementById('info-cuota').textContent = 'Q ' + parseFloat(option.dataset.montoCuota).toFixed(2);
-                document.getElementById('info-saldo').textContent = 'Q ' + parseFloat(option.dataset.saldo).toFixed(2);
+                document.getElementById('info-cuota').textContent = formatMoneySymbol(option.dataset.montoCuota);
+                document.getElementById('info-saldo').textContent = formatMoneySymbol(option.dataset.saldo);
                 infoDiv.classList.remove('hidden');
             } else {
                 infoDiv.classList.add('hidden');

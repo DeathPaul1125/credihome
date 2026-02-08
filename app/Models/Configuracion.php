@@ -35,6 +35,12 @@ class Configuracion extends Model
         'notificar_stock_bajo',
         'notificar_pagos_pendientes',
         'notificar_cotizaciones_vencidas',
+        'recurrente_habilitado',
+        'recurrente_public_key',
+        'recurrente_secret_key',
+        'recurrente_modo_prueba',
+        'recurrente_public_key_test',
+        'recurrente_secret_key_test',
     ];
 
     protected $casts = [
@@ -45,6 +51,8 @@ class Configuracion extends Model
         'notificar_stock_bajo' => 'boolean',
         'notificar_pagos_pendientes' => 'boolean',
         'notificar_cotizaciones_vencidas' => 'boolean',
+        'recurrente_habilitado' => 'boolean',
+        'recurrente_modo_prueba' => 'boolean',
     ];
 
     /**

@@ -1,4 +1,4 @@
-<x-flowbite-layout>
+﻿<x-flowbite-layout>
     <!-- Header -->
     <div class="mb-4">
                 <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Editar Cotización</h1>
@@ -169,15 +169,15 @@
                             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                                 <div class="flex justify-between items-center">
                                     <span class="text-sm font-medium text-gray-900 dark:text-white">Subtotal:</span>
-                                    <span id="subtotalDisplay" class="text-sm font-bold text-gray-900 dark:text-white">Q {{ number_format($cotizacion->subtotal ?? 0, 2) }}</span>
+                                    <span id="subtotalDisplay" class="text-sm font-bold text-gray-900 dark:text-white">{{ money_symbol($cotizacion->subtotal ?? 0) }}</span>
                                 </div>
                                 <div class="flex justify-between items-center">
                                     <span class="text-sm font-medium text-gray-900 dark:text-white">Descuento:</span>
-                                    <span id="descuentoDisplay" class="text-sm font-bold text-green-600 dark:text-green-400">Q {{ number_format($cotizacion->descuento ?? 0, 2) }}</span>
+                                    <span id="descuentoDisplay" class="text-sm font-bold text-green-600 dark:text-green-400">{{ money_symbol($cotizacion->descuento ?? 0) }}</span>
                                 </div>
                                 <div class="flex justify-between items-center">
                                     <span class="text-lg font-medium text-gray-900 dark:text-white">Total:</span>
-                                    <span id="totalDisplay" class="text-xl font-bold text-blue-600 dark:text-blue-400">Q {{ number_format($cotizacion->total ?? 0, 2) }}</span>
+                                    <span id="totalDisplay" class="text-xl font-bold text-blue-600 dark:text-blue-400">{{ money_symbol($cotizacion->total ?? 0) }}</span>
                                 </div>
                             </div>
                         </div>
@@ -345,9 +345,9 @@
             const descuento = parseFloat(document.getElementById('descuento').value) || 0;
             const total = subtotal - descuento;
 
-            document.getElementById('subtotalDisplay').textContent = 'Q ' + subtotal.toFixed(2);
-            document.getElementById('descuentoDisplay').textContent = 'Q ' + descuento.toFixed(2);
-            document.getElementById('totalDisplay').textContent = 'Q ' + total.toFixed(2);
+            document.getElementById('subtotalDisplay').textContent = formatMoneySymbol(subtotal);
+            document.getElementById('descuentoDisplay').textContent = formatMoneySymbol(descuento);
+            document.getElementById('totalDisplay').textContent = formatMoneySymbol(total);
         }
 
         function loadRecetaProductos(recetaId) {

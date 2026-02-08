@@ -1,4 +1,4 @@
-<x-flowbite-layout>
+﻿<x-flowbite-layout>
     <!-- Header -->
     <div class="mb-6">
             <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Editar Aportación</h1>
@@ -163,15 +163,15 @@
                     <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                         <div>
                             <p class="text-gray-600 dark:text-gray-400">Saldo Pendiente</p>
-                            <p class="font-bold text-gray-900 dark:text-white">Q {{ number_format($aportacion->saldo_pendiente, 2) }}</p>
+                            <p class="font-bold text-gray-900 dark:text-white">{{ money_symbol($aportacion->saldo_pendiente) }}</p>
                         </div>
                         <div>
                             <p class="text-gray-600 dark:text-gray-400">ROI</p>
-                            <p class="font-bold text-green-600 dark:text-green-400">{{ number_format($aportacion->roi, 2) }}%</p>
+                            <p class="font-bold text-green-600 dark:text-green-400">{{ percentage($aportacion->roi) }}</p>
                         </div>
                         <div>
                             <p class="text-gray-600 dark:text-gray-400">% Recuperado</p>
-                            <p class="font-bold text-blue-600 dark:text-blue-400">{{ number_format($aportacion->porcentaje_recuperado, 2) }}%</p>
+                            <p class="font-bold text-blue-600 dark:text-blue-400">{{ percentage($aportacion->porcentaje_recuperado) }}</p>
                         </div>
                         <div>
                             <p class="text-gray-600 dark:text-gray-400">Fecha Aportación</p>

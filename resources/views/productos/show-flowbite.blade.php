@@ -1,4 +1,4 @@
-<x-flowbite-layout>
+﻿<x-flowbite-layout>
     <!-- Header -->
     <div class="mb-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <h1 class="text-2xl font-bold text-gray-900 dark:text-white">{{ $producto->nombre }}</h1>
@@ -80,7 +80,7 @@
                     <div class="space-y-3">
                         <div>
                             <span class="text-sm font-medium text-gray-500 dark:text-gray-400">Precio Unitario:</span>
-                            <p class="text-2xl font-bold text-gray-900 dark:text-white">Q{{ number_format($producto->precio_unitario, 2) }}</p>
+                            <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ money_symbol($producto->precio_unitario) }}</p>
                         </div>
                     </div>
                 </div>

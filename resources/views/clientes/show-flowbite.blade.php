@@ -1,4 +1,4 @@
-<x-flowbite-layout>
+﻿<x-flowbite-layout>
     <div class="mb-4">
         <div class="flex items-center justify-between">
             <div>
@@ -147,7 +147,7 @@
                                 @if($cliente->ingreso_mensual)
                                 <div>
                                     <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Ingreso Mensual</dt>
-                                    <dd class="mt-1 text-sm text-gray-900 dark:text-white">Q{{ number_format($cliente->ingreso_mensual, 2) }}</dd>
+                                    <dd class="mt-1 text-sm text-gray-900 dark:text-white">{{ money_symbol($cliente->ingreso_mensual) }}</dd>
                                 </div>
                                 @endif
                             </dl>
@@ -288,8 +288,8 @@
                             @foreach($cliente->prestamos as $prestamo)
                             <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
                                 <td class="px-6 py-4 font-medium text-gray-900 dark:text-white">{{ $prestamo->numero_prestamo }}</td>
-                                <td class="px-6 py-4">Q{{ number_format($prestamo->monto_prestado, 2) }}</td>
-                                <td class="px-6 py-4">Q{{ number_format($prestamo->saldo_pendiente, 2) }}</td>
+                                <td class="px-6 py-4">{{ money_symbol($prestamo->monto_prestado) }}</td>
+                                <td class="px-6 py-4">{{ money_symbol($prestamo->saldo_pendiente) }}</td>
                                 <td class="px-6 py-4">
                                     @php
                                         $colors = [

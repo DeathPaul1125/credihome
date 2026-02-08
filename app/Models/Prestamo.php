@@ -17,6 +17,7 @@ class Prestamo extends Model
     protected $fillable = [
         'numero_prestamo',
         'cliente_id',
+        'cotizacion_id',
         'monto_prestado',
         'tasa_interes',
         'tipo_interes',
@@ -76,6 +77,14 @@ class Prestamo extends Model
     public function cliente(): BelongsTo
     {
         return $this->belongsTo(Cliente::class);
+    }
+
+    /**
+     * Relación con la cotización origen (si fue generado desde una cotización)
+     */
+    public function cotizacion(): BelongsTo
+    {
+        return $this->belongsTo(Cotizacion::class);
     }
 
     /**

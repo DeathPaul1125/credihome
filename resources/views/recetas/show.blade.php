@@ -1,4 +1,4 @@
-<x-flowbite-layout>
+﻿<x-flowbite-layout>
     <div class="mb-6 flex items-center justify-between">
                 <h1 class="text-2xl font-bold text-gray-900 dark:text-white">{{ $receta->nombre }}</h1>
                 <div class="flex gap-3">
@@ -20,7 +20,7 @@
                 </div>
                 <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
                     <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">Costo Total</h3>
-                    <p class="text-lg font-semibold text-green-600 dark:text-green-500">Q {{ number_format($receta->costo_total, 2) }}</p>
+                    <p class="text-lg font-semibold text-green-600 dark:text-green-500">{{ money_symbol($receta->costo_total) }}</p>
                 </div>
             </div>
 
@@ -43,8 +43,8 @@
                                 <td class="px-6 py-4 font-medium">{{ $item->producto->nombre }}</td>
                                 <td class="px-6 py-4">{{ number_format($item->cantidad, 2) }}</td>
                                 <td class="px-6 py-4">{{ $item->unidad }}</td>
-                                <td class="px-6 py-4">Q {{ number_format($item->precio_unitario, 2) }}</td>
-                                <td class="px-6 py-4 font-medium">Q {{ number_format($item->subtotal, 2) }}</td>
+                                <td class="px-6 py-4">{{ money_symbol($item->precio_unitario) }}</td>
+                                <td class="px-6 py-4 font-medium">{{ money_symbol($item->subtotal) }}</td>
                             </tr>
                             @endforeach
                         </tbody>

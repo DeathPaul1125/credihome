@@ -1,4 +1,4 @@
-<x-app-layout>
+﻿<x-app-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
             Subir Comprobante de Pago - Préstamo {{ $prestamo->numero_prestamo }}
@@ -15,11 +15,11 @@
                         <div class="grid grid-cols-2 gap-4">
                             <div>
                                 <span class="text-sm text-gray-600">Monto Original:</span>
-                                <p class="font-semibold">Q {{ number_format($prestamo->monto_prestado, 2) }}</p>
+                                <p class="font-semibold">{{ money_symbol($prestamo->monto_prestado) }}</p>
                             </div>
                             <div>
                                 <span class="text-sm text-gray-600">Saldo Pendiente:</span>
-                                <p class="font-semibold text-red-600">Q {{ number_format($prestamo->saldo_pendiente, 2) }}</p>
+                                <p class="font-semibold text-red-600">{{ money_symbol($prestamo->saldo_pendiente) }}</p>
                             </div>
                             <div>
                                 <span class="text-sm text-gray-600">Tasa de Interés:</span>

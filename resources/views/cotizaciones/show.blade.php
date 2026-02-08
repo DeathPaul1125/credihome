@@ -1,4 +1,4 @@
-<x-flowbite-layout>
+﻿<x-flowbite-layout>
     <div class="mb-6 flex items-center justify-between">
                 <div>
                     <h1 class="text-2xl font-bold text-gray-900 dark:text-white">{{ $cotizacion->numero_cotizacion }}</h1>
@@ -40,6 +40,26 @@
             <div class="p-4 mb-4 text-sm text-green-800 rounded-lg bg-green-50 dark:bg-gray-800 dark:text-green-400">{{ session('success') }}</div>
             @endif
 
+            @if($cotizacion->prestamo_id && $cotizacion->prestamo)
+            <div class="flex items-center p-4 mb-4 text-sm text-green-800 border border-green-300 rounded-lg bg-green-50 dark:bg-gray-800 dark:text-green-400 dark:border-green-800" role="alert">
+                <svg class="flex-shrink-0 inline w-5 h-5 me-3" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                </svg>
+                <div class="flex items-center justify-between w-full">
+                    <span>
+                        <strong>✓ Cotización Convertida:</strong>
+                        Esta cotización fue convertida en el préstamo {{ $cotizacion->prestamo->numero_prestamo }}
+                    </span>
+                    <a href="{{ route('prestamos.show', $cotizacion->prestamo) }}" class="ml-4 text-green-600 hover:text-green-800 dark:text-green-400 dark:hover:text-green-300 font-semibold flex items-center">
+                        Ver Préstamo
+                        <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                        </svg>
+                    </a>
+                </div>
+            </div>
+            @endif
+
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
                 <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
                     <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">Estado</h3>
@@ -52,11 +72,11 @@
                 </div>
                 <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
                     <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">Subtotal</h3>
-                    <p class="text-lg font-semibold text-gray-900 dark:text-white">Q {{ number_format($cotizacion->subtotal, 2) }}</p>
+                    <p class="text-lg font-semibold text-gray-900 dark:text-white">{{ money_symbol($cotizacion->subtotal) }}</p>
                 </div>
                 <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
                     <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">Total</h3>
-                    <p class="text-lg font-semibold text-green-600">Q {{ number_format($cotizacion->total, 2) }}</p>
+                    <p class="text-lg font-semibold text-green-600">{{ money_symbol($cotizacion->total) }}</p>
                 </div>
             </div>
 
@@ -78,8 +98,8 @@
                             <td class="px-6 py-4">{{ $item->descripcion }}</td>
                             <td class="px-6 py-4">{{ number_format($item->cantidad, 2) }}</td>
                             <td class="px-6 py-4">{{ $item->unidad }}</td>
-                            <td class="px-6 py-4">Q {{ number_format($item->precio_unitario, 2) }}</td>
-                            <td class="px-6 py-4 font-medium">Q {{ number_format($item->subtotal, 2) }}</td>
+                            <td class="px-6 py-4">{{ money_symbol($item->precio_unitario) }}</td>
+                            <td class="px-6 py-4 font-medium">{{ money_symbol($item->subtotal) }}</td>
                         </tr>
                         @endforeach
                     </tbody>
@@ -97,19 +117,19 @@
                     </div>
                     <div>
                         <p class="text-sm text-gray-500 dark:text-gray-400">Tasa de Interés Anual</p>
-                        <p class="text-lg font-semibold text-gray-900 dark:text-white">{{ number_format($cotizacion->tasa_interes_anual, 2) }}%</p>
+                        <p class="text-lg font-semibold text-gray-900 dark:text-white">{{ percentage($cotizacion->tasa_interes_anual) }}</p>
                     </div>
                     @if($cotizacion->enganche > 0)
                     <div>
                         <p class="text-sm text-gray-500 dark:text-gray-400">Enganche</p>
-                        <p class="text-lg font-semibold text-gray-900 dark:text-white">Q{{ number_format($cotizacion->enganche, 2) }}</p>
+                        <p class="text-lg font-semibold text-gray-900 dark:text-white">{{ money_symbol($cotizacion->enganche) }}</p>
                     </div>
                     @endif
                 </div>
 
                 <div class="bg-blue-50 dark:bg-gray-700 p-4 rounded-lg">
                     <p class="text-sm text-gray-600 dark:text-gray-300">
-                        Monto a Financiar: <span class="font-bold">Q{{ number_format($cotizacion->total - ($cotizacion->enganche ?? 0), 2) }}</span>
+                        Monto a Financiar: <span class="font-bold">{{ money_symbol($cotizacion->total - ($cotizacion->enganche ?? 0)) }}</span>
                     </p>
                     <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
                         * Para ver la tabla de amortización completa, descargue el PDF de Amortización

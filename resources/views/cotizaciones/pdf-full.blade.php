@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
@@ -162,8 +162,8 @@
                 <td>{{ $item->descripcion }}</td>
                 <td class="text-right">{{ number_format($item->cantidad, 2) }}</td>
                 <td>{{ $item->unidad }}</td>
-                <td class="text-right">Q{{ number_format($item->precio_unitario, 2) }}</td>
-                <td class="text-right">Q{{ number_format($item->subtotal, 2) }}</td>
+                <td class="text-right">{{ money_symbol($item->precio_unitario) }}</td>
+                <td class="text-right">{{ money_symbol($item->subtotal) }}</td>
             </tr>
             @endforeach
         </tbody>
@@ -173,17 +173,17 @@
         <div class="totales">
             <div class="total-row">
                 <span>Subtotal:</span>
-                <span>Q{{ number_format($cotizacion->subtotal, 2) }}</span>
+                <span>{{ money_symbol($cotizacion->subtotal) }}</span>
             </div>
             @if($cotizacion->descuento > 0)
             <div class="total-row">
                 <span>Descuento:</span>
-                <span>Q{{ number_format($cotizacion->descuento, 2) }}</span>
+                <span>{{ money_symbol($cotizacion->descuento) }}</span>
             </div>
             @endif
             <div class="total-row grand-total">
                 <span>TOTAL:</span>
-                <span>Q{{ number_format($cotizacion->total, 2) }}</span>
+                <span>{{ money_symbol($cotizacion->total) }}</span>
             </div>
         </div>
     </div>
@@ -195,21 +195,21 @@
         <div class="info-section">
             <div class="info-row">
                 <span class="info-label">Monto Total:</span>
-                <span>Q{{ number_format($cotizacion->total, 2) }}</span>
+                <span>{{ money_symbol($cotizacion->total) }}</span>
             </div>
             @if($cotizacion->enganche > 0)
             <div class="info-row">
                 <span class="info-label">Enganche:</span>
-                <span>Q{{ number_format($cotizacion->enganche, 2) }}</span>
+                <span>{{ money_symbol($cotizacion->enganche) }}</span>
             </div>
             <div class="info-row">
                 <span class="info-label">Monto a Financiar:</span>
-                <span>Q{{ number_format($cotizacion->total - $cotizacion->enganche, 2) }}</span>
+                <span>{{ money_symbol($cotizacion->total - $cotizacion->enganche) }}</span>
             </div>
             @else
             <div class="info-row">
                 <span class="info-label">Monto a Financiar:</span>
-                <span>Q{{ number_format($cotizacion->total, 2) }}</span>
+                <span>{{ money_symbol($cotizacion->total) }}</span>
             </div>
             @endif
             <div class="info-row">
@@ -218,11 +218,11 @@
             </div>
             <div class="info-row">
                 <span class="info-label">Tasa de Interés:</span>
-                <span>{{ number_format($cotizacion->tasa_interes_anual, 2) }}% anual</span>
+                <span>{{ percentage($cotizacion->tasa_interes_anual) }} anual</span>
             </div>
             <div class="info-row">
                 <span class="info-label">Cuota Mensual:</span>
-                <span>Q{{ number_format($planPagos[0]['cuota'], 2) }}</span>
+                <span>{{ money_symbol($planPagos[0]['cuota']) }}</span>
             </div>
         </div>
 
@@ -241,10 +241,10 @@
                 @foreach($planPagos as $pago)
                 <tr>
                     <td class="text-right">{{ $pago['mes'] }}</td>
-                    <td class="text-right">Q{{ number_format($pago['cuota'], 2) }}</td>
-                    <td class="text-right">Q{{ number_format($pago['capital'], 2) }}</td>
-                    <td class="text-right">Q{{ number_format($pago['interes'], 2) }}</td>
-                    <td class="text-right">Q{{ number_format($pago['saldo'], 2) }}</td>
+                    <td class="text-right">{{ money_symbol($pago['cuota']) }}</td>
+                    <td class="text-right">{{ money_symbol($pago['capital']) }}</td>
+                    <td class="text-right">{{ money_symbol($pago['interes']) }}</td>
+                    <td class="text-right">{{ money_symbol($pago['saldo']) }}</td>
                 </tr>
                 @endforeach
             </tbody>

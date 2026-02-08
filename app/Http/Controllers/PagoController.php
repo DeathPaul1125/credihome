@@ -58,13 +58,35 @@ class PagoController extends Controller
     {
         $prestamo = null;
         $numeroCuota = null;
+        $cuotaPendiente = null;
+        $tablaAmortizacion = null;
+        $numeroRecibo = null;
 
         if ($request->filled('prestamo_id')) {
             $prestamo = Prestamo::with('cliente')->find($request->prestamo_id);
 
-            // Si viene un número de cuota específico
-            if ($request->filled('numero_cuota')) {
-                $numeroCuota = $request->numero_cuota;
+            if ($prestamo) {
+                // Generar tabla de amortización
+                $tablaAmortizacion = $prestamo->generarTablaAmortizacion();
+
+                // Si viene un número de cuota específico
+                if ($request->filled('numero_cuota')) {
+                    $numeroCuota = $request->numero_cuota;
+                    // Buscar esa cuota en la tabla
+                    $cuotaPendiente = collect($tablaAmortizacion)->firstWhere('numero_cuota', $numeroCuota);
+                } else {
+                    // Buscar primera cuota pendiente o vencida
+                    $cuotaPendiente = collect($tablaAmortizacion)->first(function ($cuota) {
+                        return in_array($cuota['estado'], ['pendiente', 'vencida']);
+                    });
+
+                    if ($cuotaPendiente) {
+                        $numeroCuota = $cuotaPendiente['numero_cuota'];
+                    }
+                }
+
+                // Generar número de recibo automático
+                $numeroRecibo = $this->generarNumeroRecibo();
             }
         }
 
@@ -74,7 +96,32 @@ class PagoController extends Controller
             ->orderBy('fecha_desembolso', 'desc')
             ->get();
 
-        return view('pagos.create-flowbite', compact('prestamos', 'prestamo', 'numeroCuota'));
+        return view('pagos.create-flowbite', compact('prestamos', 'prestamo', 'numeroCuota', 'cuotaPendiente', 'tablaAmortizacion', 'numeroRecibo'));
+    }
+
+    /**
+     * Generar número de recibo automático
+     */
+    private function generarNumeroRecibo()
+    {
+        $anio = date('Y');
+
+        // Obtener el último recibo del año actual
+        $ultimoPago = Pago::whereYear('created_at', $anio)
+            ->whereNotNull('numero_recibo')
+            ->orderBy('id', 'desc')
+            ->first();
+
+        if ($ultimoPago && $ultimoPago->numero_recibo) {
+            // Extraer el número del recibo (formato: REC-YYYY-NNNNN)
+            preg_match('/REC-\d{4}-(\d+)/', $ultimoPago->numero_recibo, $matches);
+            $ultimoNumero = isset($matches[1]) ? (int)$matches[1] : 0;
+            $nuevoNumero = $ultimoNumero + 1;
+        } else {
+            $nuevoNumero = 1;
+        }
+
+        return 'REC-' . $anio . '-' . str_pad($nuevoNumero, 5, '0', STR_PAD_LEFT);
     }
 
     /**
@@ -87,6 +134,7 @@ class PagoController extends Controller
             'monto_pagado' => 'required|numeric|min:0.01',
             'fecha_pago' => 'required|date',
             'tipo_pago' => 'required|in:efectivo,transferencia,cheque,deposito',
+            'numero_recibo' => 'nullable|string|max:50|unique:pagos,numero_recibo',
             'observaciones' => 'nullable|string',
             'numero_cuota' => 'nullable|integer|min:1',
         ]);
@@ -130,6 +178,7 @@ class PagoController extends Controller
             'prestamo_id' => $validated['prestamo_id'],
             'cliente_id' => $prestamo->cliente_id,
             'numero_cuota' => $numeroCuota,
+            'numero_recibo' => $validated['numero_recibo'] ?? null,
             'monto_cuota_esperado' => $prestamo->monto_cuota,
             'monto_pagado' => $validated['monto_pagado'],
             'mora' => $mora,

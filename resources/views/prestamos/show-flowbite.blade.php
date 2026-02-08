@@ -1,4 +1,4 @@
-<x-flowbite-layout>
+﻿<x-flowbite-layout>
     <div class="mb-4">
         <div class="flex items-center justify-between">
             <div>
@@ -39,6 +39,26 @@
     </div>
     @endif
 
+    @if($prestamo->cotizacion_id && $prestamo->cotizacion)
+    <div class="flex items-center p-4 mb-4 text-sm text-blue-800 border border-blue-300 rounded-lg bg-blue-50 dark:bg-gray-800 dark:text-blue-400 dark:border-blue-800" role="alert">
+        <svg class="flex-shrink-0 inline w-5 h-5 me-3" fill="currentColor" viewBox="0 0 20 20">
+            <path d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"/>
+        </svg>
+        <div class="flex items-center justify-between w-full">
+            <span>
+                <strong>Préstamo generado desde cotización:</strong>
+                Este préstamo fue creado a partir de la cotización {{ $prestamo->cotizacion->numero_cotizacion }}
+            </span>
+            <a href="{{ route('cotizaciones.show', $prestamo->cotizacion) }}" class="ml-4 text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 font-semibold flex items-center">
+                Ver Cotización
+                <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                </svg>
+            </a>
+        </div>
+    </div>
+    @endif
+
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-4">
         <!-- Información del Préstamo -->
         <div class="lg:col-span-2 bg-white dark:bg-gray-800 rounded-lg shadow">
@@ -67,11 +87,11 @@
                     </div>
                     <div>
                         <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Monto Prestado</dt>
-                        <dd class="mt-1 text-sm text-gray-900 dark:text-white">Q{{ number_format($prestamo->monto_prestado, 2) }}</dd>
+                        <dd class="mt-1 text-sm text-gray-900 dark:text-white">{{ money_symbol($prestamo->monto_prestado) }}</dd>
                     </div>
                     <div>
                         <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Tasa de Interés</dt>
-                        <dd class="mt-1 text-sm text-gray-900 dark:text-white">{{ number_format($prestamo->tasa_interes, 2) }}%</dd>
+                        <dd class="mt-1 text-sm text-gray-900 dark:text-white">{{ percentage($prestamo->tasa_interes) }}</dd>
                     </div>
                     <div>
                         <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Plazo</dt>
@@ -101,25 +121,27 @@
             <div class="p-6 space-y-4">
                 <div>
                     <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Saldo Pendiente</dt>
-                    <dd class="mt-1 text-2xl font-bold text-blue-600 dark:text-blue-400">Q{{ number_format($prestamo->saldo_pendiente, 2) }}</dd>
+                    <dd class="mt-1 text-2xl font-bold text-blue-600 dark:text-blue-400">{{ money_symbol($prestamo->saldo_pendiente) }}</dd>
                 </div>
                 <div>
                     <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Total Pagado</dt>
-                    <dd class="mt-1 text-2xl font-bold text-green-600 dark:text-green-400">Q{{ number_format($prestamo->pagos->sum('monto'), 2) }}</dd>
+                    <dd class="mt-1 text-2xl font-bold text-green-600 dark:text-green-400">{{ money_symbol($prestamo->pagos->sum('monto')) }}</dd>
                 </div>
                 <div>
                     <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Pagos Realizados</dt>
                     <dd class="mt-1 text-2xl font-bold text-gray-900 dark:text-white">{{ $prestamo->pagos->count() }}</dd>
                 </div>
                 @php
-                    $progreso = $prestamo->monto_prestado > 0 ? (($prestamo->monto_prestado - $prestamo->saldo_pendiente) / $prestamo->monto_prestado) * 100 : 0;
+                    $totalPagado = $prestamo->pagos->sum('monto');
+                    $progreso = $prestamo->monto_total > 0 ? ($totalPagado / $prestamo->monto_total) * 100 : 0;
+                    $progreso = max(0, min($progreso, 100)); // Asegurar que esté entre 0 y 100
                 @endphp
                 <div>
                     <dt class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">Progreso del Pago</dt>
                     <div class="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
                         <div class="bg-blue-600 h-2.5 rounded-full" style="width: {{ $progreso }}%"></div>
                     </div>
-                    <dd class="mt-1 text-sm text-gray-600 dark:text-gray-400">{{ number_format($progreso, 1) }}%</dd>
+                    <dd class="mt-1 text-sm text-gray-600 dark:text-gray-400">{{ percentage($progreso, 1) }}</dd>
                 </div>
             </div>
         </div>
@@ -157,21 +179,21 @@
                                 </a>
                             </td>
                             <td class="px-6 py-4 text-right font-medium text-gray-900 dark:text-white">
-                                Q{{ number_format($aportacion->monto_aportado, 2) }}
+                                {{ money_symbol($aportacion->monto_aportado) }}
                             </td>
                             <td class="px-6 py-4 text-right">
                                 <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded dark:bg-blue-900 dark:text-blue-300">
-                                    {{ number_format($aportacion->porcentaje_participacion, 2) }}%
+                                    {{ percentage($aportacion->porcentaje_participacion) }}
                                 </span>
                             </td>
                             <td class="px-6 py-4 text-right text-green-600 dark:text-green-400">
-                                Q{{ number_format($aportacion->monto_recuperado, 2) }}
+                                {{ money_symbol($aportacion->monto_recuperado) }}
                             </td>
                             <td class="px-6 py-4 text-right text-green-600 dark:text-green-400">
-                                Q{{ number_format($aportacion->intereses_ganados, 2) }}
+                                {{ money_symbol($aportacion->intereses_ganados) }}
                             </td>
                             <td class="px-6 py-4 text-right text-gray-900 dark:text-white">
-                                Q{{ number_format($aportacion->saldo_pendiente, 2) }}
+                                {{ money_symbol($aportacion->saldo_pendiente) }}
                             </td>
                             <td class="px-6 py-4">
                                 @if($aportacion->estado === 'Activo')
@@ -194,11 +216,11 @@
                     <tfoot>
                         <tr class="font-semibold text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-700">
                             <td class="px-6 py-3">TOTAL</td>
-                            <td class="px-6 py-3 text-right">Q{{ number_format($prestamo->aportaciones->sum('monto_aportado'), 2) }}</td>
-                            <td class="px-6 py-3 text-right">{{ number_format($prestamo->aportaciones->sum('porcentaje_participacion'), 2) }}%</td>
-                            <td class="px-6 py-3 text-right text-green-600 dark:text-green-400">Q{{ number_format($prestamo->aportaciones->sum('monto_recuperado'), 2) }}</td>
-                            <td class="px-6 py-3 text-right text-green-600 dark:text-green-400">Q{{ number_format($prestamo->aportaciones->sum('intereses_ganados'), 2) }}</td>
-                            <td class="px-6 py-3 text-right">Q{{ number_format($prestamo->aportaciones->sum('saldo_pendiente'), 2) }}</td>
+                            <td class="px-6 py-3 text-right">{{ money_symbol($prestamo->aportaciones->sum('monto_aportado')) }}</td>
+                            <td class="px-6 py-3 text-right">{{ percentage($prestamo->aportaciones->sum('porcentaje_participacion')) }}</td>
+                            <td class="px-6 py-3 text-right text-green-600 dark:text-green-400">{{ money_symbol($prestamo->aportaciones->sum('monto_recuperado')) }}</td>
+                            <td class="px-6 py-3 text-right text-green-600 dark:text-green-400">{{ money_symbol($prestamo->aportaciones->sum('intereses_ganados')) }}</td>
+                            <td class="px-6 py-3 text-right">{{ money_symbol($prestamo->aportaciones->sum('saldo_pendiente')) }}</td>
                             <td class="px-6 py-3"></td>
                         </tr>
                     </tfoot>
@@ -247,16 +269,16 @@
                             </div>
                         </td>
                         <td class="px-4 py-3 text-right font-medium text-gray-900 dark:text-white">
-                            Q{{ number_format($cuota['cuota'], 2) }}
+                            {{ money_symbol($cuota['cuota']) }}
                         </td>
                         <td class="px-4 py-3 text-right text-blue-600 dark:text-blue-400">
-                            Q{{ number_format($cuota['capital'], 2) }}
+                            {{ money_symbol($cuota['capital']) }}
                         </td>
                         <td class="px-4 py-3 text-right text-orange-600 dark:text-orange-400">
-                            Q{{ number_format($cuota['interes'], 2) }}
+                            {{ money_symbol($cuota['interes']) }}
                         </td>
                         <td class="px-4 py-3 text-right text-gray-900 dark:text-white">
-                            Q{{ number_format($cuota['saldo'], 2) }}
+                            {{ money_symbol($cuota['saldo']) }}
                         </td>
                         <td class="px-4 py-3 text-center">
                             @if($cuota['estado'] === 'pagada')
@@ -297,13 +319,13 @@
                     <tr>
                         <td colspan="2" class="px-4 py-3 text-right">TOTALES:</td>
                         <td class="px-4 py-3 text-right text-gray-900 dark:text-white">
-                            Q{{ number_format($prestamo->monto_total, 2) }}
+                            {{ money_symbol($prestamo->monto_total) }}
                         </td>
                         <td class="px-4 py-3 text-right text-blue-600 dark:text-blue-400">
-                            Q{{ number_format($prestamo->monto_prestado, 2) }}
+                            {{ money_symbol($prestamo->monto_prestado) }}
                         </td>
                         <td class="px-4 py-3 text-right text-orange-600 dark:text-orange-400">
-                            Q{{ number_format($prestamo->interes_total, 2) }}
+                            {{ money_symbol($prestamo->interes_total) }}
                         </td>
                         <td colspan="3" class="px-4 py-3"></td>
                     </tr>
@@ -399,9 +421,9 @@
                     <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
                         <td class="px-6 py-4 font-medium text-gray-900 dark:text-white">{{ $pago->numero_recibo }}</td>
                         <td class="px-6 py-4">{{ $pago->fecha_pago->format('d/m/Y H:i') }}</td>
-                        <td class="px-6 py-4 font-semibold text-green-600">Q{{ number_format($pago->monto, 2) }}</td>
-                        <td class="px-6 py-4">Q{{ number_format($pago->saldo_anterior ?? 0, 2) }}</td>
-                        <td class="px-6 py-4">Q{{ number_format($pago->saldo_despues ?? 0, 2) }}</td>
+                        <td class="px-6 py-4 font-semibold text-green-600">{{ money_symbol($pago->monto) }}</td>
+                        <td class="px-6 py-4">{{ money_symbol($pago->saldo_anterior ?? 0) }}</td>
+                        <td class="px-6 py-4">{{ money_symbol($pago->saldo_despues ?? 0) }}</td>
                         <td class="px-6 py-4">{{ ucfirst($pago->metodo_pago ?? 'N/A') }}</td>
                         <td class="px-6 py-4">{{ $pago->notas ?? '-' }}</td>
                         @if(Auth::check() && Auth::user()->hasPermissionTo('eliminar-pagos'))

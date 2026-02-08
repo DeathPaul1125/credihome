@@ -1,4 +1,4 @@
-<x-flowbite-layout>
+﻿<x-flowbite-layout>
     <!-- Header -->
     <div class="mb-4">
                 <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Nuevo Plan de Construcción</h1>
@@ -274,7 +274,7 @@
             document.querySelectorAll('.item-subtotal').forEach(function(input) {
                 total += parseFloat(input.value) || 0;
             });
-            document.getElementById('costoTotal').textContent = 'Q ' + total.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+            document.getElementById('costoTotal').textContent = formatMoneySymbol(total).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
         }
 
         // Validación del formulario antes de enviar

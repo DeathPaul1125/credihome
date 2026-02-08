@@ -1,4 +1,4 @@
-<x-flowbite-layout>
+﻿<x-flowbite-layout>
     <!-- Header -->
     <div class="mb-6 flex items-center justify-between">
                 <div>
@@ -33,7 +33,7 @@
                             <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-13a1 1 0 10-2 0v.092a4.535 4.535 0 00-1.676.662C6.602 6.234 6 7.009 6 8c0 .99.602 1.765 1.324 2.246.48.32 1.054.545 1.676.662v1.941c-.391-.127-.68-.317-.843-.504a1 1 0 10-1.51 1.31c.562.649 1.413 1.076 2.353 1.253V15a1 1 0 102 0v-.092a4.535 4.535 0 001.676-.662C13.398 13.766 14 12.991 14 12c0-.99-.602-1.765-1.324-2.246A4.535 4.535 0 0011 9.092V7.151c.391.127.68.317.843.504a1 1 0 101.511-1.31c-.563-.649-1.413-1.076-2.354-1.253V5z" clip-rule="evenodd"/>
                         </svg>
                     </div>
-                    <p class="text-2xl font-bold text-gray-900 dark:text-white">Q {{ number_format($stats['total_aportado'], 2) }}</p>
+                    <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ money_symbol($stats['total_aportado']) }}</p>
                 </div>
 
                 <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
@@ -43,7 +43,7 @@
                             <path fill-rule="evenodd" d="M4 4a2 2 0 00-2 2v4a2 2 0 002 2V6h10a2 2 0 00-2-2H4zm2 6a2 2 0 012-2h8a2 2 0 012 2v4a2 2 0 01-2 2H8a2 2 0 01-2-2v-4zm6 4a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/>
                         </svg>
                     </div>
-                    <p class="text-2xl font-bold text-gray-900 dark:text-white">Q {{ number_format($aportador->capital_disponible, 2) }}</p>
+                    <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ money_symbol($aportador->capital_disponible) }}</p>
                 </div>
 
                 <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
@@ -54,7 +54,7 @@
                             <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-13a1 1 0 10-2 0v.092a4.535 4.535 0 00-1.676.662C6.602 6.234 6 7.009 6 8c0 .99.602 1.765 1.324 2.246.48.32 1.054.545 1.676.662v1.941c-.391-.127-.68-.317-.843-.504a1 1 0 10-1.51 1.31c.562.649 1.413 1.076 2.353 1.253V15a1 1 0 102 0v-.092a4.535 4.535 0 001.676-.662C13.398 13.766 14 12.991 14 12c0-.99-.602-1.765-1.324-2.246A4.535 4.535 0 0011 9.092V7.151c.391.127.68.317.843.504a1 1 0 101.511-1.31c-.563-.649-1.413-1.076-2.354-1.253V5z" clip-rule="evenodd"/>
                         </svg>
                     </div>
-                    <p class="text-2xl font-bold text-gray-900 dark:text-white">Q {{ number_format($aportador->capital_invertido, 2) }}</p>
+                    <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ money_symbol($aportador->capital_invertido) }}</p>
                     <p class="text-xs text-gray-600 dark:text-gray-400 mt-1">{{ $stats['prestamos_activos'] }} préstamos</p>
                 </div>
 
@@ -65,8 +65,8 @@
                             <path fill-rule="evenodd" d="M12 7a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0V8.414l-4.293 4.293a1 1 0 01-1.414 0L8 10.414l-4.293 4.293a1 1 0 01-1.414-1.414l5-5a1 1 0 011.414 0L11 10.586 14.586 7H12z" clip-rule="evenodd"/>
                         </svg>
                     </div>
-                    <p class="text-2xl font-bold text-green-600 dark:text-green-500">Q {{ number_format($aportador->ganancias_totales, 2) }}</p>
-                    <p class="text-xs text-gray-600 dark:text-gray-400 mt-1">ROI: {{ number_format($aportador->roi, 2) }}%</p>
+                    <p class="text-2xl font-bold text-green-600 dark:text-green-500">{{ money_symbol($aportador->ganancias_totales) }}</p>
+                    <p class="text-xs text-gray-600 dark:text-gray-400 mt-1">ROI: {{ percentage($aportador->roi) }}</p>
                 </div>
             </div>
 
@@ -125,7 +125,7 @@
                         @if($aportador->tasa_interes_minima)
                         <div>
                             <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Tasa Mínima</dt>
-                            <dd class="text-sm text-gray-900 dark:text-white mt-1">{{ number_format($aportador->tasa_interes_minima, 2) }}%</dd>
+                            <dd class="text-sm text-gray-900 dark:text-white mt-1">{{ percentage($aportador->tasa_interes_minima) }}</dd>
                         </div>
                         @endif
                         @if($aportador->plazo_maximo)
@@ -137,13 +137,13 @@
                         @if($aportador->monto_minimo_prestamo)
                         <div>
                             <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Monto Mínimo</dt>
-                            <dd class="text-sm text-gray-900 dark:text-white mt-1">Q {{ number_format($aportador->monto_minimo_prestamo, 2) }}</dd>
+                            <dd class="text-sm text-gray-900 dark:text-white mt-1">{{ money_symbol($aportador->monto_minimo_prestamo) }}</dd>
                         </div>
                         @endif
                         @if($aportador->monto_maximo_prestamo)
                         <div>
                             <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Monto Máximo</dt>
-                            <dd class="text-sm text-gray-900 dark:text-white mt-1">Q {{ number_format($aportador->monto_maximo_prestamo, 2) }}</dd>
+                            <dd class="text-sm text-gray-900 dark:text-white mt-1">{{ money_symbol($aportador->monto_maximo_prestamo) }}</dd>
                         </div>
                         @endif
                     </dl>
@@ -191,12 +191,12 @@
                                     </a>
                                 </td>
                                 <td class="px-6 py-4">{{ $aportacion->prestamo->cliente->nombre }}</td>
-                                <td class="px-6 py-4 font-medium">Q {{ number_format($aportacion->monto_aportado, 2) }}</td>
-                                <td class="px-6 py-4">{{ number_format($aportacion->porcentaje_participacion, 2) }}%</td>
-                                <td class="px-6 py-4 text-green-600">Q {{ number_format($aportacion->monto_recuperado, 2) }}</td>
-                                <td class="px-6 py-4 text-blue-600">Q {{ number_format($aportacion->intereses_ganados, 2) }}</td>
-                                <td class="px-6 py-4">Q {{ number_format($aportacion->saldo_pendiente, 2) }}</td>
-                                <td class="px-6 py-4 font-medium">{{ number_format($aportacion->roi, 2) }}%</td>
+                                <td class="px-6 py-4 font-medium">{{ money_symbol($aportacion->monto_aportado) }}</td>
+                                <td class="px-6 py-4">{{ percentage($aportacion->porcentaje_participacion) }}</td>
+                                <td class="px-6 py-4 text-green-600">{{ money_symbol($aportacion->monto_recuperado) }}</td>
+                                <td class="px-6 py-4 text-blue-600">{{ money_symbol($aportacion->intereses_ganados) }}</td>
+                                <td class="px-6 py-4">{{ money_symbol($aportacion->saldo_pendiente) }}</td>
+                                <td class="px-6 py-4 font-medium">{{ percentage($aportacion->roi) }}</td>
                                 <td class="px-6 py-4">
                                     <div class="flex items-center gap-2">
                                         <!-- Editar -->
@@ -252,9 +252,9 @@
                                     </a>
                                 </td>
                                 <td class="px-6 py-4">{{ $distribucion->aportacion->prestamo->cliente->nombre }}</td>
-                                <td class="px-6 py-4 text-yellow-600">Q {{ number_format($distribucion->monto_capital, 2) }}</td>
-                                <td class="px-6 py-4 text-green-600">Q {{ number_format($distribucion->monto_interes, 2) }}</td>
-                                <td class="px-6 py-4 font-medium">Q {{ number_format($distribucion->monto_total, 2) }}</td>
+                                <td class="px-6 py-4 text-yellow-600">{{ money_symbol($distribucion->monto_capital) }}</td>
+                                <td class="px-6 py-4 text-green-600">{{ money_symbol($distribucion->monto_interes) }}</td>
+                                <td class="px-6 py-4 font-medium">{{ money_symbol($distribucion->monto_total) }}</td>
                             </tr>
                             @endforeach
                         </tbody>
@@ -317,7 +317,7 @@
             tooltip: {
                 y: {
                     formatter: function(value) {
-                        return 'Q ' + value.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+                        return formatMoneySymbol(value).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
                     }
                 }
             }

@@ -1,4 +1,4 @@
-<x-tailadmin-layout>
+﻿<x-tailadmin-layout>
     <div class="mx-auto max-w-screen-2xl p-4 md:p-6 2xl:p-10">
         <!-- Breadcrumb -->
         <div class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -92,7 +92,7 @@
                             </div>
                             <div>
                                 <label class="mb-1 block text-sm font-medium text-black dark:text-white">Ingreso Mensual</label>
-                                <p class="text-body font-semibold text-success">Q {{ number_format($cliente->ingreso_mensual, 2) }}</p>
+                                <p class="text-body font-semibold text-success">{{ money_symbol($cliente->ingreso_mensual) }}</p>
                             </div>
                         </div>
 
@@ -184,9 +184,9 @@
                                         @foreach($cliente->prestamos as $prestamo)
                                             <tr class="border-b border-stroke dark:border-strokedark">
                                                 <td class="px-4 py-3">{{ $prestamo->numero_prestamo }}</td>
-                                                <td class="px-4 py-3">Q {{ number_format($prestamo->monto_prestado, 2) }}</td>
-                                                <td class="px-4 py-3">Q {{ number_format($prestamo->saldo_pendiente, 2) }}</td>
-                                                <td class="px-4 py-3">Q {{ number_format($prestamo->monto_cuota, 2) }}</td>
+                                                <td class="px-4 py-3">{{ money_symbol($prestamo->monto_prestado) }}</td>
+                                                <td class="px-4 py-3">{{ money_symbol($prestamo->saldo_pendiente) }}</td>
+                                                <td class="px-4 py-3">{{ money_symbol($prestamo->monto_cuota) }}</td>
                                                 <td class="px-4 py-3">
                                                     @if($prestamo->estado === 'activo')
                                                         <span class="inline-flex rounded-full bg-success bg-opacity-10 px-3 py-1 text-xs font-medium text-success">Activo</span>

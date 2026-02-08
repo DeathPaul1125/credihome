@@ -1,4 +1,4 @@
-<x-flowbite-layout>
+﻿<x-flowbite-layout>
     <!-- Header -->
     <div class="mb-4 flex items-center justify-between">
                 <div>
@@ -103,7 +103,7 @@
                                 Préstamo #{{ $pago->prestamo_id }}
                             </td>
                             <td class="px-6 py-4 font-semibold text-gray-900 dark:text-white">
-                                Q{{ number_format($pago->monto_pagado, 2) }}
+                                {{ money_symbol($pago->monto_pagado) }}
                             </td>
                             <td class="px-6 py-4">
                                 @switch($pago->metodo_pago)

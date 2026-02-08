@@ -1,4 +1,4 @@
-<x-app-layout>
+﻿<x-app-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
             Comprobante {{ $comprobante->numero_comprobante }}
@@ -40,7 +40,7 @@
                                 </div>
                                 <div>
                                     <dt class="text-sm font-medium text-gray-500">Monto Pagado</dt>
-                                    <dd class="mt-1 text-lg font-bold text-gray-900">Q {{ number_format($comprobante->monto_pagado, 2) }}</dd>
+                                    <dd class="mt-1 text-lg font-bold text-gray-900">{{ money_symbol($comprobante->monto_pagado) }}</dd>
                                 </div>
                                 <div>
                                     <dt class="text-sm font-medium text-gray-500">Fecha de Pago</dt>

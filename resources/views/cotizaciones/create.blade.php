@@ -1,4 +1,4 @@
-<x-flowbite-layout>
+﻿<x-flowbite-layout>
     <!-- Header -->
     <div class="mb-4">
                 <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Nueva Cotización</h1>
@@ -52,7 +52,7 @@
                                 <option value="libre" {{ old('receta_id') == 'libre' ? 'selected' : '' }}>Plan Libre (Personalizado)</option>
                                 @foreach($recetas as $receta)
                                     <option value="{{ $receta->id }}" data-costo="{{ $receta->costo_total }}" {{ old('receta_id') == $receta->id ? 'selected' : '' }}>
-                                        {{ $receta->nombre }} - {{ $receta->tipo_vivienda }} (Q {{ number_format($receta->costo_total, 2) }})
+                                        {{ $receta->nombre }} - {{ $receta->tipo_vivienda }} ({{ money_symbol($receta->costo_total) }})
                                     </option>
                                 @endforeach
                             </select>
@@ -365,8 +365,8 @@
                 total += parseFloat(input.value) || 0;
             });
 
-            document.getElementById('subtotalDisplay').textContent = 'Q ' + total.toFixed(2);
-            document.getElementById('totalDisplay').textContent = 'Q ' + total.toFixed(2);
+            document.getElementById('subtotalDisplay').textContent = formatMoneySymbol(total);
+            document.getElementById('totalDisplay').textContent = formatMoneySymbol(total);
         }
 
         function loadRecetaProductos(recetaId) {
@@ -540,7 +540,7 @@
         }
 
         function formatMoney(value) {
-            return value.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+            return formatMoney(value);
         }
     </script>
 </x-flowbite-layout>

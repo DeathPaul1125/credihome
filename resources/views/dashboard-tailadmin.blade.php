@@ -1,4 +1,4 @@
-<x-tailadmin-layout>
+﻿<x-tailadmin-layout>
     <div class="mx-auto max-w-screen-2xl p-4 md:p-6 2xl:p-10">
         <!-- Breadcrumb -->
         <div class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -69,7 +69,7 @@
                 <div class="mt-4 flex items-end justify-between">
                     <div>
                         <h4 class="text-title-md font-bold text-black dark:text-white">
-                            Q {{ number_format($carteraTotal, 2) }}
+                            {{ money_symbol($carteraTotal) }}
                         </h4>
                         <span class="text-sm font-medium">Cartera Total</span>
                     </div>
@@ -88,7 +88,7 @@
                 <div class="mt-4 flex items-end justify-between">
                     <div>
                         <h4 class="text-title-md font-bold text-black dark:text-white">
-                            Q {{ number_format($pagosHoy, 2) }}
+                            {{ money_symbol($pagosHoy) }}
                         </h4>
                         <span class="text-sm font-medium">Cobrado Hoy</span>
                     </div>
@@ -248,7 +248,7 @@
                                 <p class="text-sm">{{ $pago->numero_recibo }}</p>
                             </div>
                             <div class="text-right">
-                                <p class="font-medium text-meta-3">Q {{ number_format($pago->monto_pagado, 2) }}</p>
+                                <p class="font-medium text-meta-3">{{ money_symbol($pago->monto_pagado) }}</p>
                                 <p class="text-sm">{{ $pago->created_at->format('d/m/Y') }}</p>
                             </div>
                         </div>
@@ -314,14 +314,14 @@
             yaxis: {
                 labels: {
                     formatter: function (value) {
-                        return 'Q' + value.toFixed(0);
+                        return formatMoneySymbol(value, 0);
                     }
                 }
             },
             tooltip: {
                 y: {
                     formatter: function (value) {
-                        return 'Q' + value.toFixed(2);
+                        return formatMoneySymbol(value);
                     }
                 }
             },

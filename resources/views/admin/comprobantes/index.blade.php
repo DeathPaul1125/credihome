@@ -1,4 +1,4 @@
-<x-flowbite-layout>
+﻿<x-flowbite-layout>
     <div class="mb-4">
         <div class="flex items-center justify-between">
             <div>
@@ -75,7 +75,7 @@
                                 {{ $comprobante->prestamo->numero_prestamo }}
                             </td>
                             <td class="px-6 py-4">
-                                Q {{ number_format($comprobante->monto_pagado, 2) }}
+                                {{ money_symbol($comprobante->monto_pagado) }}
                             </td>
                             <td class="px-6 py-4">
                                 {{ \Carbon\Carbon::parse($comprobante->fecha_pago)->format('d/m/Y') }}

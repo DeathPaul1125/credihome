@@ -1,4 +1,4 @@
-<x-flowbite-layout>
+﻿<x-flowbite-layout>
     <!-- Header -->
     <div class="mb-6">
         <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Editar Inversionista</h1>
@@ -90,7 +90,7 @@
                         <div>
                             <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Capital Disponible</label>
                             <div class="bg-gray-100 dark:bg-gray-700 rounded-lg p-2.5 text-gray-900 dark:text-white">
-                                Q {{ number_format($aportador->capital_disponible, 2) }}
+                                {{ money_symbol($aportador->capital_disponible) }}
                             </div>
                             <p class="mt-2 text-xs text-gray-600 dark:text-gray-400">Usa "Agregar Capital" o "Retirar Capital" en la vista de detalles</p>
                         </div>
@@ -98,14 +98,14 @@
                         <div>
                             <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Capital Invertido</label>
                             <div class="bg-gray-100 dark:bg-gray-700 rounded-lg p-2.5 text-gray-900 dark:text-white">
-                                Q {{ number_format($aportador->capital_invertido, 2) }}
+                                {{ money_symbol($aportador->capital_invertido) }}
                             </div>
                         </div>
 
                         <div>
                             <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Ganancias Totales</label>
                             <div class="bg-gray-100 dark:bg-gray-700 rounded-lg p-2.5 text-green-600 dark:text-green-500">
-                                Q {{ number_format($aportador->ganancias_totales, 2) }}
+                                {{ money_symbol($aportador->ganancias_totales) }}
                             </div>
                         </div>
                     </div>

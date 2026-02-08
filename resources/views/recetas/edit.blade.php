@@ -1,4 +1,4 @@
-<x-flowbite-layout>
+﻿<x-flowbite-layout>
     <!-- Header -->
     <div class="mb-4">
                 <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Editar Plan de Construcción</h1>
@@ -168,7 +168,7 @@
                         <div class="mt-4 p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
                             <div class="flex justify-between items-center">
                                 <span class="text-lg font-medium text-gray-900 dark:text-white">Costo Total Estimado:</span>
-                                <span id="costoTotal" class="text-xl font-bold text-green-600 dark:text-green-400">Q {{ number_format($receta->costo_total ?? 0, 2) }}</span>
+                                <span id="costoTotal" class="text-xl font-bold text-green-600 dark:text-green-400">{{ money_symbol($receta->costo_total ?? 0) }}</span>
                             </div>
                         </div>
                     </div>
@@ -301,7 +301,7 @@
             document.querySelectorAll('.item-subtotal').forEach(function(input) {
                 total += parseFloat(input.value) || 0;
             });
-            document.getElementById('costoTotal').textContent = 'Q ' + total.toFixed(2);
+            document.getElementById('costoTotal').textContent = formatMoneySymbol(total);
         }
 
         // Configurar listeners para items existentes

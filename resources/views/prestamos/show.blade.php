@@ -1,4 +1,4 @@
-<x-tailadmin-layout>
+﻿<x-tailadmin-layout>
     <div class="mx-auto max-w-screen-2xl p-4 md:p-6 2xl:p-10">
         <!-- Breadcrumb -->
         <div class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -88,7 +88,7 @@
                             </div>
                             <div>
                                 <label class="mb-1 block text-sm font-medium text-black dark:text-white">Ingreso Mensual</label>
-                                <p class="text-body font-semibold">Q {{ number_format($prestamo->cliente->ingreso_mensual, 2) }}</p>
+                                <p class="text-body font-semibold">{{ money_symbol($prestamo->cliente->ingreso_mensual) }}</p>
                             </div>
                         </div>
                     </div>
@@ -101,23 +101,23 @@
                 <div class="grid grid-cols-1 gap-4 md:grid-cols-4">
                     <div class="rounded-lg border border-stroke bg-white p-6 shadow-default dark:border-strokedark dark:bg-boxdark">
                         <h4 class="text-sm font-medium text-body-secondary mb-2">Monto Prestado</h4>
-                        <p class="text-2xl font-bold text-black dark:text-white">Q {{ number_format($prestamo->monto_prestado, 2) }}</p>
+                        <p class="text-2xl font-bold text-black dark:text-white">{{ money_symbol($prestamo->monto_prestado) }}</p>
                     </div>
 
                     <div class="rounded-lg border border-stroke bg-white p-6 shadow-default dark:border-strokedark dark:bg-boxdark">
                         <h4 class="text-sm font-medium text-body-secondary mb-2">Interés</h4>
-                        <p class="text-2xl font-bold text-warning">Q {{ number_format($prestamo->total_interes, 2) }}</p>
+                        <p class="text-2xl font-bold text-warning">{{ money_symbol($prestamo->total_interes) }}</p>
                         <p class="text-xs text-body-secondary">{{ $prestamo->tasa_interes }}% {{ $prestamo->tipo_interes }}</p>
                     </div>
 
                     <div class="rounded-lg border border-stroke bg-white p-6 shadow-default dark:border-strokedark dark:bg-boxdark">
                         <h4 class="text-sm font-medium text-body-secondary mb-2">Total a Pagar</h4>
-                        <p class="text-2xl font-bold text-primary">Q {{ number_format($prestamo->total_a_pagar, 2) }}</p>
+                        <p class="text-2xl font-bold text-primary">{{ money_symbol($prestamo->total_a_pagar) }}</p>
                     </div>
 
                     <div class="rounded-lg border border-stroke bg-white p-6 shadow-default dark:border-strokedark dark:bg-boxdark">
                         <h4 class="text-sm font-medium text-body-secondary mb-2">Saldo Pendiente</h4>
-                        <p class="text-2xl font-bold text-danger">Q {{ number_format($prestamo->saldo_pendiente, 2) }}</p>
+                        <p class="text-2xl font-bold text-danger">{{ money_symbol($prestamo->saldo_pendiente) }}</p>
                     </div>
                 </div>
 
@@ -138,7 +138,7 @@
                             </div>
                             <div>
                                 <label class="mb-1 block text-sm font-medium text-black dark:text-white">Monto de Cuota</label>
-                                <p class="text-body font-semibold text-primary">Q {{ number_format($prestamo->monto_cuota, 2) }}</p>
+                                <p class="text-body font-semibold text-primary">{{ money_symbol($prestamo->monto_cuota) }}</p>
                             </div>
                             <div>
                                 <label class="mb-1 block text-sm font-medium text-black dark:text-white">Pagos Realizados</label>
@@ -146,7 +146,7 @@
                             </div>
                             <div>
                                 <label class="mb-1 block text-sm font-medium text-black dark:text-white">Total Pagado</label>
-                                <p class="text-body font-semibold text-success">Q {{ number_format($prestamo->total_pagado, 2) }}</p>
+                                <p class="text-body font-semibold text-success">{{ money_symbol($prestamo->total_pagado) }}</p>
                             </div>
                             <div>
                                 <label class="mb-1 block text-sm font-medium text-black dark:text-white">Primer Pago</label>
@@ -213,15 +213,15 @@
                                                 <td class="px-4 py-3 font-mono text-sm">{{ $pago->numero_recibo }}</td>
                                                 <td class="px-4 py-3">{{ \Carbon\Carbon::parse($pago->fecha_pago)->format('d/m/Y') }}</td>
                                                 <td class="px-4 py-3">{{ $pago->numero_cuota }}</td>
-                                                <td class="px-4 py-3">Q {{ number_format($pago->monto_pagado, 2) }}</td>
+                                                <td class="px-4 py-3">{{ money_symbol($pago->monto_pagado) }}</td>
                                                 <td class="px-4 py-3">
                                                     @if($pago->mora > 0)
-                                                        <span class="text-danger">Q {{ number_format($pago->mora, 2) }}</span>
+                                                        <span class="text-danger">{{ money_symbol($pago->mora) }}</span>
                                                     @else
                                                         -
                                                     @endif
                                                 </td>
-                                                <td class="px-4 py-3 font-semibold">Q {{ number_format($pago->monto_pagado + $pago->mora, 2) }}</td>
+                                                <td class="px-4 py-3 font-semibold">{{ money_symbol($pago->monto_pagado + $pago->mora) }}</td>
                                                 <td class="px-4 py-3">{!! $pago->badge_estado !!}</td>
                                             </tr>
                                         @endforeach
@@ -229,9 +229,9 @@
                                     <tfoot>
                                         <tr class="bg-gray-2 dark:bg-meta-4">
                                             <td colspan="3" class="px-4 py-3 font-semibold text-black dark:text-white">Totales</td>
-                                            <td class="px-4 py-3 font-semibold text-black dark:text-white">Q {{ number_format($prestamo->pagos->sum('monto_pagado'), 2) }}</td>
-                                            <td class="px-4 py-3 font-semibold text-danger">Q {{ number_format($prestamo->pagos->sum('mora'), 2) }}</td>
-                                            <td class="px-4 py-3 font-semibold text-black dark:text-white">Q {{ number_format($prestamo->pagos->sum(function($p) { return $p->monto_pagado + $p->mora; }), 2) }}</td>
+                                            <td class="px-4 py-3 font-semibold text-black dark:text-white">{{ money_symbol($prestamo->pagos->sum('monto_pagado')) }}</td>
+                                            <td class="px-4 py-3 font-semibold text-danger">{{ money_symbol($prestamo->pagos->sum('mora')) }}</td>
+                                            <td class="px-4 py-3 font-semibold text-black dark:text-white">{{ money_symbol($prestamo->pagos->sum(function($p) { return $p->monto_pagado + $p->mora; })) }}</td>
                                             <td></td>
                                         </tr>
                                     </tfoot>

@@ -1,4 +1,4 @@
-<x-flowbite-layout>
+﻿<x-flowbite-layout>
     <div class="mb-4">
         <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Dashboard</h1>
         <p class="text-gray-600 dark:text-gray-400 mt-1">Resumen general del sistema de préstamos</p>
@@ -53,7 +53,7 @@
                 </div>
                 <div class="ml-4">
                     <h3 class="text-sm font-medium text-gray-600 dark:text-gray-400">Cartera Total</h3>
-                    <p class="text-2xl font-bold text-gray-900 dark:text-white">Q{{ number_format($carteraTotal, 2) }}</p>
+                    <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ money_symbol($carteraTotal) }}</p>
                 </div>
             </div>
         </div>
@@ -72,7 +72,7 @@
                 </div>
                 <div class="ml-4">
                     <h3 class="text-sm font-medium text-gray-600 dark:text-gray-400">Pagos Hoy</h3>
-                    <p class="text-2xl font-bold text-gray-900 dark:text-white">Q{{ number_format($pagosHoy, 2) }}</p>
+                    <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ money_symbol($pagosHoy) }}</p>
                 </div>
             </div>
         </div>
@@ -103,7 +103,7 @@
                     <svg class="w-2.5 h-2.5 me-1.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 14">
                         <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13V1m0 0L1 5m4-4 4 4"/>
                     </svg>
-                    {{ number_format($tasaMorosidad, 2) }}%
+                    {{ percentage($tasaMorosidad) }}
                 </span>
             </div>
             <div class="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
@@ -115,7 +115,7 @@
         <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
             <h3 class="text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">Préstamos Vencidos</h3>
             <p class="text-2xl font-bold text-red-600 dark:text-red-400">{{ $prestamosVencidos }}</p>
-            <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Q{{ number_format($carteraVencida, 2) }}</p>
+            <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">{{ money_symbol($carteraVencida) }}</p>
         </div>
 
         <!-- Distribución por Frecuencia -->
@@ -165,7 +165,7 @@
                         </div>
                     </div>
                     <div class="mt-2 text-sm text-gray-700 dark:text-gray-300">
-                        <span class="font-semibold">Total otorgado:</span> Q{{ number_format($usuarioMasPrestamos->monto_total, 2) }}
+                        <span class="font-semibold">Total otorgado:</span> {{ money_symbol($usuarioMasPrestamos->monto_total) }}
                     </div>
                 </div>
                 @endif
@@ -196,7 +196,7 @@
                                 </span>
                             </td>
                             <td class="px-6 py-4 text-right font-semibold text-gray-900 dark:text-white">
-                                Q{{ number_format($usuario->monto_total, 2) }}
+                                {{ money_symbol($usuario->monto_total) }}
                             </td>
                         </tr>
                         @empty
@@ -240,7 +240,7 @@
                         </div>
                     </div>
                     <div class="mt-2 text-sm text-gray-700 dark:text-gray-300">
-                        <span class="font-semibold">Total cobrado:</span> Q{{ number_format($usuarioMasCobros->monto_total_cobrado, 2) }}
+                        <span class="font-semibold">Total cobrado:</span> {{ money_symbol($usuarioMasCobros->monto_total_cobrado) }}
                     </div>
                 </div>
                 @endif
@@ -271,7 +271,7 @@
                                 </span>
                             </td>
                             <td class="px-6 py-4 text-right font-semibold text-gray-900 dark:text-white">
-                                Q{{ number_format($usuario->monto_total, 2) }}
+                                {{ money_symbol($usuario->monto_total) }}
                             </td>
                         </tr>
                         @empty
@@ -312,7 +312,7 @@
                                     {{ $prestamo->cliente->nombre }}
                                 </a>
                             </td>
-                            <td class="px-6 py-4">Q{{ number_format($prestamo->monto, 2) }}</td>
+                            <td class="px-6 py-4">{{ money_symbol($prestamo->monto) }}</td>
                             <td class="px-6 py-4">
                                 @php
                                     $statusColors = [
@@ -364,7 +364,7 @@
                                     #{{ $pago->prestamo_id }}
                                 </a>
                             </td>
-                            <td class="px-6 py-4">Q{{ number_format($pago->monto, 2) }}</td>
+                            <td class="px-6 py-4">{{ money_symbol($pago->monto) }}</td>
                             <td class="px-6 py-4">
                                 <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300">
                                     {{ ucfirst(str_replace('_', ' ', $pago->metodo_pago)) }}
@@ -413,7 +413,7 @@
             yaxis: {
                 labels: {
                     style: { colors: textColor },
-                    formatter: (value) => 'Q' + value.toLocaleString('es-GT', {minimumFractionDigits: 2})
+                    formatter: (value) => formatMoneySymbol(value)
                 }
             },
             colors: ['#3b82f6'],
@@ -438,7 +438,7 @@
             tooltip: {
                 theme: isDarkMode ? 'dark' : 'light',
                 y: {
-                    formatter: (value) => 'Q' + value.toLocaleString('es-GT', {minimumFractionDigits: 2})
+                    formatter: (value) => formatMoneySymbol(value)
                 }
             }
         };

@@ -1,4 +1,4 @@
-<x-flowbite-layout>
+﻿<x-flowbite-layout>
     <div class="mb-4">
         <div class="flex items-center justify-between">
             <div>
@@ -55,7 +55,7 @@
                     <div class="grid grid-cols-2 gap-4">
                         <div>
                             <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Monto Pagado</dt>
-                            <dd class="mt-1 text-lg font-bold text-gray-900 dark:text-white">Q {{ number_format($comprobante->monto_pagado, 2) }}</dd>
+                            <dd class="mt-1 text-lg font-bold text-gray-900 dark:text-white">{{ money_symbol($comprobante->monto_pagado) }}</dd>
                         </div>
                         <div>
                             <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Fecha de Pago</dt>

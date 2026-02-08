@@ -1,4 +1,4 @@
-<x-app-layout>
+﻿<x-app-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
             Portal del Cliente - Bienvenido, {{ Auth::user()->name }}
@@ -26,7 +26,7 @@
                 <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                     <div class="p-6">
                         <div class="text-sm font-medium text-gray-500 uppercase">Total Adeudado</div>
-                        <div class="mt-2 text-3xl font-bold text-red-600">Q {{ number_format($stats['total_adeudado'], 2) }}</div>
+                        <div class="mt-2 text-3xl font-bold text-red-600">{{ money_symbol($stats['total_adeudado']) }}</div>
                     </div>
                 </div>
 
@@ -63,10 +63,10 @@
                                                 {{ $prestamo->numero_prestamo }}
                                             </td>
                                             <td class="px-6 py-4">
-                                                Q {{ number_format($prestamo->monto_prestado, 2) }}
+                                                {{ money_symbol($prestamo->monto_prestado) }}
                                             </td>
                                             <td class="px-6 py-4">
-                                                Q {{ number_format($prestamo->saldo_pendiente, 2) }}
+                                                {{ money_symbol($prestamo->saldo_pendiente) }}
                                             </td>
                                             <td class="px-6 py-4">
                                                 @php
@@ -143,7 +143,7 @@
                                                 {{ $comprobante->prestamo->numero_prestamo }}
                                             </td>
                                             <td class="px-6 py-4">
-                                                Q {{ number_format($comprobante->monto_pagado, 2) }}
+                                                {{ money_symbol($comprobante->monto_pagado) }}
                                             </td>
                                             <td class="px-6 py-4">
                                                 {{ \Carbon\Carbon::parse($comprobante->fecha_pago)->format('d/m/Y') }}

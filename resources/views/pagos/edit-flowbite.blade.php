@@ -1,4 +1,4 @@
-<x-flowbite-layout>
+﻿<x-flowbite-layout>
     <!-- Header -->
     <div class="mb-6">
         <div class="flex items-center text-sm text-gray-500 dark:text-gray-400 mb-2">
@@ -30,7 +30,7 @@
                         </div>
                         <div>
                             <span class="font-medium text-gray-700 dark:text-gray-300">Saldo Actual:</span>
-                            <span class="text-blue-600 dark:text-blue-400 font-semibold ml-2">Q{{ number_format($pago->prestamo->saldo_pendiente, 2) }}</span>
+                            <span class="text-blue-600 dark:text-blue-400 font-semibold ml-2">{{ money_symbol($pago->prestamo->saldo_pendiente) }}</span>
                         </div>
                     </div>
                 </div>

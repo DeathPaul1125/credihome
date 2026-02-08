@@ -306,7 +306,7 @@
             tooltip: {
                 y: {
                     formatter: function(value) {
-                        return 'Q ' + value.toLocaleString('es-GT');
+                        return formatMoneySymbol(value);
                     }
                 }
             }

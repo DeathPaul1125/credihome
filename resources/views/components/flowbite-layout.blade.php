@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="dark">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -219,14 +219,39 @@
     @stack('scripts')
 
     <script>
+        // Funciones globales para formateo de números
+        window.formatMoney = function(value, decimals = 2, includeSymbol = false, symbol = 'Q') {
+            if (value === null || value === undefined || value === '') {
+                value = 0;
+            }
+
+            const formatted = parseFloat(value).toFixed(decimals).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+            return includeSymbol ? symbol + ' ' + formatted : formatted;
+        };
+
+        window.formatMoneySymbol = function(value, decimals = 2, symbol = 'Q') {
+            return formatMoney(value, decimals, true, symbol);
+        };
+
+        window.formatPercentage = function(value, decimals = 2) {
+            if (value === null || value === undefined || value === '') {
+                value = 0;
+            }
+            return parseFloat(value).toFixed(decimals).replace(/\B(?=(\d{3})+(?!\d))/g, ',') + '%';
+        };
+
         // Theme toggle
         var themeToggleDarkIcon = document.getElementById('theme-toggle-dark-icon');
         var themeToggleLightIcon = document.getElementById('theme-toggle-light-icon');
 
         // Change the icons inside the button based on previous settings
-        if (localStorage.getItem('color-theme') === 'dark' || (!('color-theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+        if (localStorage.getItem('color-theme') === 'dark') {
+            document.documentElement.classList.add('dark');
             themeToggleLightIcon.classList.remove('hidden');
+        } else if (localStorage.getItem('color-theme') === 'light') {
+            themeToggleDarkIcon.classList.remove('hidden');
         } else {
+            // Por defecto tema claro
             themeToggleDarkIcon.classList.remove('hidden');
         }
 

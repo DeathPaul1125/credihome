@@ -1,4 +1,4 @@
-<x-flowbite-layout>
+﻿<x-flowbite-layout>
     <!-- Header -->
     <div class="mb-6 flex items-center justify-between">
             <div>
@@ -27,7 +27,7 @@
                 <div class="flex items-center justify-between">
                     <div>
                         <p class="text-blue-100 text-sm font-medium">Capital Total Sistema</p>
-                        <p class="text-3xl font-bold mt-2">Q {{ number_format($stats['capital_total_sistema'], 2) }}</p>
+                        <p class="text-3xl font-bold mt-2">{{ money_symbol($stats['capital_total_sistema']) }}</p>
                     </div>
                     <div class="bg-white bg-opacity-20 rounded-full p-3">
                         <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 20 20">
@@ -46,7 +46,7 @@
                 <div class="flex items-center justify-between">
                     <div>
                         <p class="text-gray-500 dark:text-gray-400 text-sm font-medium">Capital Disponible</p>
-                        <p class="text-2xl font-bold text-gray-900 dark:text-white mt-2">Q {{ number_format($stats['capital_disponible'], 2) }}</p>
+                        <p class="text-2xl font-bold text-gray-900 dark:text-white mt-2">{{ money_symbol($stats['capital_disponible']) }}</p>
                     </div>
                     <div class="bg-green-100 dark:bg-green-900 rounded-full p-3">
                         <svg class="w-6 h-6 text-green-600 dark:text-green-400" fill="currentColor" viewBox="0 0 20 20">
@@ -62,7 +62,7 @@
                 <div class="flex items-center justify-between">
                     <div>
                         <p class="text-gray-500 dark:text-gray-400 text-sm font-medium">Capital Invertido</p>
-                        <p class="text-2xl font-bold text-gray-900 dark:text-white mt-2">Q {{ number_format($stats['capital_invertido'], 2) }}</p>
+                        <p class="text-2xl font-bold text-gray-900 dark:text-white mt-2">{{ money_symbol($stats['capital_invertido']) }}</p>
                     </div>
                     <div class="bg-yellow-100 dark:bg-yellow-900 rounded-full p-3">
                         <svg class="w-6 h-6 text-yellow-600 dark:text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
@@ -78,7 +78,7 @@
                 <div class="flex items-center justify-between">
                     <div>
                         <p class="text-gray-500 dark:text-gray-400 text-sm font-medium">Ganancias Totales</p>
-                        <p class="text-2xl font-bold text-green-600 dark:text-green-400 mt-2">Q {{ number_format($stats['ganancias_totales'], 2) }}</p>
+                        <p class="text-2xl font-bold text-green-600 dark:text-green-400 mt-2">{{ money_symbol($stats['ganancias_totales']) }}</p>
                     </div>
                     <div class="bg-green-100 dark:bg-green-900 rounded-full p-3">
                         <svg class="w-6 h-6 text-green-600 dark:text-green-400" fill="currentColor" viewBox="0 0 20 20">
@@ -86,7 +86,7 @@
                         </svg>
                     </div>
                 </div>
-                <p class="text-xs text-green-600 dark:text-green-400 mt-2">ROI Promedio: {{ number_format($stats['roi_promedio'], 2) }}%</p>
+                <p class="text-xs text-green-600 dark:text-green-400 mt-2">ROI Promedio: {{ percentage($stats['roi_promedio']) }}</p>
             </div>
         </div>
 
@@ -113,8 +113,8 @@
                                 </div>
                             </div>
                             <div class="text-right">
-                                <p class="font-semibold text-gray-900 dark:text-white">Q {{ number_format($aportador->capital_total, 2) }}</p>
-                                <p class="text-xs text-gray-500 dark:text-gray-400">ROI: {{ number_format($aportador->getRoiAttribute(), 2) }}%</p>
+                                <p class="font-semibold text-gray-900 dark:text-white">{{ money_symbol($aportador->capital_total) }}</p>
+                                <p class="text-xs text-gray-500 dark:text-gray-400">ROI: {{ percentage($aportador->getRoiAttribute()) }}</p>
                             </div>
                         </div>
                     @endforeach
@@ -158,13 +158,13 @@
                                     {{ $dist->pago->prestamo->numero_prestamo ?? 'N/A' }}
                                 </td>
                                 <td class="px-6 py-4 text-gray-900 dark:text-white">
-                                    Q {{ number_format($dist->monto_capital, 2) }}
+                                    {{ money_symbol($dist->monto_capital) }}
                                 </td>
                                 <td class="px-6 py-4 text-green-600 dark:text-green-400">
-                                    Q {{ number_format($dist->monto_interes, 2) }}
+                                    {{ money_symbol($dist->monto_interes) }}
                                 </td>
                                 <td class="px-6 py-4 font-semibold text-gray-900 dark:text-white">
-                                    Q {{ number_format($dist->monto_total, 2) }}
+                                    {{ money_symbol($dist->monto_total) }}
                                 </td>
                             </tr>
                         @empty
@@ -253,7 +253,7 @@
             tooltip: {
                 y: {
                     formatter: function(val) {
-                        return 'Q ' + val.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+                        return formatMoneySymbol(val).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
                     }
                 }
             }

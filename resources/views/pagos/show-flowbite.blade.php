@@ -1,4 +1,4 @@
-<x-flowbite-layout>
+﻿<x-flowbite-layout>
     <!-- Header -->
     <div class="mb-6">
                 <div class="flex items-center text-sm text-gray-500 dark:text-gray-400 mb-2">
@@ -56,7 +56,7 @@
 
                                 <div class="md:col-span-2 bg-blue-50 dark:bg-gray-700 p-4 rounded-lg">
                                     <label class="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Monto Pagado</label>
-                                    <p class="text-3xl font-bold text-blue-600 dark:text-blue-400">Q{{ number_format($pago->monto_pagado, 2) }}</p>
+                                    <p class="text-3xl font-bold text-blue-600 dark:text-blue-400">{{ money_symbol($pago->monto_pagado) }}</p>
                                 </div>
 
                                 <div>
@@ -137,12 +137,12 @@
 
                                 <div>
                                     <label class="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Monto del Préstamo</label>
-                                    <p class="text-lg font-bold text-gray-900 dark:text-white">Q{{ number_format($pago->prestamo->monto_prestamo, 2) }}</p>
+                                    <p class="text-lg font-bold text-gray-900 dark:text-white">{{ money_symbol($pago->prestamo->monto_prestamo) }}</p>
                                 </div>
 
                                 <div>
                                     <label class="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Saldo Pendiente</label>
-                                    <p class="text-lg font-bold text-orange-600 dark:text-orange-400">Q{{ number_format($pago->prestamo->saldo_pendiente, 2) }}</p>
+                                    <p class="text-lg font-bold text-orange-600 dark:text-orange-400">{{ money_symbol($pago->prestamo->saldo_pendiente) }}</p>
                                 </div>
 
                                 <div>

@@ -1,4 +1,4 @@
-<x-flowbite-layout>
+﻿<x-flowbite-layout>
     <div class="mb-4">
         <div class="flex items-center justify-between">
             <div>
@@ -115,8 +115,8 @@
                             {{ $prestamo->numero_prestamo }}
                         </td>
                         <td class="px-6 py-4">{{ $prestamo->cliente->nombre_completo }}</td>
-                        <td class="px-6 py-4">Q{{ number_format($prestamo->monto_prestado, 2) }}</td>
-                        <td class="px-6 py-4">Q{{ number_format($prestamo->saldo_pendiente, 2) }}</td>
+                        <td class="px-6 py-4">{{ money_symbol($prestamo->monto_prestado) }}</td>
+                        <td class="px-6 py-4">{{ money_symbol($prestamo->saldo_pendiente) }}</td>
                         <td class="px-6 py-4">
                             @if($prestamo->estado == 'activo')
                             <span class="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded dark:bg-green-900 dark:text-green-300">Activo</span>

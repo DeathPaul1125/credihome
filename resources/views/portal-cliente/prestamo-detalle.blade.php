@@ -1,4 +1,4 @@
-<x-app-layout>
+﻿<x-app-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
             Préstamo {{ $prestamo->numero_prestamo }}
@@ -54,15 +54,15 @@
                         </div>
                         <div>
                             <span class="text-sm text-gray-600">Monto Prestado</span>
-                            <p class="font-semibold text-lg text-blue-600">Q {{ number_format($prestamo->monto_prestado, 2) }}</p>
+                            <p class="font-semibold text-lg text-blue-600">{{ money_symbol($prestamo->monto_prestado) }}</p>
                         </div>
                         <div>
                             <span class="text-sm text-gray-600">Saldo Pendiente</span>
-                            <p class="font-semibold text-lg text-red-600">Q {{ number_format($prestamo->saldo_pendiente, 2) }}</p>
+                            <p class="font-semibold text-lg text-red-600">{{ money_symbol($prestamo->saldo_pendiente) }}</p>
                         </div>
                         <div>
                             <span class="text-sm text-gray-600">Total a Pagar</span>
-                            <p class="font-semibold text-lg">Q {{ number_format($prestamo->total_pagar, 2) }}</p>
+                            <p class="font-semibold text-lg">{{ money_symbol($prestamo->total_pagar) }}</p>
                         </div>
                         <div>
                             <span class="text-sm text-gray-600">Tasa de Interés</span>
@@ -91,13 +91,13 @@
                     @endphp
                     <div class="w-full bg-gray-200 rounded-full h-6 mb-2">
                         <div class="bg-green-600 h-6 rounded-full flex items-center justify-center text-white text-xs font-medium"
-                            style="width: {{ number_format($porcentajePagado, 2) }}%">
-                            {{ number_format($porcentajePagado, 2) }}%
+                            style="width: {{ percentage($porcentajePagado) }}">
+                            {{ percentage($porcentajePagado) }}
                         </div>
                     </div>
                     <div class="flex justify-between text-sm text-gray-600">
-                        <span>Q {{ number_format($prestamo->total_pagar - $prestamo->saldo_pendiente, 2) }} pagado</span>
-                        <span>Q {{ number_format($prestamo->saldo_pendiente, 2) }} pendiente</span>
+                        <span>{{ money_symbol($prestamo->total_pagar - $prestamo->saldo_pendiente) }} pagado</span>
+                        <span>{{ money_symbol($prestamo->saldo_pendiente) }} pendiente</span>
                     </div>
                 </div>
             </div>
@@ -132,16 +132,16 @@
                                         {{ \Carbon\Carbon::parse($cuota['fecha_vencimiento'])->format('d/m/Y') }}
                                     </td>
                                     <td class="px-4 py-3 font-semibold">
-                                        Q {{ number_format($cuota['cuota'], 2) }}
+                                        {{ money_symbol($cuota['cuota']) }}
                                     </td>
                                     <td class="px-4 py-3">
-                                        Q {{ number_format($cuota['capital'], 2) }}
+                                        {{ money_symbol($cuota['capital']) }}
                                     </td>
                                     <td class="px-4 py-3">
-                                        Q {{ number_format($cuota['interes'], 2) }}
+                                        {{ money_symbol($cuota['interes']) }}
                                     </td>
                                     <td class="px-4 py-3">
-                                        Q {{ number_format($cuota['saldo'], 2) }}
+                                        {{ money_symbol($cuota['saldo']) }}
                                     </td>
                                     <td class="px-4 py-3">
                                         @php
@@ -163,13 +163,13 @@
                             <tr>
                                 <td colspan="2" class="px-4 py-3 font-bold">TOTALES</td>
                                 <td class="px-4 py-3 font-bold">
-                                    Q {{ number_format(collect($tablaAmortizacion)->sum('cuota'), 2) }}
+                                    {{ money_symbol(collect($tablaAmortizacion)->sum('cuota')) }}
                                 </td>
                                 <td class="px-4 py-3 font-bold">
-                                    Q {{ number_format(collect($tablaAmortizacion)->sum('capital'), 2) }}
+                                    {{ money_symbol(collect($tablaAmortizacion)->sum('capital')) }}
                                 </td>
                                 <td class="px-4 py-3 font-bold">
-                                    Q {{ number_format(collect($tablaAmortizacion)->sum('interes'), 2) }}
+                                    {{ money_symbol(collect($tablaAmortizacion)->sum('interes')) }}
                                 </td>
                                 <td colspan="2"></td>
                             </tr>
@@ -207,7 +207,7 @@
                                                 {{ \Carbon\Carbon::parse($comprobante->fecha_pago)->format('d/m/Y') }}
                                             </td>
                                             <td class="px-6 py-4">
-                                                Q {{ number_format($comprobante->monto_pagado, 2) }}
+                                                {{ money_symbol($comprobante->monto_pagado) }}
                                             </td>
                                             <td class="px-6 py-4">
                                                 @php

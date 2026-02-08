@@ -1,4 +1,4 @@
-<x-tailadmin-layout>
+﻿<x-tailadmin-layout>
     <div class="mx-auto max-w-screen-2xl p-4 md:p-6 2xl:p-10">
         <!-- Breadcrumb -->
         <div class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -48,13 +48,13 @@
 
                             <div class="border-t border-stroke pt-4 dark:border-strokedark">
                                 <label class="mb-1 block text-sm font-medium text-black dark:text-white">Monto Pagado</label>
-                                <p class="text-2xl font-bold text-success">Q {{ number_format($pago->monto_pagado, 2) }}</p>
+                                <p class="text-2xl font-bold text-success">{{ money_symbol($pago->monto_pagado) }}</p>
                             </div>
 
                             @if($pago->mora > 0)
                                 <div>
                                     <label class="mb-1 block text-sm font-medium text-black dark:text-white">Mora</label>
-                                    <p class="text-xl font-semibold text-danger">Q {{ number_format($pago->mora, 2) }}</p>
+                                    <p class="text-xl font-semibold text-danger">{{ money_symbol($pago->mora) }}</p>
                                     @if($pago->dias_atraso > 0)
                                         <p class="text-xs text-body-secondary">{{ $pago->dias_atraso }} días de atraso</p>
                                     @endif
@@ -62,7 +62,7 @@
 
                                 <div>
                                     <label class="mb-1 block text-sm font-medium text-black dark:text-white">Total Recibido</label>
-                                    <p class="text-2xl font-bold text-black dark:text-white">Q {{ number_format($pago->monto_pagado + $pago->mora, 2) }}</p>
+                                    <p class="text-2xl font-bold text-black dark:text-white">{{ money_symbol($pago->monto_pagado + $pago->mora) }}</p>
                                 </div>
                             @endif
 
@@ -105,18 +105,18 @@
 
                             <div>
                                 <label class="mb-1 block text-sm font-medium text-black dark:text-white">Monto de Cuota Regular</label>
-                                <p class="text-body">Q {{ number_format($pago->prestamo->monto_cuota, 2) }}</p>
+                                <p class="text-body">{{ money_symbol($pago->prestamo->monto_cuota) }}</p>
                             </div>
 
                             <div>
                                 <label class="mb-1 block text-sm font-medium text-black dark:text-white">Saldo Anterior</label>
-                                <p class="text-body">Q {{ number_format($pago->saldo_anterior, 2) }}</p>
+                                <p class="text-body">{{ money_symbol($pago->saldo_anterior) }}</p>
                             </div>
 
                             <div>
                                 <label class="mb-1 block text-sm font-medium text-black dark:text-white">Saldo Nuevo</label>
                                 <p class="text-body font-semibold {{ $pago->saldo_nuevo > 0 ? 'text-danger' : 'text-success' }}">
-                                    Q {{ number_format($pago->saldo_nuevo, 2) }}
+                                    {{ money_symbol($pago->saldo_nuevo) }}
                                 </p>
                             </div>
                         </div>
@@ -195,17 +195,17 @@
                                 </tr>
                                 <tr class="border-b border-stroke dark:border-strokedark">
                                     <td class="py-3 px-2 font-medium">Monto Pagado:</td>
-                                    <td class="py-3 px-2 font-semibold">Q {{ number_format($pago->monto_pagado, 2) }}</td>
+                                    <td class="py-3 px-2 font-semibold">{{ money_symbol($pago->monto_pagado) }}</td>
                                 </tr>
                                 @if($pago->mora > 0)
                                     <tr class="border-b border-stroke dark:border-strokedark">
                                         <td class="py-3 px-2 font-medium">Mora:</td>
-                                        <td class="py-3 px-2 text-danger">Q {{ number_format($pago->mora, 2) }}</td>
+                                        <td class="py-3 px-2 text-danger">{{ money_symbol($pago->mora) }}</td>
                                     </tr>
                                 @endif
                                 <tr class="border-b border-stroke dark:border-strokedark">
                                     <td class="py-3 px-2 font-medium text-lg">Total Recibido:</td>
-                                    <td class="py-3 px-2 font-bold text-lg">Q {{ number_format($pago->monto_pagado + $pago->mora, 2) }}</td>
+                                    <td class="py-3 px-2 font-bold text-lg">{{ money_symbol($pago->monto_pagado + $pago->mora) }}</td>
                                 </tr>
                                 <tr class="border-b border-stroke dark:border-strokedark">
                                     <td class="py-3 px-2 font-medium">Método de Pago:</td>
@@ -213,7 +213,7 @@
                                 </tr>
                                 <tr class="border-b border-stroke dark:border-strokedark">
                                     <td class="py-3 px-2 font-medium">Saldo Restante:</td>
-                                    <td class="py-3 px-2 font-semibold {{ $pago->saldo_nuevo > 0 ? 'text-danger' : 'text-success' }}">Q {{ number_format($pago->saldo_nuevo, 2) }}</td>
+                                    <td class="py-3 px-2 font-semibold {{ $pago->saldo_nuevo > 0 ? 'text-danger' : 'text-success' }}">{{ money_symbol($pago->saldo_nuevo) }}</td>
                                 </tr>
                             </tbody>
                         </table>

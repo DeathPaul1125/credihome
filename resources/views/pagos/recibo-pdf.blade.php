@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
@@ -264,11 +264,11 @@
                 </div>
                 <div class="info-row">
                     <div class="info-label">Monto del Préstamo:</div>
-                    <div class="info-value">Q {{ number_format($pago->prestamo->monto_prestado, 2) }}</div>
+                    <div class="info-value">{{ money_symbol($pago->prestamo->monto_prestado) }}</div>
                 </div>
                 <div class="info-row">
                     <div class="info-label">Saldo Anterior:</div>
-                    <div class="info-value">Q {{ number_format($pago->saldo_anterior ?? $pago->prestamo->saldo_pendiente + $pago->monto_pagado, 2) }}</div>
+                    <div class="info-value">{{ money_symbol($pago->saldo_anterior ?? $pago->prestamo->saldo_pendiente + $pago->monto_pagado) }}</div>
                 </div>
             </div>
         </div>
@@ -276,7 +276,7 @@
         <!-- Monto Pagado -->
         <div class="amount-box">
             <div class="amount-label">MONTO PAGADO</div>
-            <div class="amount-value">Q {{ number_format($pago->monto_pagado, 2) }}</div>
+            <div class="amount-value">{{ money_symbol($pago->monto_pagado) }}</div>
             <div class="amount-words">
                 {{ ucfirst(\NumberFormatter::create('es', \NumberFormatter::SPELLOUT)->format($pago->monto_pagado)) }} quetzales
                 {{ round(($pago->monto_pagado - floor($pago->monto_pagado)) * 100) }}/100
@@ -289,7 +289,7 @@
                 <div class="info-row">
                     <div class="info-label">Saldo Restante:</div>
                     <div class="info-value" style="font-weight: bold; color: #1e40af; font-size: 16px;">
-                        Q {{ number_format($pago->prestamo->saldo_pendiente, 2) }}
+                        {{ money_symbol($pago->prestamo->saldo_pendiente) }}
                     </div>
                 </div>
             </div>
