@@ -63,7 +63,7 @@
                     <!-- Tasa de Interés -->
                     <div>
                         <label for="tasa_interes" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Tasa de Interés (%) <span class="text-red-500">*</span></label>
-                        <input type="number" id="tasa_interes" name="tasa_interes" value="{{ old('tasa_interes', $cotizacion->tasa_interes_anual ?? '') }}" step="0.01" min="0" max="100" required class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 @error('tasa_interes') border-red-500 @enderror" placeholder="24.00">
+                        <input type="number" id="tasa_interes" name="tasa_interes" value="{{ old('tasa_interes', $cotizacion->tasa_interes_anual ?? '') }}" step="1" min="0" max="100" required class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 @error('tasa_interes') border-red-500 @enderror" placeholder="24">
                         @error('tasa_interes')
                         <p class="mt-2 text-sm text-red-600 dark:text-red-500">{{ $message }}</p>
                         @enderror
@@ -183,7 +183,7 @@
                     </div>
 
                     <div class="flex items-center justify-between mt-4">
-                        <button type="button" id="add-aportador" class="text-blue-700 hover:text-white border border-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 text-center dark:border-blue-500 dark:text-blue-500 dark:hover:text-white dark:hover:bg-blue-600 dark:focus:ring-blue-800">
+                        <button type="button" id="add-aportador" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
                             + Agregar Inversionista
                         </button>
                         <div class="text-right">
