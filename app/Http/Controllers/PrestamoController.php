@@ -383,21 +383,29 @@ class PrestamoController extends Controller
 
             \DB::beginTransaction();
             try {
+                \Log::info("=== ELIMINANDO PRÉSTAMO FORZADO {$prestamo->numero_prestamo} ===");
+
                 // Eliminar distribuciones de pagos
                 if ($countPagos > 0) {
                     foreach ($prestamo->pagos as $pago) {
                         \App\Models\DistribucionPago::where('pago_id', $pago->id)->delete();
                     }
                     $prestamo->pagos()->delete();
+                    \Log::info("Eliminados {$countPagos} pago(s)");
                 }
 
-                // Eliminar aportaciones (el evento boot() del modelo revertirá automáticamente los cambios en los aportadores)
+                // Eliminar aportaciones - el evento boot() del modelo devolverá el dinero automáticamente
                 if ($countAportaciones > 0) {
+                    \Log::info("Eliminando {$countAportaciones} aportación(es) y devolviendo dinero a aportadores...");
+                    foreach ($prestamo->aportaciones as $aportacion) {
+                        \Log::info("Eliminando aportación ID {$aportacion->id} - Aportador: {$aportacion->aportador_id}, Monto: {$aportacion->monto_aportado}");
+                    }
                     $prestamo->aportaciones()->delete();
                 }
 
                 // Eliminar el préstamo
                 $prestamo->delete();
+                \Log::info("Préstamo {$prestamo->numero_prestamo} eliminado exitosamente");
 
                 \DB::commit();
 
@@ -405,7 +413,7 @@ class PrestamoController extends Controller
                 $this->recalcularAportadoresAutomatico();
 
                 return redirect()->route('prestamos.index')
-                    ->with('success', "Préstamo eliminado exitosamente. Se revirtieron {$countAportaciones} aportación(es) y se eliminaron {$countPagos} pago(s). Estadísticas de aportadores actualizadas.");
+                    ->with('success', "Préstamo eliminado exitosamente. Se revirtieron {$countAportaciones} aportación(es) y se eliminaron {$countPagos} pago(s). El dinero ha sido devuelto a los inversionistas.");
 
             } catch (\Exception $e) {
                 \DB::rollback();
@@ -424,20 +432,40 @@ class PrestamoController extends Controller
                 ->with('count_aportaciones', $countAportaciones);
         }
 
-        if ($countAportaciones > 0) {
-            return back()
-                ->with('error', "No se puede eliminar un préstamo que tiene {$countAportaciones} aportación(es) registrada(s).")
-                ->with('prestamo_id', $prestamo->id)
-                ->with('tiene_aportaciones', true)
-                ->with('count_aportaciones', $countAportaciones)
-                ->with('count_pagos', $countPagos);
+        // Eliminar aportaciones y devolver dinero a aportadores antes de soft delete
+        \DB::beginTransaction();
+        try {
+            if ($countAportaciones > 0) {
+                \Log::info("=== ELIMINANDO PRÉSTAMO {$prestamo->numero_prestamo} (Soft Delete) ===");
+                \Log::info("Devolviendo dinero de {$countAportaciones} aportación(es) a inversionistas...");
+
+                foreach ($prestamo->aportaciones as $aportacion) {
+                    \Log::info("Devolviendo Q" . number_format($aportacion->monto_aportado, 2) . " a aportador ID {$aportacion->aportador_id}");
+                }
+
+                // Eliminar aportaciones - esto dispara el evento que devuelve el dinero
+                $prestamo->aportaciones()->delete();
+            }
+
+            // Eliminar el préstamo (soft delete)
+            $prestamo->delete();
+
+            // Recalcular estadísticas de aportadores
+            $this->recalcularAportadoresAutomatico();
+
+            \DB::commit();
+
+            $mensaje = $countAportaciones > 0
+                ? "Préstamo eliminado exitosamente. Se devolvió el dinero de {$countAportaciones} aportación(es) a los inversionistas."
+                : 'Préstamo eliminado exitosamente.';
+
+            return redirect()->route('prestamos.index')->with('success', $mensaje);
+
+        } catch (\Exception $e) {
+            \DB::rollback();
+            \Log::error('Error al eliminar préstamo: ' . $e->getMessage());
+            return back()->with('error', 'Error al eliminar el préstamo: ' . $e->getMessage());
         }
-
-        // Eliminar el préstamo (soft delete) si no tiene relaciones
-        $prestamo->delete();
-
-        return redirect()->route('prestamos.index')
-            ->with('success', 'Préstamo eliminado exitosamente.');
     }
 
     /**

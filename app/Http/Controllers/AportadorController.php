@@ -183,7 +183,86 @@ class AportadorController extends Controller
             ->get()
             ->reverse();
 
-        return view('aportadores.show', compact('aportador', 'stats', 'aportacionesActivas', 'aportacionesRecuperadas', 'distribucionesPagos', 'evolucion'));
+        // NUEVO: Historial de Movimientos Detallado
+        $movimientos = $this->generarHistorialMovimientos($aportador);
+
+        return view('aportadores.show', compact('aportador', 'stats', 'aportacionesActivas', 'aportacionesRecuperadas', 'distribucionesPagos', 'evolucion', 'movimientos'));
+    }
+
+    /**
+     * Generar historial completo de movimientos del aportador
+     */
+    private function generarHistorialMovimientos(Aportador $aportador)
+    {
+        $movimientos = collect();
+
+        // 1. Aportaciones realizadas (inversiones en préstamos)
+        $aportaciones = $aportador->aportaciones()->with('prestamo.cliente')->get();
+        foreach ($aportaciones as $aportacion) {
+            $movimientos->push([
+                'fecha' => $aportacion->fecha_aportacion ?? $aportacion->created_at,
+                'tipo' => 'inversion',
+                'descripcion' => "Inversión en préstamo #{$aportacion->prestamo->numero_prestamo} - {$aportacion->prestamo->cliente->nombre}",
+                'monto' => -$aportacion->monto_aportado,
+                'capital_disponible_antes' => null, // Se calculará después
+                'capital_disponible_despues' => null,
+                'referencia' => "Préstamo #{$aportacion->prestamo->numero_prestamo}",
+                'prestamo_id' => $aportacion->prestamo_id,
+            ]);
+        }
+
+        // 2. Distribuciones de pagos (recuperaciones)
+        $distribuciones = $aportador->distribucionesPagos()
+            ->with(['pago.prestamo.cliente', 'aportacion'])
+            ->get();
+
+        foreach ($distribuciones as $distribucion) {
+            // Recuperación de capital
+            if ($distribucion->monto_capital > 0) {
+                $movimientos->push([
+                    'fecha' => $distribucion->fecha_distribucion,
+                    'tipo' => 'recuperacion_capital',
+                    'descripcion' => "Recuperación de capital - Préstamo #{$distribucion->aportacion->prestamo->numero_prestamo}",
+                    'monto' => $distribucion->monto_capital,
+                    'capital_disponible_antes' => null,
+                    'capital_disponible_despues' => null,
+                    'referencia' => "Pago #{$distribucion->pago_id}",
+                    'prestamo_id' => $distribucion->aportacion->prestamo_id,
+                ]);
+            }
+
+            // Ganancia por intereses
+            if ($distribucion->monto_interes > 0) {
+                $movimientos->push([
+                    'fecha' => $distribucion->fecha_distribucion,
+                    'tipo' => 'interes',
+                    'descripcion' => "Ganancia por intereses - Préstamo #{$distribucion->aportacion->prestamo->numero_prestamo}",
+                    'monto' => $distribucion->monto_interes,
+                    'capital_disponible_antes' => null,
+                    'capital_disponible_despues' => null,
+                    'referencia' => "Pago #{$distribucion->pago_id}",
+                    'prestamo_id' => $distribucion->aportacion->prestamo_id,
+                ]);
+            }
+        }
+
+        // 3. Depósitos de capital (agregados manualmente)
+        // Nota: Estos registros deberían estar en una tabla de transacciones
+        // Por ahora los inferimos del capital inicial y ajustes
+
+        // Ordenar por fecha
+        $movimientos = $movimientos->sortBy('fecha')->values();
+
+        // Calcular saldo acumulado
+        $saldoAcumulado = 0;
+        $movimientos = $movimientos->map(function ($movimiento) use (&$saldoAcumulado) {
+            $movimiento['capital_disponible_antes'] = $saldoAcumulado;
+            $saldoAcumulado += $movimiento['monto'];
+            $movimiento['capital_disponible_despues'] = $saldoAcumulado;
+            return $movimiento;
+        });
+
+        return $movimientos->reverse()->take(50); // Últimos 50 movimientos
     }
 
     /**

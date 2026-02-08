@@ -69,18 +69,8 @@
                         @enderror
                     </div>
 
-                    <!-- Tipo de Interés -->
-                    <div>
-                        <label for="tipo_interes" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Tipo de Interés <span class="text-red-500">*</span></label>
-                        <select id="tipo_interes" name="tipo_interes" required class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 @error('tipo_interes') border-red-500 @enderror">
-                            <option value="">Seleccionar...</option>
-                            <option value="simple" {{ old('tipo_interes', 'simple') == 'simple' ? 'selected' : '' }}>Simple</option>
-                            <option value="compuesto" {{ old('tipo_interes') == 'compuesto' ? 'selected' : '' }}>Compuesto</option>
-                        </select>
-                        @error('tipo_interes')
-                        <p class="mt-2 text-sm text-red-600 dark:text-red-500">{{ $message }}</p>
-                        @enderror
-                    </div>
+                    <!-- Tipo de Interés (oculto, siempre simple) -->
+                    <input type="hidden" name="tipo_interes" value="simple">
 
                     <!-- Plazo -->
                     <div>
@@ -91,19 +81,8 @@
                         @enderror
                     </div>
 
-                    <!-- Frecuencia de Pago -->
-                    <div>
-                        <label for="frecuencia_pago" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Frecuencia de Pago <span class="text-red-500">*</span></label>
-                        <select id="frecuencia_pago" name="frecuencia_pago" required class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 @error('frecuencia_pago') border-red-500 @enderror">
-                            <option value="">Seleccionar...</option>
-                            <option value="semanal" {{ old('frecuencia_pago') == 'semanal' ? 'selected' : '' }}>Semanal</option>
-                            <option value="quincenal" {{ old('frecuencia_pago') == 'quincenal' ? 'selected' : '' }}>Quincenal</option>
-                            <option value="mensual" {{ old('frecuencia_pago', 'mensual') == 'mensual' ? 'selected' : '' }}>Mensual</option>
-                        </select>
-                        @error('frecuencia_pago')
-                        <p class="mt-2 text-sm text-red-600 dark:text-red-500">{{ $message }}</p>
-                        @enderror
-                    </div>
+                    <!-- Frecuencia de Pago (oculto, siempre mensual) -->
+                    <input type="hidden" name="frecuencia_pago" value="mensual">
 
                     <!-- Fecha de Desembolso -->
                     <div>
