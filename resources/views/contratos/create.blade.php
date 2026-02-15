@@ -1,4 +1,13 @@
 <x-flowbite-layout>
+    <!-- Quill.js CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.snow.css" rel="stylesheet">
+    <style>
+        #contenido-editor { height: 550px; font-family: Arial, sans-serif; font-size: 12pt; }
+        .ql-toolbar.ql-snow { border-radius: 0.5rem 0.5rem 0 0; background: #f9fafb; }
+        .ql-container.ql-snow { border-radius: 0 0 0.5rem 0.5rem; background: #ffffff; }
+        .ql-editor { min-height: 500px; color: #111827; }
+    </style>
+
     <div class="mb-6">
         <div class="flex items-center gap-2 mb-2">
             <a href="{{ route('contratos.index') }}" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
@@ -141,7 +150,8 @@
                         </button>
                     </div>
 
-                    <textarea name="contenido" id="contenido-editor">{!! old('contenido') !!}</textarea>
+                    <input type="hidden" name="contenido" id="contenido-hidden">
+                    <div id="contenido-editor">{!! old('contenido') !!}</div>
                 </div>
 
                 <!-- Botones -->
@@ -158,25 +168,27 @@
         </div>
     </form>
 
-    <!-- TinyMCE CDN -->
-    <script src="https://cdn.tiny.cloud/1/no-api-key/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
+    <!-- Quill.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.js"></script>
     <script>
-        // Inicializar TinyMCE
-        tinymce.init({
-            selector: '#contenido-editor',
-            height: 600,
-            language: 'es',
-            plugins: 'anchor autolink charmap codesample emoticons image link lists media searchreplace table visualblocks wordcount pagebreak',
-            toolbar: 'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | link image media table | align lineheight | numlist bullist indent outdent | emoticons charmap | removeformat | pagebreak',
-            content_style: 'body { font-family: Arial, sans-serif; font-size: 12pt; margin: 2cm; }',
-            menubar: 'file edit view insert format tools table',
-            branding: false,
-            promotion: false,
-            setup: function(editor) {
-                editor.on('change', function() {
-                    editor.save();
-                });
-            }
+        // Inicializar Quill
+        const quill = new Quill('#contenido-editor', {
+            theme: 'snow',
+            modules: {
+                toolbar: [
+                    [{ 'header': [1, 2, 3, false] }],
+                    [{ 'font': [] }, { 'size': ['small', false, 'large', 'huge'] }],
+                    ['bold', 'italic', 'underline', 'strike'],
+                    [{ 'color': [] }, { 'background': [] }],
+                    [{ 'align': [] }],
+                    [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                    [{ 'indent': '-1'}, { 'indent': '+1' }],
+                    ['link', 'image'],
+                    ['blockquote'],
+                    ['clean']
+                ]
+            },
+            placeholder: 'Escriba el contenido del contrato aquí...'
         });
 
         // Cargar préstamos del cliente seleccionado
@@ -316,12 +328,12 @@
 </table>
 `;
 
-            tinymce.get('contenido-editor').setContent(plantilla);
+            quill.root.innerHTML = plantilla;
         }
 
-        // Sincronizar TinyMCE antes de enviar
-        document.getElementById('contrato-form').addEventListener('submit', function() {
-            tinymce.triggerSave();
+        // Sincronizar Quill antes de enviar
+        document.getElementById('contrato-form').addEventListener('submit', function(e) {
+            document.getElementById('contenido-hidden').value = quill.root.innerHTML;
         });
     </script>
 </x-flowbite-layout>
