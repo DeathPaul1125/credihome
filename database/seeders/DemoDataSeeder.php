@@ -446,20 +446,17 @@ class DemoDataSeeder extends Seeder
         
         // Datos del préstamo
         $tasaInteres = rand(18, 30);
-        $tipoInteres = $faker->randomElement(['simple', 'compuesto']);
+        $tipoInteres = $faker->randomElement(['simple', 'compuesto', 'cuota_fija', 'flat', 'sobre_saldos']);
         $plazo = rand(6, 24);
         $frecuenciaPago = $faker->randomElement(['semanal', 'quincenal', 'mensual']);
         $fechaDesembolso = Carbon::now()->subDays(rand(10, 180));
         
-        // Calcular interés y cuota
-        if ($tipoInteres === 'simple') {
-            $interesTotal = $montoPrestado * ($tasaInteres / 100) * ($plazo / 12);
-        } else {
-            $interesTotal = $montoPrestado * (pow(1 + ($tasaInteres / 1200), $plazo) - 1);
-        }
+        // Calcular valores usando el método del modelo
+        $valores = Prestamo::calcularValores($montoPrestado, $tasaInteres, $plazo, $tipoInteres);
         
-        $montoTotal = $montoPrestado + $interesTotal;
-        $montoCuota = $montoTotal / $plazo;
+        $interesTotal = $valores['interes_total'];
+        $montoTotal = $valores['monto_total'];
+        $montoCuota = $valores['monto_cuota'];
         
         // Calcular fechas
         switch ($frecuenciaPago) {
