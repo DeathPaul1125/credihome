@@ -269,6 +269,15 @@
                 </li>
                 @endcan
                 <li>
+                    <a href="{{ route('contratos.index') }}" class="flex items-center p-2 text-white rounded-lg hover:bg-gray-700 group {{ request()->routeIs('contratos.*') ? 'bg-gray-700' : '' }}">
+                        <svg class="flex-shrink-0 w-5 h-5 text-gray-400 transition duration-75 group-hover:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M14.25 0H5.25C4.42 0 3.75 0.67 3.75 1.5V3H2.25C1.42 3 0.75 3.67 0.75 4.5V16.5C0.75 17.33 1.42 18 2.25 18H12.75C13.58 18 14.25 17.33 14.25 16.5V15H15.75C16.58 15 17.25 14.33 17.25 13.5V3L14.25 0ZM12.75 16.5H2.25V4.5H12.75V16.5ZM15.75 13.5H14.25V4.5C14.25 3.67 13.58 3 12.75 3H5.25V1.5H13.5L15.75 3.75V13.5Z"/>
+                            <path d="M4.5 7.5H10.5V9H4.5V7.5ZM4.5 10.5H10.5V12H4.5V10.5ZM4.5 13.5H8.25V15H4.5V13.5Z"/>
+                        </svg>
+                        <span class="flex-1 ms-3 whitespace-nowrap">Contratos</span>
+                    </a>
+                </li>
+                <li>
                     <a href="{{ route('productos.index') }}" class="flex items-center p-2 text-white rounded-lg hover:bg-gray-700 group {{ request()->routeIs('productos.*') ? 'bg-gray-700' : '' }}">
                         <svg class="flex-shrink-0 w-5 h-5 text-gray-400 transition duration-75 group-hover:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
                             <path d="M19.728 10.686c-2.38 2.256-6.153 3.381-9.875 3.381-3.722 0-7.4-1.126-9.571-3.371L0 10.437V18a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-7.6l-.272.286Z"/>

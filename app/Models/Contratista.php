@@ -52,6 +52,11 @@ class Contratista extends Model
         return $this->hasMany(ContratistaArchivo::class);
     }
 
+    public function contratos()
+    {
+        return $this->hasMany(Contrato::class);
+    }
+
     /**
      * Generar código automático
      */

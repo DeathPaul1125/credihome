@@ -94,7 +94,7 @@ class ClienteController extends Controller
      */
     public function show(Cliente $cliente)
     {
-        $cliente->load(['prestamos.pagos', 'usuario', 'archivos.usuario', 'fotosProyecto.prestamo']);
+        $cliente->load(['prestamos.pagos', 'usuario', 'archivos.usuario', 'fotosProyecto.prestamo', 'contratos.contratista']);
 
         return view('clientes.show-flowbite', compact('cliente'));
     }

@@ -125,6 +125,18 @@ Route::middleware([
         Route::delete('/{contratista}/archivos/{archivo}', [\App\Http\Controllers\ContratistaController::class, 'eliminarArchivo'])->name('eliminar-archivo')->middleware('can:eliminar-contratistas');
     });
 
+    // Rutas de Contratos
+    Route::prefix('contratos')->name('contratos.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\ContratoController::class, 'index'])->name('index');
+        Route::get('/create', [\App\Http\Controllers\ContratoController::class, 'create'])->name('create');
+        Route::post('/', [\App\Http\Controllers\ContratoController::class, 'store'])->name('store');
+        Route::get('/prestamos-cliente/{clienteId}', [\App\Http\Controllers\ContratoController::class, 'getPrestamosCliente'])->name('prestamos-cliente');
+        Route::get('/{contrato}', [\App\Http\Controllers\ContratoController::class, 'show'])->name('show');
+        Route::get('/{contrato}/edit', [\App\Http\Controllers\ContratoController::class, 'edit'])->name('edit');
+        Route::put('/{contrato}', [\App\Http\Controllers\ContratoController::class, 'update'])->name('update');
+        Route::delete('/{contrato}', [\App\Http\Controllers\ContratoController::class, 'destroy'])->name('destroy');
+    });
+
     // Rutas de Chat
     Route::get('/chat', [\App\Http\Controllers\ChatController::class, 'index'])->name('chat.index');
     Route::get('/chat/{conversation}', [\App\Http\Controllers\ChatController::class, 'show'])->name('chat.show');

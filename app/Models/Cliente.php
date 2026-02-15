@@ -104,6 +104,14 @@ class Cliente extends Model
     }
 
     /**
+     * Relación con los contratos
+     */
+    public function contratos(): HasMany
+    {
+        return $this->hasMany(Contrato::class);
+    }
+
+    /**
      * Scope para clientes activos
      */
     public function scopeActivos($query)

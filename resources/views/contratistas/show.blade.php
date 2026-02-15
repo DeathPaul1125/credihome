@@ -36,6 +36,11 @@
                     <i class="fas fa-file-alt mr-2"></i>Archivos ({{ $contratista->archivos->count() }})
                 </button>
             </li>
+            <li class="mr-2" role="presentation">
+                <button class="inline-block p-4 border-b-2 rounded-t-lg {{ request('tab') == 'contratos' ? 'border-blue-600 text-blue-600' : 'border-transparent hover:text-gray-600 hover:border-gray-300' }}" type="button" role="tab" onclick="window.location.href='{{ route('contratistas.show', ['contratista' => $contratista->id, 'tab' => 'contratos']) }}'">
+                    <i class="fas fa-file-contract mr-2"></i>Contratos ({{ $contratista->contratos->count() }})
+                </button>
+            </li>
         </ul>
     </div>
 
@@ -367,6 +372,65 @@
         </div>
         @else
         <p class="text-center text-gray-500 dark:text-gray-400 py-8">No hay archivos adjuntos.</p>
+        @endif
+    </div>
+    @endif
+
+    <!-- Tab Content: Contratos -->
+    @if(request('tab') == 'contratos')
+    <div class="bg-white dark:bg-gray-800 relative shadow-md sm:rounded-lg p-6">
+        <div class="flex items-center justify-between mb-4">
+            <h2 class="text-xl font-semibold text-gray-900 dark:text-white">Contratos</h2>
+            <a href="{{ route('contratos.create') }}?contratista_id={{ $contratista->id }}" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2">
+                <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                Nuevo Contrato
+            </a>
+        </div>
+
+        @if($contratista->contratos->count() > 0)
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
+                <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+                    <tr>
+                        <th class="px-4 py-3">Número</th>
+                        <th class="px-4 py-3">Título</th>
+                        <th class="px-4 py-3">Cliente</th>
+                        <th class="px-4 py-3">Monto</th>
+                        <th class="px-4 py-3">Estado</th>
+                        <th class="px-4 py-3">Fecha</th>
+                        <th class="px-4 py-3">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach($contratista->contratos as $contrato)
+                    <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+                        <td class="px-4 py-3 font-medium text-gray-900 dark:text-white">{{ $contrato->numero_contrato }}</td>
+                        <td class="px-4 py-3">{{ $contrato->titulo }}</td>
+                        <td class="px-4 py-3">
+                            @if($contrato->cliente)
+                                <a href="{{ route('clientes.show', $contrato->cliente_id) }}" class="text-blue-600 hover:underline">{{ $contrato->cliente->nombre_completo }}</a>
+                            @endif
+                        </td>
+                        <td class="px-4 py-3">{{ $contrato->monto_contrato ? 'Q' . number_format($contrato->monto_contrato, 2) : '-' }}</td>
+                        <td class="px-4 py-3">
+                            @php
+                                $colors = ['borrador' => 'yellow', 'activo' => 'green', 'finalizado' => 'blue', 'cancelado' => 'red'];
+                                $cc = $colors[$contrato->estado] ?? 'gray';
+                            @endphp
+                            <span class="bg-{{ $cc }}-100 text-{{ $cc }}-800 text-xs font-medium px-2.5 py-0.5 rounded dark:bg-{{ $cc }}-900 dark:text-{{ $cc }}-300">{{ ucfirst($contrato->estado) }}</span>
+                        </td>
+                        <td class="px-4 py-3">{{ $contrato->fecha_contrato->format('d/m/Y') }}</td>
+                        <td class="px-4 py-3">
+                            <a href="{{ route('contratos.show', $contrato) }}" class="text-blue-600 hover:underline text-xs mr-2">Ver</a>
+                            <a href="{{ route('contratos.edit', $contrato) }}" class="text-yellow-600 hover:underline text-xs">Editar</a>
+                        </td>
+                    </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
+        @else
+        <p class="text-center text-gray-500 dark:text-gray-400 py-8">No hay contratos registrados para este contratista.</p>
         @endif
     </div>
     @endif

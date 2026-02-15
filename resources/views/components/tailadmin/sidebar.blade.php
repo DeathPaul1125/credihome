@@ -106,6 +106,33 @@
                         </a>
                     </li>
 
+                    <!-- Contratistas -->
+                    <li>
+                        <a
+                            href="{{ route('contratistas.index') }}"
+                            class="group relative flex items-center gap-2.5 rounded-lg px-4 py-2 font-medium text-gray-700 duration-300 ease-in-out hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-white/5 {{ request()->routeIs('contratistas.*') ? 'bg-gray-100 dark:bg-white/5 text-gray-900 dark:text-white' : '' }}"
+                        >
+                            <svg class="fill-current" width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M9 0C4.03 0 0 4.03 0 9s4.03 9 9 9 9-4.03 9-9-4.03-9-9-9zm0 2.7c1.49 0 2.7 1.21 2.7 2.7S10.49 8.1 9 8.1 6.3 6.89 6.3 5.4 7.51 2.7 9 2.7zm0 12.78c-2.25 0-4.24-1.15-5.4-2.89.03-1.79 3.6-2.77 5.4-2.77s5.37.98 5.4 2.77c-1.16 1.74-3.15 2.89-5.4 2.89z"/>
+                            </svg>
+                            Contratistas
+                        </a>
+                    </li>
+
+                    <!-- Contratos -->
+                    <li>
+                        <a
+                            href="{{ route('contratos.index') }}"
+                            class="group relative flex items-center gap-2.5 rounded-lg px-4 py-2 font-medium text-gray-700 duration-300 ease-in-out hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-white/5 {{ request()->routeIs('contratos.*') ? 'bg-gray-100 dark:bg-white/5 text-gray-900 dark:text-white' : '' }}"
+                        >
+                            <svg class="fill-current" width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M14.25 0H5.25C4.42 0 3.75 0.67 3.75 1.5V3H2.25C1.42 3 0.75 3.67 0.75 4.5V16.5C0.75 17.33 1.42 18 2.25 18H12.75C13.58 18 14.25 17.33 14.25 16.5V15H15.75C16.58 15 17.25 14.33 17.25 13.5V3L14.25 0ZM12.75 16.5H2.25V4.5H12.75V16.5ZM15.75 13.5H14.25V4.5C14.25 3.67 13.58 3 12.75 3H5.25V1.5H13.5L15.75 3.75V13.5Z"/>
+                                <path d="M4.5 7.5H10.5V9H4.5V7.5ZM4.5 10.5H10.5V12H4.5V10.5ZM4.5 13.5H8.25V15H4.5V13.5Z"/>
+                            </svg>
+                            Contratos
+                        </a>
+                    </li>
+
                     <!-- Reportes -->
                     <li>
                         <a

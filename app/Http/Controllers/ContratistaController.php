@@ -97,7 +97,7 @@ class ContratistaController extends Controller
             $query->orderBy('created_at', 'desc');
         }, 'archivos' => function($query) {
             $query->orderBy('created_at', 'desc');
-        }]);
+        }, 'contratos.cliente']);
 
         return view('contratistas.show', compact('contratista'));
     }
