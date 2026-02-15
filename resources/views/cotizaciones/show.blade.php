@@ -147,13 +147,12 @@
                 </form>
                 @endif
                 @endcan
-                @can('convertir-cotizaciones')
-                @if($cotizacion->estado === 'aprobada' && !$cotizacion->prestamo_id)
+
+                @if(in_array($cotizacion->estado, ['pendiente', 'aprobada']) && !$cotizacion->prestamo_id)
                 <form action="{{ route('cotizaciones.convertir', $cotizacion) }}" method="POST">
                     @csrf
                     <button type="submit" class="text-white bg-purple-700 hover:bg-purple-800 rounded-lg text-sm px-5 py-2.5">Convertir a Préstamo</button>
                 </form>
                 @endif
-                @endcan
             </div>
 </x-flowbite-layout>

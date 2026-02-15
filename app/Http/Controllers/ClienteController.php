@@ -218,58 +218,84 @@ class ClienteController extends Controller
      */
     public function searchPdi(Request $request)
     {
-        $request->validate([
-            'dpi' => 'required|string|size:13',
-        ]);
+        try {
+            $request->validate([
+                'dpi' => 'required|string|size:13',
+            ]);
 
-        $dpi = $request->dpi;
-        $config = config('services.fel');
+            $dpi = $request->dpi;
+            $config = config('services.fel');
 
-        $url = $config['url'] . '?NIT=' . $config['nit'] . '&DATA1=' . $config['data1'] . '&DATA2=CUI%7C' . $dpi . '&USERNAME=' . $config['username'];
+            // Validar que la configuración existe
+            if (!$config || !isset($config['url'], $config['nit'], $config['data1'], $config['username'], $config['authorization'])) {
+                return response()->json(['error' => 'Configuración de FEL incompleta. Contacte al administrador.'], 500);
+            }
 
-        $curl = curl_init();
+            $url = $config['url'] . '?NIT=' . $config['nit'] . '&DATA1=' . $config['data1'] . '&DATA2=CUI%7C' . $dpi . '&USERNAME=' . $config['username'];
 
-        curl_setopt_array($curl, array(
-            CURLOPT_URL => $url,
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_ENCODING => '',
-            CURLOPT_MAXREDIRS => 10,
-            CURLOPT_TIMEOUT => 0,
-            CURLOPT_FOLLOWLOCATION => true,
-            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-            CURLOPT_CUSTOMREQUEST => 'GET',
-            CURLOPT_HTTPHEADER => array(
-                'Authorization: ' . $config['authorization'],
-                'Content-Type: application/json'
-            ),
-        ));
+            $curl = curl_init();
 
-        $response = curl_exec($curl);
-        $httpCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-        curl_close($curl);
+            if ($curl === false) {
+                return response()->json(['error' => 'Error al inicializar la conexión'], 500);
+            }
 
-        if ($httpCode !== 200) {
-            return response()->json(['error' => 'Error al consultar la API de FEL: HTTP ' . $httpCode], 500);
+            curl_setopt_array($curl, array(
+                CURLOPT_URL => $url,
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_ENCODING => '',
+                CURLOPT_MAXREDIRS => 10,
+                CURLOPT_TIMEOUT => 30,
+                CURLOPT_FOLLOWLOCATION => true,
+                CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+                CURLOPT_CUSTOMREQUEST => 'GET',
+                CURLOPT_HTTPHEADER => array(
+                    'Authorization: ' . $config['authorization'],
+                    'Content-Type: application/json'
+                ),
+            ));
+
+            $response = curl_exec($curl);
+            $curlError = curl_error($curl);
+            $httpCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+            curl_close($curl);
+
+            if ($response === false) {
+                \Log::error('CURL Error en searchPdi: ' . $curlError);
+                return response()->json(['error' => 'Error de conexión con la API de FEL'], 500);
+            }
+
+            if ($httpCode !== 200) {
+                \Log::error('HTTP Error en searchPdi: ' . $httpCode . ' - Response: ' . $response);
+                return response()->json(['error' => 'Error al consultar la API de FEL: HTTP ' . $httpCode], 500);
+            }
+
+            $data = json_decode($response, true);
+
+            if (!$data) {
+                \Log::error('JSON inválido en searchPdi. Response: ' . $response);
+                return response()->json(['error' => 'Respuesta no es JSON válido'], 500);
+            }
+
+            if (!isset($data['RESPONSE']) || !is_array($data['RESPONSE']) || empty($data['RESPONSE'])) {
+                \Log::warning('Respuesta vacía o inválida de FEL API: ' . json_encode($data));
+                return response()->json(['error' => 'No se encontró información para el DPI proporcionado'], 404);
+            }
+
+            // Procesar la respuesta y devolver los datos relevantes
+            $felData = $data['RESPONSE'][0]; // Tomar el primer elemento del array
+
+            return response()->json([
+                'nombre_completo' => $felData['NOMBRE'] ?? null,
+                'fecha_nacimiento' => null, // La API no devuelve fecha de nacimiento
+                'genero' => null, // La API no devuelve género
+            ]);
+
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json(['error' => 'DPI inválido. Debe tener 13 dígitos.'], 422);
+        } catch (\Exception $e) {
+            \Log::error('Error en searchPdi: ' . $e->getMessage() . ' - ' . $e->getTraceAsString());
+            return response()->json(['error' => 'Error interno del servidor. Por favor intente nuevamente.'], 500);
         }
-
-        $data = json_decode($response, true);
-
-        if (!$data) {
-            return response()->json(['error' => 'Respuesta no es JSON válido'], 500);
-        }
-
-        if (!isset($data['RESPONSE']) || !is_array($data['RESPONSE']) || empty($data['RESPONSE'])) {
-            return response()->json(['error' => 'Respuesta inválida de la API'], 500);
-        }
-
-        // Procesar la respuesta y devolver los datos relevantes
-        $felData = $data['RESPONSE'][0]; // Tomar el primer elemento del array
-
-        return response()->json([
-            'nombre_completo' => $felData['NOMBRE'] ?? null,
-            'fecha_nacimiento' => null, // La API no devuelve fecha de nacimiento
-            'genero' => null, // La API no devuelve género
-        ]);
     }
 
     /**

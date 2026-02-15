@@ -41,11 +41,16 @@ class Aportacion extends Model
             $aportador = $aportacion->aportador;
 
             if ($aportador) {
+                \Log::info("[BOOT EVENT] ANTES - Aportador {$aportador->id}: Disponible=Q{$aportador->capital_disponible}, Invertido=Q{$aportador->capital_invertido}, Recuperado=Q{$aportador->capital_recuperado}");
+                \Log::info("[BOOT EVENT] Eliminando aportación: Monto=Q{$aportacion->monto_aportado}, Recuperado=Q{$aportacion->monto_recuperado}, Intereses=Q{$aportacion->intereses_ganados}");
+
+                // Calcular capital pendiente a devolver (lo que se invirtió menos lo ya recuperado)
+                $capitalPendiente = $aportacion->monto_aportado - $aportacion->monto_recuperado;
+
                 // Revertir capital invertido
                 $aportador->capital_invertido -= $aportacion->monto_aportado;
 
-                // Devolver capital disponible (restar lo que ya se recuperó)
-                $capitalPendiente = $aportacion->monto_aportado - $aportacion->monto_recuperado;
+                // Devolver capital disponible (solo lo que no se recuperó aún)
                 $aportador->capital_disponible += $capitalPendiente;
 
                 // Revertir capital recuperado
@@ -58,10 +63,14 @@ class Aportacion extends Model
                 $aportador->capital_invertido = max(0, $aportador->capital_invertido);
                 $aportador->capital_recuperado = max(0, $aportador->capital_recuperado);
                 $aportador->ganancias_totales = max(0, $aportador->ganancias_totales);
+                $aportador->capital_disponible = max(0, $aportador->capital_disponible);
 
                 $aportador->save();
 
-                \Log::info("Aportación eliminada - Aportador {$aportador->id} actualizado automáticamente");
+                // Forzar recarga para confirmar cambios
+                $aportador->refresh();
+
+                \Log::info("[BOOT EVENT] DESPUÉS - Aportador {$aportador->id}: Disponible=Q{$aportador->capital_disponible}, Invertido=Q{$aportador->capital_invertido}, Recuperado=Q{$aportador->capital_recuperado}, Capital devuelto=Q{$capitalPendiente}");
             }
         });
     }

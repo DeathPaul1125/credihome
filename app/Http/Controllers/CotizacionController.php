@@ -23,7 +23,7 @@ class CotizacionController extends Controller
             $query->where(function($q) use ($search) {
                 $q->where('numero_cotizacion', 'like', "%{$search}%")
                   ->orWhereHas('cliente', function($q) use ($search) {
-                      $q->where('nombre', 'like', "%{$search}%");
+                      $q->where('nombre_completo', 'like', "%{$search}%");
                   });
             });
         }
@@ -128,10 +128,6 @@ class CotizacionController extends Controller
 
     public function edit(Cotizacion $cotizacion)
     {
-        if (in_array($cotizacion->estado, ['aprobada', 'convertida', 'rechazada'])) {
-            return back()->with('error', 'No se puede editar una cotización con estado ' . $cotizacion->estado);
-        }
-
         $cotizacion->load('items');
         $clientes = Cliente::where('estado', 'activo')->orderBy('nombre_completo')->get();
         $recetas = Receta::where('estado', 'activo')->orderBy('nombre')->get();
@@ -142,16 +138,13 @@ class CotizacionController extends Controller
 
     public function update(Request $request, Cotizacion $cotizacion)
     {
-        if (in_array($cotizacion->estado, ['aprobada', 'convertida', 'rechazada'])) {
-            return back()->with('error', 'No se puede editar una cotización con estado ' . $cotizacion->estado);
-        }
-
         $request->validate([
             'cliente_id' => 'required|exists:clientes,id',
             'receta_id' => 'nullable|exists:recetas,id',
             'fecha_emision' => 'required|date',
             'fecha_vencimiento' => 'required|date|after_or_equal:fecha_emision',
             'descuento' => 'nullable|numeric|min:0',
+            'estado' => 'required|in:pendiente,aprobada,rechazada,vencida,convertida',
             'notas' => 'nullable|string',
             'terminos_condiciones' => 'nullable|string',
             'productos' => 'required|array|min:1',
@@ -178,6 +171,7 @@ class CotizacionController extends Controller
                 'subtotal' => $subtotal,
                 'descuento' => $descuento,
                 'total' => $total,
+                'estado' => $request->estado,
                 'notas' => $request->notas,
                 'terminos_condiciones' => $request->terminos_condiciones,
             ]);
@@ -232,8 +226,8 @@ class CotizacionController extends Controller
 
     public function convertirPrestamo(Cotizacion $cotizacion)
     {
-        if ($cotizacion->estado !== 'aprobada') {
-            return back()->with('error', 'Solo se pueden convertir cotizaciones aprobadas.');
+        if (!in_array($cotizacion->estado, ['pendiente', 'aprobada'])) {
+            return back()->with('error', 'Solo se pueden convertir cotizaciones pendientes o aprobadas.');
         }
 
         if ($cotizacion->prestamo_id) {

@@ -189,9 +189,39 @@ class PrestamoController extends Controller
             $validated['monto_prestado'] = (float) $validated['monto_prestado'];
             $validated['tasa_interes'] = (float) $validated['tasa_interes'];
 
-            \Log::info('Calculando valores del préstamo');
-            // Calcular valores del préstamo
-            $prestamo->calcularValores();
+            // Si viene de una cotización, usar los valores calculados de la cotización
+            // NO recalcular para evitar duplicar intereses
+            if (!empty($validated['cotizacion_id'])) {
+                \Log::info('Préstamo viene de cotización - usando valores de cotización sin recalcular');
+                $cotizacionOrigen = Cotizacion::find($validated['cotizacion_id']);
+
+                if ($cotizacionOrigen) {
+                    // El monto_prestado ya viene correcto (total - enganche)
+                    // Calcular el total y cuota basándose SOLO en el capital, sin sumar intereses adicionales
+                    // porque el "total" de la cotización ya consideró todo
+
+                    // Para préstamos desde cotización:
+                    // - El monto_prestado es lo que se va a financiar (capital)
+                    // - NO recalculamos intereses porque podrían estar incluidos en el precio
+                    // - El monto_total será igual al monto_prestado (sin agregar más intereses)
+                    // - La cuota simplemente divide el monto entre el plazo
+
+                    $prestamo->interes_total = 0; // No agregar más intereses
+                    $prestamo->monto_total = $validated['monto_prestado']; // El total es el monto a financiar
+                    $prestamo->monto_cuota = $validated['monto_prestado'] / $validated['plazo'];
+                    $prestamo->saldo_pendiente = $prestamo->monto_total;
+
+                    \Log::info('Valores del préstamo desde cotización:');
+                    \Log::info('- Monto prestado: ' . $prestamo->monto_prestado);
+                    \Log::info('- Interés total: ' . $prestamo->interes_total);
+                    \Log::info('- Monto total: ' . $prestamo->monto_total);
+                    \Log::info('- Cuota: ' . $prestamo->monto_cuota);
+                }
+            } else {
+                \Log::info('Calculando valores del préstamo normalmente');
+                // Calcular valores del préstamo normalmente (con intereses)
+                $prestamo->calcularValores();
+            }
 
             \Log::info('Calculando fechas de pago');
             // Calcular fecha del primer pago
@@ -394,13 +424,45 @@ class PrestamoController extends Controller
                     \Log::info("Eliminados {$countPagos} pago(s)");
                 }
 
-                // Eliminar aportaciones - el evento boot() del modelo devolverá el dinero automáticamente
+                // Eliminar aportaciones - IMPORTANTE: iterar para que se dispare el evento boot()
                 if ($countAportaciones > 0) {
                     \Log::info("Eliminando {$countAportaciones} aportación(es) y devolviendo dinero a aportadores...");
-                    foreach ($prestamo->aportaciones as $aportacion) {
-                        \Log::info("Eliminando aportación ID {$aportacion->id} - Aportador: {$aportacion->aportador_id}, Monto: {$aportacion->monto_aportado}");
+
+                    // Cargar las aportaciones con sus aportadores
+                    $aportaciones = $prestamo->aportaciones()->with('aportador')->get();
+
+                    // Guardar IDs de aportadores afectados para validación posterior
+                    $aportadoresAfectados = $aportaciones->pluck('aportador_id')->unique();
+
+                    foreach ($aportaciones as $aportacion) {
+                        \Log::info("=== Eliminando aportación ID {$aportacion->id} ===");
+                        \Log::info("Aportador: {$aportacion->aportador_id}, Monto aportado: Q{$aportacion->monto_aportado}, Monto recuperado: Q{$aportacion->monto_recuperado}");
+
+                        // Eliminar individualmente para disparar el evento boot()
+                        $aportacion->delete();
+
+                        \Log::info("Aportación ID {$aportacion->id} eliminada exitosamente");
                     }
-                    $prestamo->aportaciones()->delete();
+
+                    // Validar que los cambios se aplicaron
+                    \Log::info("Validando cambios en aportadores...");
+                    foreach ($aportadoresAfectados as $aportadorId) {
+                        $aportador = \App\Models\Aportador::find($aportadorId);
+                        if ($aportador) {
+                            \Log::info("Aportador {$aportadorId} - Estado final: Disponible=Q{$aportador->capital_disponible}, Invertido=Q{$aportador->capital_invertido}");
+                        }
+                    }
+                }
+
+                // Revertir estado de cotización si existe
+                if ($prestamo->cotizacion_id) {
+                    $cotizacion = \App\Models\Cotizacion::find($prestamo->cotizacion_id);
+                    if ($cotizacion) {
+                        $cotizacion->estado = 'pendiente';
+                        $cotizacion->prestamo_id = null;
+                        $cotizacion->save();
+                        \Log::info("Cotización ID {$cotizacion->id} revertida a estado pendiente");
+                    }
                 }
 
                 // Eliminar el préstamo
@@ -408,9 +470,7 @@ class PrestamoController extends Controller
                 \Log::info("Préstamo {$prestamo->numero_prestamo} eliminado exitosamente");
 
                 \DB::commit();
-
-                // Recalcular estadísticas de aportadores automáticamente
-                $this->recalcularAportadoresAutomatico();
+                \Log::info("Transacción confirmada (commit) exitosamente");
 
                 return redirect()->route('prestamos.index')
                     ->with('success', "Préstamo eliminado exitosamente. Se revirtieron {$countAportaciones} aportación(es) y se eliminaron {$countPagos} pago(s). El dinero ha sido devuelto a los inversionistas.");
@@ -439,19 +499,46 @@ class PrestamoController extends Controller
                 \Log::info("=== ELIMINANDO PRÉSTAMO {$prestamo->numero_prestamo} (Soft Delete) ===");
                 \Log::info("Devolviendo dinero de {$countAportaciones} aportación(es) a inversionistas...");
 
-                foreach ($prestamo->aportaciones as $aportacion) {
-                    \Log::info("Devolviendo Q" . number_format($aportacion->monto_aportado, 2) . " a aportador ID {$aportacion->aportador_id}");
+                // Cargar las aportaciones con sus aportadores
+                $aportaciones = $prestamo->aportaciones()->with('aportador')->get();
+
+                // Guardar IDs de aportadores afectados
+                $aportadoresAfectados = $aportaciones->pluck('aportador_id')->unique();
+
+                foreach ($aportaciones as $aportacion) {
+                    \Log::info("=== Eliminando aportación ID {$aportacion->id} ===");
+                    \Log::info("Aportador: {$aportacion->aportador_id}, Monto aportado: Q" . number_format($aportacion->monto_aportado, 2) . ", Monto recuperado: Q" . number_format($aportacion->monto_recuperado, 2));
+
+                    // Eliminar individualmente para disparar el evento boot()
+                    $aportacion->delete();
+
+                    \Log::info("Aportación ID {$aportacion->id} eliminada exitosamente");
                 }
 
-                // Eliminar aportaciones - esto dispara el evento que devuelve el dinero
-                $prestamo->aportaciones()->delete();
+                // Validar que los cambios se aplicaron
+                \Log::info("Validando cambios en aportadores...");
+                foreach ($aportadoresAfectados as $aportadorId) {
+                    $aportador = \App\Models\Aportador::find($aportadorId);
+                    if ($aportador) {
+                        \Log::info("Aportador {$aportadorId} - Estado final: Disponible=Q{$aportador->capital_disponible}, Invertido=Q{$aportador->capital_invertido}");
+                    }
+                }
+            }
+
+            // Revertir estado de cotización si existe
+            if ($prestamo->cotizacion_id) {
+                $cotizacion = \App\Models\Cotizacion::find($prestamo->cotizacion_id);
+                if ($cotizacion) {
+                    $cotizacion->estado = 'pendiente';
+                    $cotizacion->prestamo_id = null;
+                    $cotizacion->save();
+                    \Log::info("Cotización ID {$cotizacion->id} revertida a estado pendiente");
+                }
             }
 
             // Eliminar el préstamo (soft delete)
             $prestamo->delete();
-
-            // Recalcular estadísticas de aportadores
-            $this->recalcularAportadoresAutomatico();
+            \Log::info("Transacción confirmada (commit) exitosamente");
 
             \DB::commit();
 

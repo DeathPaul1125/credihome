@@ -65,7 +65,7 @@
                             <td class="px-6 py-4 font-medium text-gray-900 dark:text-white">
                                 {{ $cotizacion->numero_cotizacion }}
                             </td>
-                            <td class="px-6 py-4">{{ $cotizacion->cliente->nombre }}</td>
+                            <td class="px-6 py-4">{{ $cotizacion->cliente->nombre_completo }}</td>
                             <td class="px-6 py-4">{{ $cotizacion->fecha_emision->format('d/m/Y') }}</td>
                             <td class="px-6 py-4">{{ $cotizacion->fecha_vencimiento->format('d/m/Y') }}</td>
                             <td class="px-6 py-4 font-medium">{{ money_symbol($cotizacion->total) }}</td>
@@ -90,14 +90,12 @@
                                         Ver
                                     </a>
                                     @can('editar-cotizaciones')
-                                    @if(!in_array($cotizacion->estado, ['aprobada', 'convertida', 'rechazada']))
                                     <a href="{{ route('cotizaciones.edit', $cotizacion) }}" class="inline-flex items-center text-yellow-600 hover:underline dark:text-yellow-500">
                                         <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
                                             <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"/>
                                         </svg>
                                         Editar
                                     </a>
-                                    @endif
                                     @endcan
                                     @can('aprobar-cotizaciones')
                                     @if($cotizacion->estado === 'pendiente')
@@ -112,8 +110,8 @@
                                     </form>
                                     @endif
                                     @endcan
-                                    @can('convertir-cotizaciones')
-                                    @if($cotizacion->estado === 'aprobada' && !$cotizacion->prestamo_id)
+
+                                    @if(in_array($cotizacion->estado, ['pendiente', 'aprobada']) && !$cotizacion->prestamo_id)
                                     <form action="{{ route('cotizaciones.convertir', $cotizacion) }}" method="POST" class="inline">
                                         @csrf
                                         <button type="submit" class="inline-flex items-center text-purple-600 hover:underline dark:text-purple-500">
@@ -124,7 +122,6 @@
                                         </button>
                                     </form>
                                     @endif
-                                    @endcan
                                 </div>
                             </td>
                         </tr>

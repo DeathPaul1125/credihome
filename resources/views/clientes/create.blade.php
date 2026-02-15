@@ -28,8 +28,8 @@
                             <label class="mb-2 block text-sm font-medium text-gray-900 dark:text-white">DPI * (13 dígitos)</label>
                             <div class="flex gap-2">
                                 <input type="text" id="dpi" name="dpi" value="{{ old('dpi') }}" maxlength="13" required placeholder="2547854120101" class="flex-1 rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-gray-900 focus:border-brand-500 focus:ring-brand-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white @error('dpi') border-red-500 @enderror">
-                                <button type="button" id="search-pdi" class="px-4 py-2.5 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors">
-                                    Buscar PDI
+                                <button type="button" id="search-pdi" class="px-4 py-2.5 bg-green-600 text-white rounded-lg hover:bg-green-700 focus:ring-4 focus:ring-green-300 transition-colors font-medium">
+                                    🔍 Buscar PDI
                                 </button>
                             </div>
                             @error('dpi')<p class="mt-1 text-sm text-red-500">{{ $message }}</p>@enderror

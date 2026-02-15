@@ -278,6 +278,12 @@ class Prestamo extends Model
     public function generarTablaAmortizacion()
     {
         $tabla = [];
+
+        // Si viene de cotización y no tiene interés total, usar cálculo de cotización
+        if ($this->cotizacion_id && $this->interes_total == 0) {
+            return $this->generarTablaDesdeCoitizacion();
+        }
+
         $saldo = $this->monto_prestado;
         $tasaPeriodo = $this->tasa_interes / 100;
 
@@ -345,6 +351,186 @@ class Prestamo extends Model
             ];
 
             // Avanzar fecha según frecuencia
+            switch ($this->frecuencia_pago) {
+                case 'semanal':
+                    $fechaCuota->addWeek();
+                    break;
+                case 'quincenal':
+                    $fechaCuota->addWeeks(2);
+                    break;
+                case 'mensual':
+                default:
+                    $fechaCuota->addMonth();
+                    break;
+            }
+        }
+
+        return $tabla;
+    }
+
+    /**
+     * Generar tabla de amortización basada en cotización
+     * Usa el mismo cálculo que las cotizaciones (sistema francés)
+     */
+    private function generarTablaDesdeCoitizacion()
+    {
+        $tabla = [];
+
+        // Cargar cotización para obtener tasa de interés original
+        $cotizacion = $this->cotizacion;
+        if (!$cotizacion || !$cotizacion->tasa_interes_anual) {
+            // Si no hay cotización o no tiene tasa, usar distribución simple
+            return $this->generarTablaSimple();
+        }
+
+        // Usar el mismo cálculo que la cotización (sistema francés)
+        $tasaMensual = $cotizacion->tasa_interes_anual / 12 / 100;
+        $monto = $this->monto_prestado;
+
+        // Calcular cuota mensual usando fórmula francesa
+        $cuotaMensual = $monto * ($tasaMensual * pow(1 + $tasaMensual, $this->plazo)) / (pow(1 + $tasaMensual, $this->plazo) - 1);
+
+        $saldoRestante = $monto;
+
+        // Obtener pagos realizados
+        $pagosRealizados = $this->pagos()
+            ->orderBy('fecha_pago')
+            ->get()
+            ->keyBy(function ($pago) {
+                return $pago->numero_cuota ?? 0;
+            });
+
+        // Calcular fecha de primera cuota
+        $fechaCuota = Carbon::parse($this->fecha_desembolso);
+        switch ($this->frecuencia_pago) {
+            case 'semanal':
+                $fechaCuota->addWeek();
+                break;
+            case 'quincenal':
+                $fechaCuota->addWeeks(2);
+                break;
+            case 'mensual':
+            default:
+                $fechaCuota->addMonth();
+                break;
+        }
+
+        for ($i = 1; $i <= $this->plazo; $i++) {
+            $interesMes = $saldoRestante * $tasaMensual;
+            $capitalMes = $cuotaMensual - $interesMes;
+            $saldoAnterior = $saldoRestante;
+            $saldoRestante -= $capitalMes;
+
+            // Ajustar última cuota por redondeo
+            if ($i == $this->plazo && $saldoRestante != 0) {
+                $capitalMes += $saldoRestante;
+                $saldoRestante = 0;
+            }
+
+            // Verificar estado del pago
+            $pagoRealizado = $pagosRealizados->get($i);
+            $estado = 'pendiente';
+            $fechaPago = null;
+
+            if ($pagoRealizado) {
+                $estado = 'pagada';
+                $fechaPago = $pagoRealizado->fecha_pago;
+            } elseif ($fechaCuota->isPast()) {
+                $estado = 'vencida';
+            }
+
+            $tabla[] = [
+                'numero_cuota' => $i,
+                'fecha_vencimiento' => $fechaCuota->copy(),
+                'fecha_pago' => $fechaPago,
+                'cuota' => round($cuotaMensual, 2),
+                'capital' => round($capitalMes, 2),
+                'interes' => round($interesMes, 2),
+                'saldo_anterior' => round($saldoAnterior, 2),
+                'saldo' => round($saldoRestante, 2),
+                'estado' => $estado,
+                'pago_id' => $pagoRealizado ? $pagoRealizado->id : null,
+                'numero_recibo' => $pagoRealizado ? $pagoRealizado->numero_recibo : null,
+            ];
+
+            // Avanzar fecha
+            switch ($this->frecuencia_pago) {
+                case 'semanal':
+                    $fechaCuota->addWeek();
+                    break;
+                case 'quincenal':
+                    $fechaCuota->addWeeks(2);
+                    break;
+                case 'mensual':
+                default:
+                    $fechaCuota->addMonth();
+                    break;
+            }
+        }
+
+        return $tabla;
+    }
+
+    /**
+     * Generar tabla simple sin intereses (fallback)
+     */
+    private function generarTablaSimple()
+    {
+        $tabla = [];
+        $cuotaFija = $this->monto_prestado / $this->plazo;
+        $saldo = $this->monto_prestado;
+
+        // Obtener pagos realizados
+        $pagosRealizados = $this->pagos()
+            ->orderBy('fecha_pago')
+            ->get()
+            ->keyBy(function ($pago) {
+                return $pago->numero_cuota ?? 0;
+            });
+
+        $fechaCuota = Carbon::parse($this->fecha_desembolso);
+        switch ($this->frecuencia_pago) {
+            case 'semanal':
+                $fechaCuota->addWeek();
+                break;
+            case 'quincenal':
+                $fechaCuota->addWeeks(2);
+                break;
+            case 'mensual':
+            default:
+                $fechaCuota->addMonth();
+                break;
+        }
+
+        for ($i = 1; $i <= $this->plazo; $i++) {
+            $saldoAnterior = $saldo;
+            $saldo -= $cuotaFija;
+
+            $pagoRealizado = $pagosRealizados->get($i);
+            $estado = 'pendiente';
+            $fechaPago = null;
+
+            if ($pagoRealizado) {
+                $estado = 'pagada';
+                $fechaPago = $pagoRealizado->fecha_pago;
+            } elseif ($fechaCuota->isPast()) {
+                $estado = 'vencida';
+            }
+
+            $tabla[] = [
+                'numero_cuota' => $i,
+                'fecha_vencimiento' => $fechaCuota->copy(),
+                'fecha_pago' => $fechaPago,
+                'cuota' => round($cuotaFija, 2),
+                'capital' => round($cuotaFija, 2),
+                'interes' => 0,
+                'saldo_anterior' => round($saldoAnterior, 2),
+                'saldo' => round(max(0, $saldo), 2),
+                'estado' => $estado,
+                'pago_id' => $pagoRealizado ? $pagoRealizado->id : null,
+                'numero_recibo' => $pagoRealizado ? $pagoRealizado->numero_recibo : null,
+            ];
+
             switch ($this->frecuencia_pago) {
                 case 'semanal':
                     $fechaCuota->addWeek();
