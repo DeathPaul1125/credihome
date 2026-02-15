@@ -101,6 +101,26 @@ Route::middleware([
     // Ruta de Reportes
     Route::get('/reportes', [\App\Http\Controllers\ReporteController::class, 'index'])->name('reportes.index');
 
+    // Rutas de Contratistas
+    Route::middleware('can:ver-contratistas')->prefix('contratistas')->name('contratistas.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\ContratistaController::class, 'index'])->name('index');
+        Route::get('/create', [\App\Http\Controllers\ContratistaController::class, 'create'])->name('create')->middleware('can:crear-contratistas');
+        Route::post('/', [\App\Http\Controllers\ContratistaController::class, 'store'])->name('store')->middleware('can:crear-contratistas');
+        Route::get('/{contratista}', [\App\Http\Controllers\ContratistaController::class, 'show'])->name('show');
+        Route::get('/{contratista}/edit', [\App\Http\Controllers\ContratistaController::class, 'edit'])->name('edit')->middleware('can:editar-contratistas');
+        Route::put('/{contratista}', [\App\Http\Controllers\ContratistaController::class, 'update'])->name('update')->middleware('can:editar-contratistas');
+        Route::delete('/{contratista}', [\App\Http\Controllers\ContratistaController::class, 'destroy'])->name('destroy')->middleware('can:eliminar-contratistas');
+        
+        // Proyectos
+        Route::post('/{contratista}/proyectos', [\App\Http\Controllers\ContratistaController::class, 'agregarProyecto'])->name('agregar-proyecto')->middleware('can:crear-contratistas');
+        Route::delete('/{contratista}/proyectos/{proyecto}', [\App\Http\Controllers\ContratistaController::class, 'eliminarProyecto'])->name('eliminar-proyecto')->middleware('can:eliminar-contratistas');
+        
+        // Archivos
+        Route::post('/{contratista}/archivos', [\App\Http\Controllers\ContratistaController::class, 'subirArchivo'])->name('subir-archivo')->middleware('can:crear-contratistas');
+        Route::get('/{contratista}/archivos/{archivo}/descargar', [\App\Http\Controllers\ContratistaController::class, 'descargarArchivo'])->name('descargar-archivo');
+        Route::delete('/{contratista}/archivos/{archivo}', [\App\Http\Controllers\ContratistaController::class, 'eliminarArchivo'])->name('eliminar-archivo')->middleware('can:eliminar-contratistas');
+    });
+
     // Rutas de Chat
     Route::get('/chat', [\App\Http\Controllers\ChatController::class, 'index'])->name('chat.index');
     Route::get('/chat/{conversation}', [\App\Http\Controllers\ChatController::class, 'show'])->name('chat.show');
