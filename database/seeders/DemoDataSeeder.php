@@ -120,7 +120,7 @@ class DemoDataSeeder extends Seeder
             
             $clientes[] = Cliente::create([
                 'nombre_completo' => $faker->name,
-                'dpi' => $faker->numerify('#### ##### ###'),
+                'dpi' => $faker->numerify('#############'),
                 'fecha_nacimiento' => $faker->dateTimeBetween('-60 years', '-22 years'),
                 'genero' => $faker->randomElement(['masculino', 'femenino']),
                 'estado_civil' => $faker->randomElement(['soltero', 'casado', 'union_libre', 'divorciado', 'viudo']),
@@ -156,7 +156,9 @@ class DemoDataSeeder extends Seeder
         
         $productos = [];
         $categorias = ['Cemento', 'Varilla', 'Block', 'Arena', 'Piedrin', 'Madera', 'Puertas', 'Ventanas', 'Pintura', 'Electricidad', 'Plomería'];
-        $unidades = ['unidad', 'saco', 'metro', 'metro cuadrado', 'galon', 'libra', 'quintal'];
+        $unidades = ['unidad', 'saco', 'metro', 'metro cuadrado', 'galon', 'libra', 'quintal', 'm3', 'm2'];
+        $marcas = ['Progreso', 'Cementos Tolteca', 'Gypsum', 'Lafarge', 'CEMEX', 'Holcim', 'Ferreterías El Constructor', 'Aceros de Guatemala', 'Materiales Pérez'];
+        $demoUser = User::where('email', 'demo@demo.com')->first();
         
         $nombresProductos = [
             'Cemento Portland 50kg', 'Varilla 3/8"', 'Varilla 1/2"', 'Block 15x20x40',
@@ -175,9 +177,11 @@ class DemoDataSeeder extends Seeder
             'Interruptor simple', 'Interruptor doble'
         ];
         
-        foreach ($nombresProductos as $index => $nombre) {
+        for ($index = 0; $index < min(count($nombresProductos), $cantidad); $index++) {
+            $nombre = $nombresProductos[$index];
             $categoria = $categorias[array_rand($categorias)];
             $unidad = $unidades[array_rand($unidades)];
+            $marca = $marcas[array_rand($marcas)];
             
             $productos[] = Producto::create([
                 'codigo' => 'PROD-' . str_pad($index + 1, 4, '0', STR_PAD_LEFT),
@@ -185,11 +189,12 @@ class DemoDataSeeder extends Seeder
                 'categoria' => $categoria,
                 'descripcion' => 'Producto de alta calidad para construcción',
                 'unidad_medida' => $unidad,
-                'precio_venta' => rand(10, 500) + (rand(0, 99) / 100),
-                'precio_costo' => rand(5, 400) + (rand(0, 99) / 100),
+                'precio_unitario' => rand(10, 500) + (rand(0, 99) / 100),
                 'stock_actual' => rand(10, 500),
                 'stock_minimo' => rand(5, 20),
+                'marca' => $marca,
                 'estado' => 'activo',
+                'user_id' => $demoUser->id,
             ]);
         }
         
@@ -202,6 +207,10 @@ class DemoDataSeeder extends Seeder
         
         $recetas = [];
         $faker = \Faker\Factory::create('es_ES');
+        $demoUser = User::where('email', 'demo@demo.com')->first();
+        
+        // Asegurar que $productos sea una colección
+        $productosCollection = collect($productos);
         
         $tiposReceta = [
             'Casa de 1 nivel 6x8 mts',
@@ -225,19 +234,26 @@ class DemoDataSeeder extends Seeder
             $receta = Receta::create([
                 'nombre' => $nombre,
                 'descripcion' => 'Material necesario para ' . strtolower($nombre),
-                'categoria' => $faker->randomElement(['Construcción', 'Acabados', 'Instalaciones', 'Estructura']),
+                'tipo_vivienda' => $faker->randomElement(['casa_basica', 'casa_mediana', 'casa_grande', 'ampliacion']),
                 'estado' => 'activo',
+                'user_id' => $demoUser->id,
             ]);
             
             // Agregar items a la receta (5-15 productos)
             $cantidadItems = rand(5, 15);
-            $productosSeleccionados = $productos->random($cantidadItems);
+            $productosSeleccionados = $productosCollection->random($cantidadItems);
             
             foreach ($productosSeleccionados as $producto) {
+                $cantidad = rand(1, 20) + (rand(0, 50) / 100);
+                $precioUnitario = $producto->precio_unitario;
+                $subtotal = $cantidad * $precioUnitario;
+                
                 RecetaItem::create([
                     'receta_id' => $receta->id,
                     'producto_id' => $producto->id,
-                    'cantidad' => rand(1, 20) + (rand(0, 50) / 100),
+                    'cantidad' => $cantidad,
+                    'precio_unitario' => $precioUnitario,
+                    'subtotal' => $subtotal,
                 ]);
             }
             
@@ -254,6 +270,9 @@ class DemoDataSeeder extends Seeder
         $cotizaciones = [];
         $faker = \Faker\Factory::create('es_ES');
         
+        // Asegurar que sean colecciones
+        $productosCollection = collect($productos);
+        
         for ($i = 0; $i < $cantidad; $i++) {
             $cliente = $clientes[array_rand($clientes)];
             $tipoVenta = $faker->randomElement(['contado', 'credito', 'credito']);
@@ -261,14 +280,16 @@ class DemoDataSeeder extends Seeder
             
             $subtotal = 0;
             
+            $fechaEmision = Carbon::now()->subDays(rand(1, 90));
+            $fechaVencimiento = $fechaEmision->copy()->endOfMonth();
+            
             $cotizacion = Cotizacion::create([
                 'cliente_id' => $cliente->id,
                 'user_id' => 1,
                 'numero_cotizacion' => 'COT-2026-' . str_pad($i + 1, 5, '0', STR_PAD_LEFT),
-                'fecha' => Carbon::now()->subDays(rand(1, 90)),
-                'vigencia_dias' => 15,
+                'fecha_emision' => $fechaEmision,
+                'fecha_vencimiento' => $fechaVencimiento,
                 'descuento' => rand(0, 10),
-                'tipo_venta' => $tipoVenta,
                 'estado' => $faker->randomElement(['pendiente', 'aprobada', 'rechazada', 'convertida']),
             ]);
             
@@ -278,7 +299,7 @@ class DemoDataSeeder extends Seeder
                 $cotizacion->update(['receta_id' => $receta->id]);
                 
                 foreach ($receta->items as $recetaItem) {
-                    $precioUnitario = $recetaItem->producto->precio_venta;
+                    $precioUnitario = $recetaItem->producto->precio_unitario;
                     $cantidad = $recetaItem->cantidad;
                     $total = $precioUnitario * $cantidad;
                     $subtotal += $total;
@@ -286,6 +307,8 @@ class DemoDataSeeder extends Seeder
                     CotizacionItem::create([
                         'cotizacion_id' => $cotizacion->id,
                         'producto_id' => $recetaItem->producto_id,
+                        'descripcion' => $recetaItem->producto->nombre,
+                        'unidad' => $recetaItem->producto->unidad_medida,
                         'cantidad' => $cantidad,
                         'precio_unitario' => $precioUnitario,
                         'subtotal' => $total,
@@ -294,17 +317,19 @@ class DemoDataSeeder extends Seeder
             } else {
                 // Items individuales
                 $cantidadItems = rand(3, 10);
-                $productosSeleccionados = $productos->random($cantidadItems);
+                $productosSeleccionados = $productosCollection->random($cantidadItems);
                 
                 foreach ($productosSeleccionados as $producto) {
                     $cantidad = rand(1, 20);
-                    $precioUnitario = $producto->precio_venta;
+                    $precioUnitario = $producto->precio_unitario;
                     $total = $precioUnitario * $cantidad;
                     $subtotal += $total;
                     
                     CotizacionItem::create([
                         'cotizacion_id' => $cotizacion->id,
                         'producto_id' => $producto->id,
+                        'descripcion' => $producto->nombre,
+                        'unidad' => $producto->unidad_medida,
                         'cantidad' => $cantidad,
                         'precio_unitario' => $precioUnitario,
                         'subtotal' => $total,
@@ -316,24 +341,10 @@ class DemoDataSeeder extends Seeder
             $descuentoMonto = ($subtotal * $cotizacion->descuento) / 100;
             $total = $subtotal - $descuentoMonto;
             
-            // Si es a crédito, agregar datos de financiamiento
-            if ($tipoVenta === 'credito') {
-                $enganche = $total * (rand(10, 30) / 100);
-                $montoFinanciar = $total - $enganche;
-                
-                $cotizacion->update([
-                    'subtotal' => $subtotal,
-                    'total' => $total,
-                    'enganche' => $enganche,
-                    'plazo_meses' => rand(6, 24),
-                    'tasa_interes_anual' => rand(18, 30),
-                ]);
-            } else {
-                $cotizacion->update([
-                    'subtotal' => $subtotal,
-                    'total' => $total,
-                ]);
-            }
+            $cotizacion->update([
+                'subtotal' => $subtotal,
+                'total' => $total,
+            ]);
             
             $cotizaciones[] = $cotizacion;
         }
@@ -347,25 +358,24 @@ class DemoDataSeeder extends Seeder
         
         $aportadores = [];
         $faker = \Faker\Factory::create('es_ES');
+        $demoUser = User::where('email', 'demo@demo.com')->first();
         
         for ($i = 0; $i < $cantidad; $i++) {
-            $capitalTotal = rand(50000, 500000);
-            $capitalInvertido = rand(0, $capitalTotal * 0.7);
-            $capitalDisponible = $capitalTotal - $capitalInvertido;
+            $capitalDisponible = rand(50000, 500000);
+            $capitalInvertido = rand(0, $capitalDisponible * 0.3);
             
             $aportadores[] = Aportador::create([
                 'nombre' => $faker->name,
-                'dpi' => $faker->numerify('#### ##### ####'),
+                'dpi' => $faker->numerify('#############'),
                 'nit' => $faker->numerify('########-#'),
                 'telefono' => $faker->numerify('####-####'),
                 'email' => $faker->unique()->safeEmail,
                 'direccion' => $faker->address,
-                'capital_total' => $capitalTotal,
                 'capital_disponible' => $capitalDisponible,
                 'capital_invertido' => $capitalInvertido,
-                'ganancia_acumulada' => rand(0, 50000),
-                'fecha_ingreso' => $faker->dateTimeBetween('-3 years', '-1 month'),
-                'estado' => 'activo',
+                'ganancias_totales' => rand(0, 50000),
+                'estado' => 'Activo',
+                'usuario_id' => $demoUser->id,
             ]);
         }
         
@@ -383,7 +393,8 @@ class DemoDataSeeder extends Seeder
         $cotizacionesConvertibles = $cotizaciones->where('estado', 'aprobada')->take(10);
         
         foreach ($cotizacionesConvertibles as $cotizacion) {
-            $montoPrestado = $cotizacion->total - ($cotizacion->enganche ?? 0);
+            // Monto prestado será entre 50-90% del total de la cotización
+            $montoPrestado = $cotizacion->total * (rand(50, 90) / 100);
             
             $prestamo = $this->crearPrestamo(
                 $cotizacion->cliente,
@@ -468,7 +479,6 @@ class DemoDataSeeder extends Seeder
         // Crear préstamo
         $prestamo = Prestamo::create([
             'cliente_id' => $cliente->id,
-            'cotizacion_id' => $cotizacion ? $cotizacion->id : null,
             'user_id' => 1,
             'numero_prestamo' => $numeroPrestamo,
             'monto_prestado' => $montoPrestado,
@@ -485,7 +495,7 @@ class DemoDataSeeder extends Seeder
             'saldo_pendiente' => $montoTotal,
             'tipo_garantia' => $faker->randomElement(['ninguna', 'prenda', 'hipoteca', 'fiador']),
             'descripcion_garantia' => $faker->sentence(),
-            'estado' => $faker->randomElement(['activo', 'activo', 'activo', 'completado', 'en_mora']),
+            'estado' => $faker->randomElement(['activo', 'activo', 'activo', 'pagado', 'en_mora']),
         ]);
         
         // Asignar aportadores para fondear el préstamo
@@ -500,17 +510,19 @@ class DemoDataSeeder extends Seeder
             
             if ($montoAportar > 0) {
                 // Calcular ganancia proporcional
-                $porcentajeAportacion = ($montoAportar / $montoPrestado) * 100;
-                $gananciaEstimada = ($interesTotal * $porcentajeAportacion) / 100;
+                $porcentajeParticipacion = ($montoAportar / $montoPrestado) * 100;
+                $interesesEstimados = ($interesTotal * $porcentajeParticipacion) / 100;
                 
                 Aportacion::create([
                     'prestamo_id' => $prestamo->id,
                     'aportador_id' => $aportador->id,
                     'monto_aportado' => $montoAportar,
-                    'porcentaje_aportacion' => $porcentajeAportacion,
-                    'ganancia_estimada' => $gananciaEstimada,
+                    'porcentaje_participacion' => $porcentajeParticipacion,
+                    'intereses_ganados' => 0,
                     'monto_recuperado' => 0,
-                    'estado' => 'activo',
+                    'saldo_pendiente' => $montoAportar,
+                    'fecha_aportacion' => $fechaDesembolso,
+                    'estado' => 'Activo',
                 ]);
                 
                 // Actualizar capital del aportaddr
@@ -533,7 +545,7 @@ class DemoDataSeeder extends Seeder
         $faker = \Faker\Factory::create('es_ES');
         
         foreach ($prestamos as $prestamo) {
-            if ($prestamo->estado === 'completado') {
+            if ($prestamo->estado === 'pagado') {
                 // Préstamos completados tienen todos sus pagos
                 $numeroPagos = $prestamo->plazo;
             } elseif ($prestamo->estado === 'activo') {
@@ -543,47 +555,71 @@ class DemoDataSeeder extends Seeder
                 continue; // Préstamos en mora o pendientes sin pagos
             }
             
-            $fechaPago = Carbon::parse($prestamo->fecha_primer_pago);
+            $fechaVencimiento = Carbon::parse($prestamo->fecha_primer_pago);
+            $saldoActual = $prestamo->monto_total;
             
             for ($i = 0; $i < $numeroPagos && $totalPagos < $cantidadMax; $i++) {
+                // Generar número de recibo único
+                $year = date('Y');
+                $numeroRecibo = 'REC-' . $year . '-' . str_pad($totalPagos + 1, 6, '0', STR_PAD_LEFT);
+                
+                // Calcular si el pago es atrasado (20% de probabilidad)
+                $diasAtraso = rand(0, 100) > 80 ? rand(1, 15) : 0;
+                $fechaPago = $fechaVencimiento->copy()->addDays($diasAtraso);
+                
+                // Calcular mora si hay atraso
+                $mora = $diasAtraso > 0 ? rand(50, 500) : 0;
+                
+                // Estado del pago
+                $estadoPago = $diasAtraso > 0 ? 'atrasado' : 'puntual';
+                
+                // Monto a pagar
                 $montoPagado = $prestamo->monto_cuota;
-                $mora = rand(0, 100) > 80 ? rand(50, 500) : 0; // 20% con mora
+                $saldoNuevo = $saldoActual - $montoPagado;
                 
                 Pago::create([
+                    'numero_recibo' => $numeroRecibo,
                     'prestamo_id' => $prestamo->id,
+                    'cliente_id' => $prestamo->cliente_id,
                     'user_id' => 1,
-                    'numero_pago' => $i + 1,
-                    'fecha_pago' => $fechaPago->copy(),
+                    'numero_cuota' => $i + 1,
+                    'monto_cuota_esperado' => $prestamo->monto_cuota,
                     'monto_pagado' => $montoPagado,
                     'mora' => $mora,
-                    'metodo_pago' => $faker->randomElement(['efectivo', 'transferencia', 'cheque', 'deposito']),
-                    'notas' => $mora > 0 ? 'Pago con mora' : null,
+                    'fecha_vencimiento' => $fechaVencimiento->copy(),
+                    'fecha_pago' => $fechaPago,
+                    'dias_atraso' => $diasAtraso,
+                    'estado' => $estadoPago,
+                    'tipo_pago' => $faker->randomElement(['efectivo', 'transferencia', 'cheque', 'deposito']),
+                    'saldo_anterior' => $saldoActual,
+                    'saldo_nuevo' => $saldoNuevo,
+                    'observaciones' => $mora > 0 ? 'Pago con mora' : null,
                 ]);
                 
-                // Actualizar saldo
-                $prestamo->saldo_pendiente -= $montoPagado;
-                $prestamo->save();
+                // Actualizar saldo para el siguiente pago
+                $saldoActual = $saldoNuevo;
                 
                 // Siguiente fecha según frecuencia
                 switch ($prestamo->frecuencia_pago) {
                     case 'semanal':
-                        $fechaPago->addWeek();
+                        $fechaVencimiento->addWeek();
                         break;
                     case 'quincenal':
-                        $fechaPago->addWeeks(2);
+                        $fechaVencimiento->addWeeks(2);
                         break;
                     default:
-                        $fechaPago->addMonth();
+                        $fechaVencimiento->addMonth();
                 }
                 
                 $totalPagos++;
             }
             
-            // Si está completado, ajustar saldo a 0
-            if ($prestamo->estado === 'completado') {
+            // Actualizar préstamo
+            $prestamo->saldo_pendiente = $saldoActual;
+            if ($prestamo->estado === 'pagado') {
                 $prestamo->saldo_pendiente = 0;
-                $prestamo->save();
             }
+            $prestamo->save();
         }
         
         $this->command->info('   Total de pagos creados: ' . $totalPagos);
@@ -614,7 +650,7 @@ class DemoDataSeeder extends Seeder
                 'codigo' => 'CONT-' . date('Y') . '-' . str_pad($i + 1, 4, '0', STR_PAD_LEFT),
                 'nombre_completo' => $faker->name,
                 'nombre_empresa' => rand(0, 10) > 5 ? $faker->company : null,
-                'dpi' => $faker->numerify('#### ##### ####'),
+                'dpi' => $faker->numerify('#############'),
                 'nit' => $faker->numerify('########-#'),
                 'direccion' => $faker->address,
                 'municipio' => $faker->city,

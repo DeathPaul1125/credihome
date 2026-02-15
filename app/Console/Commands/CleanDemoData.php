@@ -47,7 +47,6 @@ class CleanDemoData extends Command
         
         // Mostrar resumen de datos a eliminar
         $this->info('📊 Datos que serán eliminados:');
-        $this->line('   - Usuarios demo: ' . User::where('email', 'LIKE', '%@demo.com')->count());
         $this->line('   - Clientes: ' . Cliente::count());
         $this->line('   - Productos: ' . Producto::count());
         $this->line('   - Recetas: ' . Receta::count());
@@ -58,6 +57,8 @@ class CleanDemoData extends Command
         $this->line('   - Contratistas: ' . Contratista::count());
         $this->line('   - Proyectos: ' . ContratistaProyecto::count());
         $this->line('   - Archivos: ' . ContratistaArchivo::count());
+        $this->info('');
+        $this->comment('💡 Nota: El usuario demo@demo.com NO será eliminado.');
         $this->info('');
 
         // Confirmar acción
@@ -147,12 +148,15 @@ class CleanDemoData extends Command
                 return Cliente::query()->delete();
             });
 
-            // 14. Usuarios demo
-            $this->deleteWithProgress('Usuarios demo', function() {
-                return User::where('email', 'LIKE', '%@demo.com')->delete();
-            });
+            // 14. Usuarios demo - Comentado para evitar problemas con foreign keys
+            // Se mantiene el usuario demo para futuros seeds
+            // $this->deleteWithProgress('Usuarios demo', function() {
+            //     return User::where('email', 'LIKE', '%@demo.com')->delete();
+            // });
 
-            // Reiniciar auto-increment de todas las tablas
+            DB::commit();
+
+            // Reiniciar auto-increment de todas las tablas (fuera de la transacción)
             $this->info('');
             $this->warn('🔄 Reiniciando contadores de ID...');
             
@@ -166,10 +170,9 @@ class CleanDemoData extends Command
                 DB::statement("ALTER TABLE {$table} AUTO_INCREMENT = 1");
             }
 
-            DB::commit();
-
             $this->info('');
             $this->info('✅ Todos los datos de demostración han sido eliminados exitosamente.');
+            $this->info('💡 El usuario demo@demo.com se mantiene para futuros seeds.');
             $this->info('');
             $this->info('💡 Puede volver a cargar datos demo ejecutando:');
             $this->info('   php artisan db:seed --class=DemoDataSeeder');
