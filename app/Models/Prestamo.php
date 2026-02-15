@@ -194,7 +194,7 @@ class Prestamo extends Model
     }
 
     /**
-     * Calcular cuota con sistema francés (amortización)
+     * Calcular cuota con sistema francés (amortización) - Cuota Fija
      */
     public static function calcularCuotaFrances($monto, $tasa, $plazo)
     {
@@ -212,26 +212,113 @@ class Prestamo extends Model
     }
 
     /**
+     * Calcular interés con tasa flat
+     * El interés se calcula sobre el capital original y se divide en cuotas iguales
+     */
+    public static function calcularInteresFlat($monto, $tasa, $plazo)
+    {
+        // Interés total = Capital * Tasa * Plazo
+        return $monto * ($tasa / 100) * $plazo;
+    }
+
+    /**
+     * Calcular tabla de amortización con tasa sobre saldos
+     * Retorna array con detalles de cada cuota
+     */
+    public static function calcularAmortizacionSobreSaldos($monto, $tasa, $plazo)
+    {
+        $saldo = $monto;
+        $tasaPorPeriodo = $tasa / 100;
+        $tabla = [];
+        
+        // Calcular capital fijo por período
+        $capitalPorCuota = $monto / $plazo;
+        
+        for ($i = 1; $i <= $plazo; $i++) {
+            $interes = $saldo * $tasaPorPeriodo;
+            $cuota = $capitalPorCuota + $interes;
+            $saldo -= $capitalPorCuota;
+            
+            $tabla[] = [
+                'numero' => $i,
+                'saldo_inicial' => $saldo + $capitalPorCuota,
+                'capital' => $capitalPorCuota,
+                'interes' => round($interes, 2),
+                'cuota' => round($cuota, 2),
+                'saldo_final' => max(0, round($saldo, 2))
+            ];
+        }
+        
+        return $tabla;
+    }
+
+    /**
      * Calcular valores del préstamo
      */
     public function calcularValores()
     {
-        if ($this->tipo_interes === 'simple') {
-            $this->interes_total = self::calcularInteresSimple(
-                $this->monto_prestado,
-                $this->tasa_interes,
-                $this->plazo
-            );
-            $this->monto_total = $this->monto_prestado + $this->interes_total;
-            $this->monto_cuota = $this->monto_total / $this->plazo;
-        } else {
-            $this->monto_cuota = self::calcularCuotaFrances(
-                $this->monto_prestado,
-                $this->tasa_interes,
-                $this->plazo
-            );
-            $this->monto_total = $this->monto_cuota * $this->plazo;
-            $this->interes_total = $this->monto_total - $this->monto_prestado;
+        switch ($this->tipo_interes) {
+            case 'simple':
+                // Interés simple: interés se calcula sobre el capital original
+                $this->interes_total = self::calcularInteresSimple(
+                    $this->monto_prestado,
+                    $this->tasa_interes,
+                    $this->plazo
+                );
+                $this->monto_total = $this->monto_prestado + $this->interes_total;
+                $this->monto_cuota = $this->monto_total / $this->plazo;
+                break;
+
+            case 'compuesto':
+            case 'cuota_fija':
+                // Sistema Francés: cuota fija con amortización
+                $this->monto_cuota = self::calcularCuotaFrances(
+                    $this->monto_prestado,
+                    $this->tasa_interes,
+                    $this->plazo
+                );
+                $this->monto_total = $this->monto_cuota * $this->plazo;
+                $this->interes_total = $this->monto_total - $this->monto_prestado;
+                break;
+
+            case 'flat':
+                // Tasa Flat: interés se calcula sobre capital original y se divide en cuotas iguales
+                $this->interes_total = self::calcularInteresFlat(
+                    $this->monto_prestado,
+                    $this->tasa_interes,
+                    $this->plazo
+                );
+                $this->monto_total = $this->monto_prestado + $this->interes_total;
+                $this->monto_cuota = $this->monto_total / $this->plazo;
+                break;
+
+            case 'sobre_saldos':
+                // Sobre Saldos: interés se calcula sobre el saldo pendiente (cuota variable)
+                $tabla = self::calcularAmortizacionSobreSaldos(
+                    $this->monto_prestado,
+                    $this->tasa_interes,
+                    $this->plazo
+                );
+                
+                // Calcular totales
+                $this->interes_total = array_sum(array_column($tabla, 'interes'));
+                $this->monto_total = $this->monto_prestado + $this->interes_total;
+                
+                // Para sobre saldos, monto_cuota es la primera cuota (la más alta)
+                // O podemos usar el promedio
+                $this->monto_cuota = array_sum(array_column($tabla, 'cuota')) / $this->plazo;
+                break;
+
+            default:
+                // Por defecto usar cuota fija
+                $this->monto_cuota = self::calcularCuotaFrances(
+                    $this->monto_prestado,
+                    $this->tasa_interes,
+                    $this->plazo
+                );
+                $this->monto_total = $this->monto_cuota * $this->plazo;
+                $this->interes_total = $this->monto_total - $this->monto_prestado;
+                break;
         }
 
         $this->saldo_pendiente = $this->monto_total;

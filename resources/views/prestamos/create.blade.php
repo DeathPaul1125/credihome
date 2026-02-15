@@ -54,9 +54,13 @@
                         <div>
                             <label class="mb-2 block text-sm font-medium text-gray-900 dark:text-white">Tipo de Interés *</label>
                             <select name="tipo_interes" required class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-gray-900 focus:border-brand-500 focus:ring-brand-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white @error('tipo_interes') border-red-500 @enderror">
-                                <option value="simple" {{ old('tipo_interes', 'simple') == 'simple' ? 'selected' : '' }}>Simple</option>
+                                <option value="cuota_fija" {{ old('tipo_interes', 'cuota_fija') == 'cuota_fija' ? 'selected' : '' }}>Cuota Fija (Sistema Francés)</option>
+                                <option value="flat" {{ old('tipo_interes') == 'flat' ? 'selected' : '' }}>Flat (Tasa Fija)</option>
+                                <option value="sobre_saldos" {{ old('tipo_interes') == 'sobre_saldos' ? 'selected' : '' }}>Sobre Saldos (Cuota Decreciente)</option>
+                                <option value="simple" {{ old('tipo_interes') == 'simple' ? 'selected' : '' }}>Simple</option>
                                 <option value="compuesto" {{ old('tipo_interes') == 'compuesto' ? 'selected' : '' }}>Compuesto</option>
                             </select>
+                            <p class="mt-1 text-xs text-gray-500">Cuota Fija: cuota constante | Flat: interés sobre capital original | Sobre Saldos: cuota decreciente</p>
                             @error('tipo_interes')<p class="mt-1 text-sm text-red-500">{{ $message }}</p>@enderror
                         </div>
                     </div>

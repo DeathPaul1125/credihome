@@ -131,11 +131,11 @@
                             <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                                 <tr>
                                     <th scope="col" class="px-6 py-3">Cliente</th>
-                                    <th scope="col" class="px-6 py-3">Monto Préstamo</th>
+                                    <th scope="col" class="px-6 py-3">Monto Total</th>
                                     <th scope="col" class="px-6 py-3">Total Pagado</th>
                                     <th scope="col" class="px-6 py-3">Saldo Pendiente</th>
                                     <th scope="col" class="px-6 py-3">% Pagado</th>
-                                    <th scope="col" class="px-6 py-3">Fecha Préstamo</th>
+                                    <th scope="col" class="px-6 py-3">Fecha Desembolso</th>
                                     <th scope="col" class="px-6 py-3">Estado</th>
                                     <th scope="col" class="px-6 py-3">Acciones</th>
                                 </tr>
@@ -144,20 +144,20 @@
                                 @forelse($prestamos_con_saldo as $prestamo)
                                 <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
                                     <td class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                                        {{ $prestamo->cliente->nombre }}
+                                        {{ $prestamo->cliente->nombre_completo ?? 'N/A' }}
                                     </td>
                                     <td class="px-6 py-4">
-                                        {{ money_symbol($prestamo->monto_prestamo) }}
+                                        {{ money_symbol($prestamo->monto_total) }}
                                     </td>
                                     <td class="px-6 py-4 text-green-600 dark:text-green-400 font-semibold">
-                                        {{ money_symbol($prestamo->monto_prestamo - $prestamo->saldo_pendiente) }}
+                                        {{ money_symbol($prestamo->monto_total - $prestamo->saldo_pendiente) }}
                                     </td>
                                     <td class="px-6 py-4 text-red-600 dark:text-red-400 font-semibold">
                                         {{ money_symbol($prestamo->saldo_pendiente) }}
                                     </td>
                                     <td class="px-6 py-4">
                                         @php
-                                            $porcentaje = $prestamo->monto_prestamo > 0 ? (($prestamo->monto_prestamo - $prestamo->saldo_pendiente) / $prestamo->monto_prestamo) * 100 : 0;
+                                            $porcentaje = $prestamo->monto_total > 0 ? (($prestamo->monto_total - $prestamo->saldo_pendiente) / $prestamo->monto_total) * 100 : 0;
                                         @endphp
                                         <div class="flex items-center">
                                             <div class="w-full bg-gray-200 rounded-full h-2 dark:bg-gray-700 mr-2">
@@ -167,7 +167,7 @@
                                         </div>
                                     </td>
                                     <td class="px-6 py-4">
-                                        {{ \Carbon\Carbon::parse($prestamo->fecha_prestamo)->format('d/m/Y') }}
+                                        {{ \Carbon\Carbon::parse($prestamo->fecha_desembolso)->format('d/m/Y') }}
                                     </td>
                                     <td class="px-6 py-4">
                                         @if($prestamo->estado == 'activo')

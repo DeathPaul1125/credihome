@@ -107,7 +107,19 @@
                     <div class="rounded-lg border border-stroke bg-white p-6 shadow-default dark:border-strokedark dark:bg-boxdark">
                         <h4 class="text-sm font-medium text-body-secondary mb-2">Interés</h4>
                         <p class="text-2xl font-bold text-warning">{{ money_symbol($prestamo->total_interes) }}</p>
-                        <p class="text-xs text-body-secondary">{{ $prestamo->tasa_interes }}% {{ $prestamo->tipo_interes }}</p>
+                        <p class="text-xs text-body-secondary">{{ $prestamo->tasa_interes }}% 
+                            @if($prestamo->tipo_interes === 'cuota_fija')
+                                Cuota Fija
+                            @elseif($prestamo->tipo_interes === 'flat')
+                                Flat
+                            @elseif($prestamo->tipo_interes === 'sobre_saldos')
+                                Sobre Saldos
+                            @elseif($prestamo->tipo_interes === 'simple')
+                                Simple
+                            @else
+                                Compuesto
+                            @endif
+                        </p>
                     </div>
 
                     <div class="rounded-lg border border-stroke bg-white p-6 shadow-default dark:border-strokedark dark:bg-boxdark">

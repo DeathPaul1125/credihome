@@ -69,8 +69,21 @@
                         @enderror
                     </div>
 
-                    <!-- Tipo de Interés (oculto, siempre simple) -->
-                    <input type="hidden" name="tipo_interes" value="simple">
+                    <!-- Tipo de Interés -->
+                    <div>
+                        <label for="tipo_interes" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Tipo de Interés <span class="text-red-500">*</span></label>
+                        <select id="tipo_interes" name="tipo_interes" required class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 @error('tipo_interes') border-red-500 @enderror">
+                            <option value="cuota_fija" {{ old('tipo_interes', 'cuota_fija') == 'cuota_fija' ? 'selected' : '' }}>Cuota Fija (Sistema Francés)</option>
+                            <option value="flat" {{ old('tipo_interes') == 'flat' ? 'selected' : '' }}>Flat (Tasa Fija)</option>
+                            <option value="sobre_saldos" {{ old('tipo_interes') == 'sobre_saldos' ? 'selected' : '' }}>Sobre Saldos (Cuota Decreciente)</option>
+                            <option value="simple" {{ old('tipo_interes') == 'simple' ? 'selected' : '' }}>Simple</option>
+                            <option value="compuesto" {{ old('tipo_interes') == 'compuesto' ? 'selected' : '' }}>Compuesto</option>
+                        </select>
+                        <p class="mt-1 text-xs text-gray-500">Cuota Fija: cuota constante | Flat: interés sobre capital original | Sobre Saldos: cuota decreciente</p>
+                        @error('tipo_interes')
+                        <p class="mt-2 text-sm text-red-600 dark:text-red-500">{{ $message }}</p>
+                        @enderror
+                    </div>
 
                     <!-- Plazo -->
                     <div>
