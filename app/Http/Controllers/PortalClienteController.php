@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Cliente;
 use App\Models\Prestamo;
 use App\Models\ComprobantePago;
+use App\Models\FotoProyecto;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -179,5 +180,114 @@ class PortalClienteController extends Controller
             ->firstOrFail();
 
         return view('portal-cliente.comprobante-detalle', compact('comprobante', 'cliente'));
+    }
+
+    /**
+     * Mostrar fotos del proyecto del cliente
+     */
+    public function misAvances()
+    {
+        $user = Auth::user();
+        $cliente = Cliente::where('portal_user_id', $user->id)->firstOrFail();
+
+        // Obtener préstamos activos del cliente para asociar fotos
+        $prestamos = Prestamo::where('cliente_id', $cliente->id)
+            ->whereIn('estado', ['activo', 'en_mora'])
+            ->get();
+
+        // Obtener todas las fotos del cliente
+        $fotos = FotoProyecto::where('cliente_id', $cliente->id)
+            ->with(['prestamo'])
+            ->orderBy('fecha_avance', 'desc')
+            ->paginate(12);
+
+        return view('portal-cliente.mis-avances', compact('cliente', 'fotos', 'prestamos'));
+    }
+
+    /**
+     * Guardar nueva foto del proyecto
+     */
+    public function guardarAvance(Request $request)
+    {
+        $user = Auth::user();
+        $cliente = Cliente::where('portal_user_id', $user->id)->firstOrFail();
+
+        $validated = $request->validate([
+            'prestamo_id' => 'nullable|exists:prestamos,id',
+            'titulo' => 'required|string|max:255',
+            'descripcion' => 'nullable|string|max:1000',
+            'imagen' => 'required|image|mimes:jpg,jpeg,png|max:10240', // 10MB
+            'fecha_avance' => 'required|date|before_or_equal:today',
+            'porcentaje_avance' => 'nullable|numeric|min:0|max:100',
+        ], [
+            'imagen.required' => 'Debe seleccionar una imagen.',
+            'imagen.image' => 'El archivo debe ser una imagen.',
+            'imagen.mimes' => 'La imagen debe ser JPG, JPEG o PNG.',
+            'imagen.max' => 'La imagen no debe pesar más de 10MB.',
+        ]);
+
+        try {
+            // Verificar que el préstamo pertenece al cliente
+            if ($validated['prestamo_id']) {
+                $prestamoExiste = Prestamo::where('id', $validated['prestamo_id'])
+                    ->where('cliente_id', $cliente->id)
+                    ->exists();
+                
+                if (!$prestamoExiste) {
+                    return back()->with('error', 'El préstamo seleccionado no es válido.')->withInput();
+                }
+            }
+
+            // Guardar la imagen
+            $imagen = $request->file('imagen');
+            $nombreImagen = 'avance_' . $cliente->id . '_' . time() . '.' . $imagen->getClientOriginalExtension();
+            $rutaImagen = $imagen->storeAs('fotos-proyecto', $nombreImagen, 'public');
+
+            // Crear el registro
+            FotoProyecto::create([
+                'cliente_id' => $cliente->id,
+                'prestamo_id' => $validated['prestamo_id'],
+                'titulo' => $validated['titulo'],
+                'descripcion' => $validated['descripcion'],
+                'ruta_imagen' => $rutaImagen,
+                'fecha_avance' => $validated['fecha_avance'],
+                'porcentaje_avance' => $validated['porcentaje_avance'],
+                'estado' => 'pendiente',
+            ]);
+
+            return redirect()->route('portal.mis-avances')
+                ->with('success', 'Foto de avance subida exitosamente.');
+
+        } catch (\Exception $e) {
+            return back()->with('error', 'Error al subir la foto: ' . $e->getMessage())->withInput();
+        }
+    }
+
+    /**
+     * Eliminar foto del proyecto
+     */
+    public function eliminarAvance($id)
+    {
+        $user = Auth::user();
+        $cliente = Cliente::where('portal_user_id', $user->id)->firstOrFail();
+
+        $foto = FotoProyecto::where('id', $id)
+            ->where('cliente_id', $cliente->id)
+            ->firstOrFail();
+
+        try {
+            // Eliminar el archivo
+            if (Storage::disk('public')->exists($foto->ruta_imagen)) {
+                Storage::disk('public')->delete($foto->ruta_imagen);
+            }
+
+            $foto->delete();
+
+            return redirect()->route('portal.mis-avances')
+                ->with('success', 'Foto eliminada exitosamente.');
+
+        } catch (\Exception $e) {
+            return back()->with('error', 'Error al eliminar la foto: ' . $e->getMessage());
+        }
     }
 }

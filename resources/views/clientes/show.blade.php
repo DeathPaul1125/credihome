@@ -214,6 +214,80 @@
                     </div>
                 </div>
 
+                <!-- Fotos del Proyecto -->
+                <div class="rounded-lg border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
+                    <div class="border-b border-stroke px-7 py-4 dark:border-strokedark">
+                        <div class="flex items-center justify-between">
+                            <h3 class="font-semibold text-black dark:text-white">Fotos del Proyecto</h3>
+                            <span class="inline-flex rounded-full bg-primary bg-opacity-10 px-3 py-1 text-xs font-medium text-primary">
+                                {{ $cliente->fotosProyecto->count() }} fotos
+                            </span>
+                        </div>
+                    </div>
+                    <div class="p-7">
+                        @if($cliente->fotosProyecto->count() > 0)
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                @foreach($cliente->fotosProyecto()->orderBy('fecha_avance', 'desc')->get() as $foto)
+                                    <div class="rounded-lg border border-stroke dark:border-strokedark overflow-hidden">
+                                        <img src="{{ asset('storage/' . $foto->ruta_imagen) }}" alt="{{ $foto->titulo }}" class="w-full h-48 object-cover">
+                                        <div class="p-4">
+                                            <div class="flex items-center justify-between mb-2">
+                                                <h4 class="font-semibold text-sm text-black dark:text-white">{{ $foto->titulo }}</h4>
+                                                @if($foto->estado === 'aprobado')
+                                                    <span class="inline-flex rounded-full bg-success bg-opacity-10 px-2 py-0.5 text-xs font-medium text-success">Aprobado</span>
+                                                @elseif($foto->estado === 'rechazado')
+                                                    <span class="inline-flex rounded-full bg-danger bg-opacity-10 px-2 py-0.5 text-xs font-medium text-danger">Rechazado</span>
+                                                @else
+                                                    <span class="inline-flex rounded-full bg-warning bg-opacity-10 px-2 py-0.5 text-xs font-medium text-warning">Pendiente</span>
+                                                @endif
+                                            </div>
+                                            @if($foto->descripcion)
+                                                <p class="text-xs text-body mb-2">{{ Str::limit($foto->descripcion, 80) }}</p>
+                                            @endif
+                                            <div class="text-xs text-body-secondary space-y-0.5">
+                                                <p><strong>Fecha:</strong> {{ \Carbon\Carbon::parse($foto->fecha_avance)->format('d/m/Y') }}</p>
+                                                @if($foto->porcentaje_avance)
+                                                    <p><strong>Avance:</strong> {{ number_format($foto->porcentaje_avance, 0) }}%</p>
+                                                @endif
+                                                @if($foto->prestamo)
+                                                    <p><strong>Venta:</strong> {{ $foto->prestamo->numero_prestamo }}</p>
+                                                @endif
+                                            </div>
+
+                                            @if($foto->estado === 'pendiente')
+                                                <div class="mt-3 flex gap-2">
+                                                    <form action="{{ route('foto-proyecto.aprobar', $foto->id) }}" method="POST" class="inline">
+                                                        @csrf
+                                                        <button type="submit" class="inline-flex items-center rounded bg-success px-3 py-1 text-xs font-medium text-white hover:bg-opacity-90">
+                                                            <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
+                                                            Aprobar
+                                                        </button>
+                                                    </form>
+                                                    <form action="{{ route('foto-proyecto.rechazar', $foto->id) }}" method="POST" class="inline" onsubmit="return confirm('¿Está seguro de rechazar esta foto?')">
+                                                        @csrf
+                                                        <button type="submit" class="inline-flex items-center rounded bg-danger px-3 py-1 text-xs font-medium text-white hover:bg-opacity-90">
+                                                            <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
+                                                            Rechazar
+                                                        </button>
+                                                    </form>
+                                                </div>
+                                            @endif
+
+                                            @if($foto->comentario_admin)
+                                                <div class="mt-2 p-2 bg-gray-100 dark:bg-meta-4 rounded text-xs">
+                                                    <p><strong>Comentario admin:</strong> {{ $foto->comentario_admin }}</p>
+                                                </div>
+                                            @endif
+                                        </div>
+                                    </div>
+                                @endforeach
+                            </div>
+                        @else
+                            <p class="text-center text-body py-8">No tiene fotos de proyecto registradas</p>
+                        @endif
+                    </div>
+                </div>
+
                 <!-- Referencias Personales -->
                 <div class="rounded-lg border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
                     <div class="border-b border-stroke px-7 py-4 dark:border-strokedark">

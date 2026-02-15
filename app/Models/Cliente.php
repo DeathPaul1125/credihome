@@ -96,6 +96,14 @@ class Cliente extends Model
     }
 
     /**
+     * Relación con las fotos de avance del proyecto
+     */
+    public function fotosProyecto(): HasMany
+    {
+        return $this->hasMany(FotoProyecto::class);
+    }
+
+    /**
      * Scope para clientes activos
      */
     public function scopeActivos($query)

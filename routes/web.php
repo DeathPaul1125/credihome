@@ -51,6 +51,10 @@ Route::middleware([
     Route::post('clientes/{cliente}/desactivar-portal', [\App\Http\Controllers\ClienteController::class, 'desactivarPortal'])->name('clientes.desactivar-portal');
     Route::post('clientes/{cliente}/regenerar-password', [\App\Http\Controllers\ClienteController::class, 'regenerarPassword'])->name('clientes.regenerar-password');
 
+    // Rutas de Fotos del Proyecto
+    Route::post('foto-proyecto/{id}/aprobar', [\App\Http\Controllers\ClienteController::class, 'aprobarFotoProyecto'])->name('foto-proyecto.aprobar');
+    Route::post('foto-proyecto/{id}/rechazar', [\App\Http\Controllers\ClienteController::class, 'rechazarFotoProyecto'])->name('foto-proyecto.rechazar');
+
     // Rutas de Aportadores
     Route::get('aportadores/dashboard', [\App\Http\Controllers\AportadorController::class, 'dashboard'])->name('aportadores.dashboard');
     Route::post('aportadores/recalcular', [\App\Http\Controllers\AportadorController::class, 'recalcularTodos'])->name('aportadores.recalcular');
@@ -163,4 +167,9 @@ Route::middleware([
     Route::post('/prestamo/{prestamo_id}/comprobante', [\App\Http\Controllers\PortalClienteController::class, 'guardarComprobante'])->name('guardar-comprobante');
     Route::get('/mis-comprobantes', [\App\Http\Controllers\PortalClienteController::class, 'misComprobantes'])->name('mis-comprobantes');
     Route::get('/comprobante/{id}', [\App\Http\Controllers\PortalClienteController::class, 'verComprobante'])->name('comprobante');
+    
+    // Rutas para fotos de avance del proyecto
+    Route::get('/mis-avances', [\App\Http\Controllers\PortalClienteController::class, 'misAvances'])->name('mis-avances');
+    Route::post('/avance', [\App\Http\Controllers\PortalClienteController::class, 'guardarAvance'])->name('guardar-avance');
+    Route::delete('/avance/{id}', [\App\Http\Controllers\PortalClienteController::class, 'eliminarAvance'])->name('eliminar-avance');
 });

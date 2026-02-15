@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Cliente;
 use App\Models\ClienteArchivo;
+use App\Models\FotoProyecto;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -93,7 +94,7 @@ class ClienteController extends Controller
      */
     public function show(Cliente $cliente)
     {
-        $cliente->load(['prestamos.pagos', 'usuario', 'archivos.usuario']);
+        $cliente->load(['prestamos.pagos', 'usuario', 'archivos.usuario', 'fotosProyecto.prestamo']);
 
         return view('clientes.show-flowbite', compact('cliente'));
     }
@@ -441,5 +442,37 @@ class ClienteController extends Controller
             . "🌐 *Acceder al portal:*\n{$url}\n\n"
             . "⚠️ Te recomendamos cambiar tu contraseña después del primer acceso.\n\n"
             . "Si tienes alguna duda, contáctanos.";
+    }
+
+    /**
+     * Aprobar una foto de proyecto del cliente
+     */
+    public function aprobarFotoProyecto(Request $request, $id)
+    {
+        $foto = FotoProyecto::findOrFail($id);
+        $foto->update([
+            'estado' => 'aprobado',
+            'aprobado_por' => Auth::id(),
+            'fecha_aprobacion' => now(),
+            'comentario_admin' => $request->comentario_admin,
+        ]);
+
+        return back()->with('success', 'Foto aprobada correctamente.');
+    }
+
+    /**
+     * Rechazar una foto de proyecto del cliente
+     */
+    public function rechazarFotoProyecto(Request $request, $id)
+    {
+        $foto = FotoProyecto::findOrFail($id);
+        $foto->update([
+            'estado' => 'rechazado',
+            'aprobado_por' => Auth::id(),
+            'fecha_aprobacion' => now(),
+            'comentario_admin' => $request->comentario_admin,
+        ]);
+
+        return back()->with('success', 'Foto rechazada correctamente.');
     }
 }

@@ -46,6 +46,9 @@
             <li class="me-2" role="presentation">
                 <button class="inline-block p-4 border-b-2 rounded-t-lg text-white bg-gray-600 hover:text-white hover:bg-gray-700 dark:text-white dark:bg-gray-700 dark:hover:bg-gray-600" id="archivos-tab" data-tabs-target="#archivos" type="button" role="tab" aria-controls="archivos" aria-selected="false">Archivos</button>
             </li>
+            <li class="me-2" role="presentation">
+                <button class="inline-block p-4 border-b-2 rounded-t-lg text-white bg-gray-600 hover:text-white hover:bg-gray-700 dark:text-white dark:bg-gray-700 dark:hover:bg-gray-600" id="fotos-tab" data-tabs-target="#fotos" type="button" role="tab" aria-controls="fotos" aria-selected="false">Fotos del Proyecto</button>
+            </li>
         </ul>
     </div>
 
@@ -439,6 +442,87 @@
                         </svg>
                         <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">No hay archivos</h3>
                         <p class="text-gray-500 dark:text-gray-400">Aún no se han subido archivos para este cliente.</p>
+                    </div>
+                </div>
+                @endif
+            </div>
+        </div>
+
+        <!-- Fotos del Proyecto -->
+        <div class="hidden p-4 rounded-lg bg-gray-50 dark:bg-gray-800" id="fotos" role="tabpanel" aria-labelledby="fotos-tab">
+            <div class="space-y-4">
+                @if($cliente->fotosProyecto->count() > 0)
+                <div class="bg-white dark:bg-gray-800 rounded-lg shadow">
+                    <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+                        <div class="flex items-center justify-between">
+                            <h2 class="text-xl font-semibold text-gray-900 dark:text-white">Fotos del Proyecto ({{ $cliente->fotosProyecto->count() }})</h2>
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            @foreach($cliente->fotosProyecto()->orderBy('fecha_avance', 'desc')->get() as $foto)
+                            <div class="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
+                                <img src="{{ asset('storage/' . $foto->ruta_imagen) }}" alt="{{ $foto->titulo }}" class="w-full h-48 object-cover">
+                                <div class="p-4">
+                                    <div class="flex items-center justify-between mb-2">
+                                        <h4 class="font-semibold text-sm text-gray-900 dark:text-white">{{ $foto->titulo }}</h4>
+                                        @if($foto->estado === 'aprobado')
+                                            <span class="inline-flex rounded-full bg-green-100 dark:bg-green-900 px-2 py-0.5 text-xs font-medium text-green-800 dark:text-green-300">Aprobado</span>
+                                        @elseif($foto->estado === 'rechazado')
+                                            <span class="inline-flex rounded-full bg-red-100 dark:bg-red-900 px-2 py-0.5 text-xs font-medium text-red-800 dark:text-red-300">Rechazado</span>
+                                        @else
+                                            <span class="inline-flex rounded-full bg-yellow-100 dark:bg-yellow-900 px-2 py-0.5 text-xs font-medium text-yellow-800 dark:text-yellow-300">Pendiente</span>
+                                        @endif
+                                    </div>
+                                    @if($foto->descripcion)
+                                        <p class="text-xs text-gray-500 dark:text-gray-400 mb-2">{{ Str::limit($foto->descripcion, 80) }}</p>
+                                    @endif
+                                    <div class="text-xs text-gray-500 dark:text-gray-400 space-y-0.5">
+                                        <p><strong>Fecha:</strong> {{ \Carbon\Carbon::parse($foto->fecha_avance)->format('d/m/Y') }}</p>
+                                        @if($foto->porcentaje_avance)
+                                            <p><strong>Avance:</strong> {{ number_format($foto->porcentaje_avance, 0) }}%</p>
+                                        @endif
+                                        @if($foto->prestamo)
+                                            <p><strong>Venta:</strong> {{ $foto->prestamo->numero_prestamo }}</p>
+                                        @endif
+                                    </div>
+
+                                    @if($foto->estado === 'pendiente')
+                                        <div class="mt-3 flex gap-2">
+                                            <form action="{{ route('foto-proyecto.aprobar', $foto->id) }}" method="POST" class="flex-1">
+                                                @csrf
+                                                <button type="submit" class="w-full text-white bg-green-600 hover:bg-green-700 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-xs px-3 py-2 dark:bg-green-500 dark:hover:bg-green-600">
+                                                    Aprobar
+                                                </button>
+                                            </form>
+                                            <form action="{{ route('foto-proyecto.rechazar', $foto->id) }}" method="POST" class="flex-1" onsubmit="return confirm('¿Está seguro de rechazar esta foto?')">
+                                                @csrf
+                                                <button type="submit" class="w-full text-white bg-red-600 hover:bg-red-700 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-xs px-3 py-2 dark:bg-red-500 dark:hover:bg-red-600">
+                                                    Rechazar
+                                                </button>
+                                            </form>
+                                        </div>
+                                    @endif
+
+                                    @if($foto->comentario_admin)
+                                        <div class="mt-2 p-2 bg-blue-50 dark:bg-blue-900 rounded text-xs">
+                                            <p class="text-blue-800 dark:text-blue-200"><strong>Comentario:</strong> {{ $foto->comentario_admin }}</p>
+                                        </div>
+                                    @endif
+                                </div>
+                            </div>
+                            @endforeach
+                        </div>
+                    </div>
+                </div>
+                @else
+                <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+                    <div class="text-center">
+                        <svg class="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                        </svg>
+                        <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">No hay fotos del proyecto</h3>
+                        <p class="text-gray-500 dark:text-gray-400">El cliente aún no ha subido fotos de avance de su proyecto.</p>
                     </div>
                 </div>
                 @endif
