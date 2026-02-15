@@ -451,12 +451,28 @@ class DemoDataSeeder extends Seeder
         $frecuenciaPago = $faker->randomElement(['semanal', 'quincenal', 'mensual']);
         $fechaDesembolso = Carbon::now()->subDays(rand(10, 180));
         
-        // Calcular valores usando el método del modelo
-        $valores = Prestamo::calcularValores($montoPrestado, $tasaInteres, $plazo, $tipoInteres);
-        
-        $interesTotal = $valores['interes_total'];
-        $montoTotal = $valores['monto_total'];
-        $montoCuota = $valores['monto_cuota'];
+        // Calcular valores según el tipo de interés
+        switch ($tipoInteres) {
+            case 'simple':
+            case 'flat':
+                $interesTotal = $tipoInteres === 'simple'
+                    ? Prestamo::calcularInteresSimple($montoPrestado, $tasaInteres, $plazo)
+                    : Prestamo::calcularInteresFlat($montoPrestado, $tasaInteres, $plazo);
+                $montoTotal = $montoPrestado + $interesTotal;
+                $montoCuota = $montoTotal / $plazo;
+                break;
+            case 'sobre_saldos':
+                $tabla = Prestamo::calcularAmortizacionSobreSaldos($montoPrestado, $tasaInteres, $plazo);
+                $interesTotal = array_sum(array_column($tabla, 'interes'));
+                $montoTotal = $montoPrestado + $interesTotal;
+                $montoCuota = array_sum(array_column($tabla, 'cuota')) / $plazo;
+                break;
+            default: // compuesto, cuota_fija
+                $montoCuota = Prestamo::calcularCuotaFrances($montoPrestado, $tasaInteres, $plazo);
+                $montoTotal = $montoCuota * $plazo;
+                $interesTotal = $montoTotal - $montoPrestado;
+                break;
+        }
         
         // Calcular fechas
         switch ($frecuenciaPago) {
