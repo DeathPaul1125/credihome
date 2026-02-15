@@ -41,12 +41,17 @@ class PortalClienteController extends Controller
             ->limit(10)
             ->get();
 
+        // Calcular cuota a pagar (suma de todas las cuotas de préstamos activos/en mora)
+        $cuotaAPagar = $prestamos->whereIn('estado', ['activo', 'en_mora'])->sum('monto_cuota');
+        
+        // Calcular total de la deuda (monto total de todos los préstamos activos/en mora)
+        $totalDeuda = $prestamos->whereIn('estado', ['activo', 'en_mora'])->sum('monto_total');
+
         // Estadísticas
         $stats = [
-            'total_prestamos' => $prestamos->count(),
-            'prestamos_activos' => $prestamos->where('estado', 'activo')->count(),
-            'total_adeudado' => $prestamos->sum('saldo_pendiente'),
-            'comprobantes_pendientes' => $comprobantes->where('estado', 'pendiente')->count(),
+            'cuota_a_pagar' => $cuotaAPagar,
+            'total_adeudado' => $prestamos->whereIn('estado', ['activo', 'en_mora'])->sum('saldo_pendiente'),
+            'total_deuda' => $totalDeuda,
         ];
 
         return view('portal-cliente.dashboard', compact('cliente', 'prestamos', 'comprobantes', 'stats'));
