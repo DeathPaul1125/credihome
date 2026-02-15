@@ -14,8 +14,8 @@ class ReporteController extends Controller
     public function index(Request $request)
     {
         // Filtros de fecha
-        $fechaInicio = $request->input('fecha_inicio', Carbon::now()->startOfMonth()->format('Y-m-d'));
-        $fechaFin = $request->input('fecha_fin', Carbon::now()->format('Y-m-d'));
+        $fechaInicio = $request->input('fecha_desde', Carbon::now()->startOfMonth()->format('Y-m-d'));
+        $fechaFin = $request->input('fecha_hasta', Carbon::now()->format('Y-m-d'));
 
         // Estadísticas Generales
         $totalClientes = Cliente::where('estado', 'activo')->count();
@@ -100,7 +100,7 @@ class ReporteController extends Controller
             'meses' => [],
             'montos' => []
         ];
-        
+
         for ($i = 5; $i >= 0; $i--) {
             $mes = Carbon::now()->subMonths($i);
             $grafica_pagos['meses'][] = $mes->locale('es')->isoFormat('MMM YYYY');
@@ -114,7 +114,7 @@ class ReporteController extends Controller
             'estados' => [],
             'valores' => []
         ];
-        
+
         foreach ($prestamosPorEstado as $estado) {
             $grafica_estados['estados'][] = ucfirst($estado->estado);
             $grafica_estados['valores'][] = $estado->total;
