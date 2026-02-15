@@ -3,7 +3,7 @@
         <!-- Breadcrumb -->
         <div class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <h2 class="text-title-md2 font-bold text-black dark:text-white">
-                Detalle del Préstamo #{{ $prestamo->numero_prestamo }}
+                Detalle de la Venta #{{ $prestamo->numero_prestamo }}
             </h2>
             <nav>
                 <ol class="flex items-center gap-2">
@@ -11,7 +11,7 @@
                         <a class="font-medium" href="{{ route('dashboard') }}">Dashboard /</a>
                     </li>
                     <li>
-                        <a class="font-medium" href="{{ route('prestamos.index') }}">Préstamos /</a>
+                        <a class="font-medium" href="{{ route('prestamos.index') }}">Ventas /</a>
                     </li>
                     <li class="font-medium text-primary">#{{ $prestamo->numero_prestamo }}</li>
                 </ol>
@@ -19,7 +19,7 @@
         </div>
 
         <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
-            <!-- Información del Préstamo -->
+            <!-- Información de la Venta -->
             <div class="lg:col-span-1 space-y-6">
                 <!-- Estado y Datos Principales -->
                 <div class="rounded-lg border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
@@ -53,7 +53,7 @@
                             </div>
 
                             <div>
-                                <label class="mb-1 block text-sm font-medium text-black dark:text-white">Número de Préstamo</label>
+                                <label class="mb-1 block text-sm font-medium text-black dark:text-white">Número de Venta</label>
                                 <p class="text-body font-mono">{{ $prestamo->numero_prestamo }}</p>
                             </div>
 
@@ -133,10 +133,10 @@
                     </div>
                 </div>
 
-                <!-- Detalles del Préstamo -->
+                <!-- Detalles de la Venta -->
                 <div class="rounded-lg border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
                     <div class="border-b border-stroke px-7 py-4 dark:border-strokedark">
-                        <h3 class="font-semibold text-black dark:text-white">Detalles del Préstamo</h3>
+                        <h3 class="font-semibold text-black dark:text-white">Detalles de la Venta</h3>
                     </div>
                     <div class="p-7">
                         <div class="grid grid-cols-2 md:grid-cols-3 gap-6">
@@ -178,7 +178,7 @@
                                 <form action="{{ route('prestamos.aprobar', $prestamo) }}" method="POST">
                                     @csrf
                                     <button type="submit" class="inline-flex items-center justify-center gap-2 rounded-md bg-success px-4 py-2 text-center font-medium text-white hover:bg-opacity-90">
-                                        Aprobar Préstamo
+                                        Aprobar Venta
                                     </button>
                                 </form>
                             @endif

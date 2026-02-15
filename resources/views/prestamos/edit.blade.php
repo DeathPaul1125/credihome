@@ -1,11 +1,11 @@
 <x-tailadmin-layout>
-    @section('page-title', 'Editar Préstamo')
+    @section('page-title', 'Editar Venta')
 
     <div class="mb-6">
         <h2 class="text-title-md2 font-semibold text-gray-900 dark:text-white">
-            Editar Préstamo #{{ $prestamo->numero_prestamo }}
+            Editar Venta #{{ $prestamo->numero_prestamo }}
         </h2>
-        <p class="text-gray-500 dark:text-gray-400">Actualice la información del préstamo</p>
+        <p class="text-gray-500 dark:text-gray-400">Actualice la información de la venta</p>
     </div>
 
     <form action="{{ route('prestamos.update', $prestamo) }}" method="POST">
@@ -26,9 +26,9 @@
                 </div>
             </div>
 
-            <!-- Detalles del Préstamo -->
+            <!-- Detalles de la Venta -->
             <div class="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-800 dark:bg-white/5">
-                <h3 class="mb-6 text-lg font-semibold text-gray-900 dark:text-white">Detalles del Préstamo</h3>
+                <h3 class="mb-6 text-lg font-semibold text-gray-900 dark:text-white">Detalles de la Venta</h3>
 
                 <div class="space-y-4">
                     <div>
@@ -51,7 +51,7 @@
 
                     <div class="rounded-lg bg-yellow-50 p-4 dark:bg-yellow-900/20">
                         <p class="text-sm text-yellow-800 dark:text-yellow-300">
-                            <strong>Nota:</strong> Solo se pueden editar campos limitados después de la creación. El monto, plazo y frecuencia no se pueden modificar después de aprobar el préstamo.
+                            <strong>Nota:</strong> Solo se pueden editar campos limitados después de la creación. El monto, plazo y frecuencia no se pueden modificar después de aprobar la venta.
                         </p>
                     </div>
                 </div>
@@ -60,7 +60,7 @@
 
         <div class="mt-8 flex gap-4">
             <button type="submit" class="inline-flex items-center justify-center gap-2 rounded-lg bg-brand-600 px-6 py-3 text-center text-base font-semibold text-white hover:bg-brand-700 focus:outline-none focus:ring-4 focus:ring-brand-300 dark:bg-brand-600 dark:hover:bg-brand-700 dark:focus:ring-brand-800">
-                Actualizar Préstamo
+                Actualizar Venta
             </button>
             <a href="{{ route('prestamos.show', $prestamo) }}" class="inline-flex items-center justify-center gap-2 rounded-lg border border-gray-300 bg-white px-6 py-3 text-center text-base font-medium text-gray-900 hover:bg-gray-100 focus:outline-none focus:ring-4 focus:ring-gray-200 dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:hover:border-gray-600 dark:hover:bg-gray-700 dark:focus:ring-gray-700">
                 Cancelar

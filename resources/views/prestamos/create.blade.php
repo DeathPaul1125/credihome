@@ -1,11 +1,11 @@
 <x-tailadmin-layout>
-    @section('page-title', 'Nuevo Préstamo')
+    @section('page-title', 'Nueva Venta')
 
     <div class="mb-6">
         <h2 class="text-title-md2 font-semibold text-gray-900 dark:text-white">
-            Registrar Nuevo Préstamo
+            Registrar Nueva Venta
         </h2>
-        <p class="text-gray-500 dark:text-gray-400">Complete la información del préstamo</p>
+        <p class="text-gray-500 dark:text-gray-400">Complete la información de la venta</p>
     </div>
 
     <form action="{{ route('prestamos.store') }}" method="POST">
@@ -32,13 +32,13 @@
                 </div>
             </div>
 
-            <!-- Detalles del Préstamo -->
+            <!-- Detalles de la Venta -->
             <div class="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-800 dark:bg-white/5">
-                <h3 class="mb-6 text-lg font-semibold text-gray-900 dark:text-white">Detalles del Préstamo</h3>
+                <h3 class="mb-6 text-lg font-semibold text-gray-900 dark:text-white">Detalles de la Venta</h3>
 
                 <div class="space-y-4">
                     <div>
-                        <label class="mb-2 block text-sm font-medium text-gray-900 dark:text-white">Monto a Prestar (Q) *</label>
+                        <label class="mb-2 block text-sm font-medium text-gray-900 dark:text-white">Monto de la Venta (Q) *</label>
                         <input type="number" name="monto_prestado" value="{{ old('monto_prestado') }}" step="0.01" min="100" required class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-gray-900 focus:border-brand-500 focus:ring-brand-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white @error('monto_prestado') border-red-500 @enderror">
                         @error('monto_prestado')<p class="mt-1 text-sm text-red-500">{{ $message }}</p>@enderror
                     </div>
@@ -128,7 +128,7 @@
 
         <div class="mt-8 flex gap-4">
             <button type="submit" class="inline-flex items-center justify-center gap-2 rounded-lg bg-brand-600 px-6 py-3 text-center text-base font-semibold text-white hover:bg-brand-700 focus:outline-none focus:ring-4 focus:ring-brand-300 dark:bg-brand-600 dark:hover:bg-brand-700 dark:focus:ring-brand-800">
-                Registrar Préstamo
+                Registrar Venta
             </button>
             <a href="{{ route('prestamos.index') }}" class="inline-flex items-center justify-center gap-2 rounded-lg border border-gray-300 bg-white px-6 py-3 text-center text-base font-medium text-gray-900 hover:bg-gray-100 focus:outline-none focus:ring-4 focus:ring-gray-200 dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:hover:border-gray-600 dark:hover:bg-gray-700 dark:focus:ring-gray-700">
                 Cancelar

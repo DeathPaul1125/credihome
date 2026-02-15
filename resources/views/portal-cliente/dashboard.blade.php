@@ -11,14 +11,14 @@
             <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
                 <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                     <div class="p-6">
-                        <div class="text-sm font-medium text-gray-500 uppercase">Total Préstamos</div>
+                        <div class="text-sm font-medium text-gray-500 uppercase">Total Ventas</div>
                         <div class="mt-2 text-3xl font-bold text-gray-900">{{ $stats['total_prestamos'] }}</div>
                     </div>
                 </div>
 
                 <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                     <div class="p-6">
-                        <div class="text-sm font-medium text-gray-500 uppercase">Préstamos Activos</div>
+                        <div class="text-sm font-medium text-gray-500 uppercase">Ventas Activas</div>
                         <div class="mt-2 text-3xl font-bold text-green-600">{{ $stats['prestamos_activos'] }}</div>
                     </div>
                 </div>
@@ -105,7 +105,7 @@
                             </table>
                         </div>
                     @else
-                        <p class="text-gray-500">No tienes préstamos registrados.</p>
+                        <p class="text-gray-500">No tienes ventas registradas.</p>
                     @endif
                 </div>
             </div>

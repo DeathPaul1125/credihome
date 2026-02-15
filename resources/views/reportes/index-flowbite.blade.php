@@ -36,7 +36,7 @@
                             <h3 class="text-3xl font-bold">{{ money_symbol($metricas['total_prestado']) }}</h3>
                             <p class="text-blue-100 text-xs mt-2">
                                 <i class="fas fa-hand-holding-usd mr-1"></i>
-                                {{ $metricas['cantidad_prestamos'] }} préstamos
+                                {{ $metricas['cantidad_prestamos'] }} ventas
                             </p>
                         </div>
                         <div class="bg-white bg-opacity-20 rounded-full p-4">
@@ -62,11 +62,11 @@
                     </div>
                 </div>
 
-                <!-- Préstamos Activos -->
-                <div class="bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg shadow-lg p-6 text-white">
-                    <div class="flex items-center justify-between">
+                <!-- Ventas Activas -->
+                <div class="bg-gradient-to-br from-purple-600 to-purple-700 rounded-lg p-6 text-white">
+                    <div class="flex items-center justify-between mb-4">
                         <div>
-                            <p class="text-purple-100 text-sm font-medium mb-1">Préstamos Activos</p>
+                            <p class="text-purple-100 text-sm font-medium mb-1">Ventas Activas</p>
                             <h3 class="text-3xl font-bold">{{ $metricas['prestamos_activos'] }}</h3>
                             <p class="text-purple-100 text-xs mt-2">
                                 <i class="fas fa-clock mr-1"></i>
@@ -188,7 +188,7 @@
                                 <tr>
                                     <td colspan="8" class="px-6 py-8 text-center text-gray-500 dark:text-gray-400">
                                         <i class="fas fa-check-circle text-4xl mb-3 text-green-500"></i>
-                                        <p>No hay préstamos con saldos pendientes</p>
+                                        <p>No hay ventas con saldos pendientes</p>
                                     </td>
                                 </tr>
                                 @endforelse
@@ -240,7 +240,7 @@
         const pagosChart = new ApexCharts(document.querySelector("#pagos-chart"), pagosOptions);
         pagosChart.render();
 
-        // Gráfica de Préstamos por Estado
+        // Gráfica de Ventas por Estado
         const prestamosEstadoOptions = {
             chart: {
                 type: 'donut',

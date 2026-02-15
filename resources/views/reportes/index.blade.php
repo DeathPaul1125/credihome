@@ -49,12 +49,12 @@
                 </div>
             </div>
 
-            <!-- Préstamos Activos -->
+            <!-- Ventas Activas -->
             <div class="rounded-lg border border-stroke bg-white p-6 shadow-default dark:border-strokedark dark:bg-boxdark">
                 <div class="flex items-center justify-between">
                     <div>
                         <h4 class="text-title-md font-bold text-success dark:text-white">{{ $totalPrestamosActivos }}</h4>
-                        <span class="text-sm font-medium">Préstamos Activos</span>
+                        <span class="text-sm font-medium">Ventas Activas</span>
                     </div>
                     <div class="flex h-11.5 w-11.5 items-center justify-center rounded-full bg-success bg-opacity-10">
                         <svg class="fill-success" width="22" height="22" viewBox="0 0 22 22" fill="none">
@@ -108,7 +108,7 @@
                             <div class="flex items-center justify-between">
                                 <div>
                                     <span class="font-medium text-black dark:text-white">{{ ucfirst(str_replace('_', ' ', $estado->estado)) }}</span>
-                                    <p class="text-sm text-body-secondary">{{ $estado->total }} préstamos</p>
+                                    <p class="text-sm text-body-secondary">{{ $estado->total }} ventas</p>
                                 </div>
                                 <span class="font-bold text-black dark:text-white">{{ money_symbol($estado->monto) }}</span>
                             </div>
@@ -154,7 +154,7 @@
                                 <span class="font-medium text-black dark:text-white">Cartera Vencida</span>
                                 <span class="text-danger font-bold">{{ money_symbol($carteraVencida) }}</span>
                             </div>
-                            <p class="text-sm text-body-secondary">{{ $prestamosVencidos }} préstamos en mora</p>
+                            <p class="text-sm text-body-secondary">{{ $prestamosVencidos }} ventas en mora</p>
                         </div>
 
                         <div class="rounded-lg bg-yellow-50 p-4 dark:bg-yellow-900/20">
@@ -183,7 +183,7 @@
                                 <div>
                                     <div class="mb-2 flex items-center justify-between">
                                         <span class="font-medium text-black dark:text-white">{{ ucfirst($dist->frecuencia_pago) }}</span>
-                                        <span class="text-body-secondary">{{ $dist->total }} préstamos - {{ money_symbol($dist->monto) }}</span>
+                                        <span class="text-body-secondary">{{ $dist->total }} ventas - {{ money_symbol($dist->monto) }}</span>
                                     </div>
                                     <div class="h-3 w-full rounded-full bg-gray-200 dark:bg-gray-700">
                                         <div class="h-full rounded-full bg-primary" style="width: {{ $carteraTotal > 0 ? ($dist->monto / $carteraTotal * 100) : 0 }}%"></div>
@@ -209,7 +209,7 @@
                                 <div>
                                     <div class="mb-2 flex items-center justify-between">
                                         <span class="font-medium text-black dark:text-white">{{ ucfirst($dist->tipo_interes) }}</span>
-                                        <span class="text-body-secondary">{{ $dist->total }} préstamos - {{ money_symbol($dist->monto) }}</span>
+                                        <span class="text-body-secondary">{{ $dist->total }} ventas - {{ money_symbol($dist->monto) }}</span>
                                     </div>
                                     <div class="h-3 w-full rounded-full bg-gray-200 dark:bg-gray-700">
                                         <div class="h-full rounded-full bg-warning" style="width: {{ $carteraTotal > 0 ? ($dist->monto / $carteraTotal * 100) : 0 }}%"></div>
@@ -267,10 +267,10 @@
 
         <!-- Actividad del Período -->
         <div class="grid grid-cols-1 gap-4 lg:grid-cols-2">
-            <!-- Préstamos Otorgados -->
+            <!-- Ventas Otorgadas -->
             <div class="rounded-lg border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
                 <div class="border-b border-stroke px-7 py-4 dark:border-strokedark">
-                    <h3 class="font-semibold text-black dark:text-white">Préstamos Otorgados en el Período</h3>
+                    <h3 class="font-semibold text-black dark:text-white">Ventas Otorgadas en el Período</h3>
                 </div>
                 <div class="p-7">
                     @if($prestamosDelPeriodo->count() > 0)
@@ -278,12 +278,12 @@
                             @foreach($prestamosDelPeriodo->take(10) as $dia)
                                 <div class="flex items-center justify-between text-sm">
                                     <span class="text-body-secondary">{{ \Carbon\Carbon::parse($dia->fecha)->format('d/m/Y') }}</span>
-                                    <span class="font-medium text-black dark:text-white">{{ $dia->total }} préstamos - {{ money_symbol($dia->monto) }}</span>
+                                    <span class="font-medium text-black dark:text-white">{{ $dia->total }} ventas - {{ money_symbol($dia->monto) }}</span>
                                 </div>
                             @endforeach
                         </div>
                     @else
-                        <p class="text-center text-body-secondary py-4">No hay préstamos en este período</p>
+                        <p class="text-center text-body-secondary py-4">No hay ventas en este período</p>
                     @endif
                 </div>
             </div>

@@ -88,7 +88,7 @@
                         <div class="text-center py-8">
                             <p class="text-gray-500 mb-4">No has subido ningún comprobante aún.</p>
                             <a href="{{ route('portal.dashboard') }}" class="text-blue-600 hover:text-blue-900">
-                                Ver mis préstamos
+                                Ver mis ventas
                             </a>
                         </div>
                     @endif
