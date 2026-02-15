@@ -140,6 +140,12 @@
         </div>
         @endif
         <div class="info-row">
+            <span class="info-label">Tipo de Venta:</span>
+            <span style="text-transform: uppercase; font-weight: bold;">
+                {{ $cotizacion->tipo_venta === 'contado' ? 'CONTADO' : 'CRÉDITO' }}
+            </span>
+        </div>
+        <div class="info-row">
             <span class="info-label">Estado:</span>
             <span style="text-transform: uppercase;">{{ $cotizacion->estado }}</span>
         </div>
@@ -188,7 +194,7 @@
         </div>
     </div>
 
-    @if($planPagos && count($planPagos) > 0)
+    @if($cotizacion->tipo_venta === 'credito' && $planPagos && count($planPagos) > 0)
     <div class="financing-section">
         <h3 class="section-title">Plan de Financiamiento</h3>
 

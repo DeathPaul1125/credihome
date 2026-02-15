@@ -59,8 +59,9 @@ class CotizacionController extends Controller
             'productos.*.producto_id' => 'required|exists:productos,id',
             'productos.*.cantidad' => 'required|numeric|min:0.01',
             'productos.*.precio_unitario' => 'required|numeric|min:0',
-            'plazo_meses' => 'nullable|integer|min:1',
-            'tasa_interes_anual' => 'nullable|numeric|min:0|max:100',
+            'tipo_venta' => 'required|in:contado,credito',
+            'plazo_meses' => 'nullable|integer|min:1|required_if:tipo_venta,credito',
+            'tasa_interes_anual' => 'nullable|numeric|min:0|max:100|required_if:tipo_venta,credito',
             'enganche' => 'nullable|numeric|min:0',
         ]);
 
@@ -90,9 +91,10 @@ class CotizacionController extends Controller
                 'subtotal' => $subtotal,
                 'descuento' => 0,
                 'total' => $total,
-                'plazo_meses' => $request->plazo_meses,
-                'tasa_interes_anual' => $request->tasa_interes_anual,
-                'enganche' => $request->enganche,
+                'tipo_venta' => $request->tipo_venta,
+                'plazo_meses' => $request->tipo_venta === 'credito' ? $request->plazo_meses : null,
+                'tasa_interes_anual' => $request->tipo_venta === 'credito' ? $request->tasa_interes_anual : null,
+                'enganche' => $request->tipo_venta === 'credito' ? $request->enganche : null,
                 'estado' => 'pendiente',
                 'notas' => $request->notas,
                 'terminos_condiciones' => $request->terminos_condiciones,
@@ -151,6 +153,10 @@ class CotizacionController extends Controller
             'productos.*.producto_id' => 'required|exists:productos,id',
             'productos.*.cantidad' => 'required|numeric|min:0.01',
             'productos.*.precio_unitario' => 'required|numeric|min:0',
+            'tipo_venta' => 'required|in:contado,credito',
+            'plazo_meses' => 'nullable|integer|min:1|required_if:tipo_venta,credito',
+            'tasa_interes_anual' => 'nullable|numeric|min:0|max:100|required_if:tipo_venta,credito',
+            'enganche' => 'nullable|numeric|min:0',
         ]);
 
         DB::beginTransaction();
@@ -171,6 +177,10 @@ class CotizacionController extends Controller
                 'subtotal' => $subtotal,
                 'descuento' => $descuento,
                 'total' => $total,
+                'tipo_venta' => $request->tipo_venta,
+                'plazo_meses' => $request->tipo_venta === 'credito' ? $request->plazo_meses : null,
+                'tasa_interes_anual' => $request->tipo_venta === 'credito' ? $request->tasa_interes_anual : null,
+                'enganche' => $request->tipo_venta === 'credito' ? $request->enganche : null,
                 'estado' => $request->estado,
                 'notas' => $request->notas,
                 'terminos_condiciones' => $request->terminos_condiciones,

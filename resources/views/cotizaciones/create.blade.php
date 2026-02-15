@@ -82,8 +82,58 @@
 
                     </div>
 
+                    <!-- Tipo de Venta -->
+                    <div class="mb-6">
+                        <label for="tipo_venta" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Tipo de Venta <span class="text-red-600">*</span></label>
+                        <div class="grid grid-cols-2 gap-4">
+                            <label class="relative flex items-center p-4 cursor-pointer bg-gray-50 dark:bg-gray-700 border-2 rounded-lg transition-all hover:shadow-md tipo-venta-option" data-tipo="contado">
+                                <input type="radio" id="tipo_venta_contado" name="tipo_venta" value="contado" {{ old('tipo_venta', 'credito') == 'contado' ? 'checked' : '' }} class="hidden tipo-venta-radio">
+                                <div class="flex items-center gap-3 w-full">
+                                    <div class="flex-shrink-0">
+                                        <svg class="w-8 h-8 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                                            <path d="M8.433 7.418c.155-.103.346-.196.567-.267v1.698a2.305 2.305 0 01-.567-.267C8.07 8.34 8 8.114 8 8c0-.114.07-.34.433-.582zM11 12.849v-1.698c.22.071.412.164.567.267.364.243.433.468.433.582 0 .114-.07.34-.433.582a2.305 2.305 0 01-.567.267z"/>
+                                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-13a1 1 0 10-2 0v.092a4.535 4.535 0 00-1.676.662C6.602 6.234 6 7.009 6 8c0 .99.602 1.765 1.324 2.246.48.32 1.054.545 1.676.662v1.941c-.391-.127-.68-.317-.843-.504a1 1 0 10-1.51 1.31c.562.649 1.413 1.076 2.353 1.253V15a1 1 0 102 0v-.092a4.535 4.535 0 001.676-.662C13.398 13.766 14 12.991 14 12c0-.99-.602-1.765-1.324-2.246A4.535 4.535 0 0011 9.092V7.151c.391.127.68.317.843.504a1 1 0 101.511-1.31c-.563-.649-1.413-1.076-2.354-1.253V5z" clip-rule="evenodd"/>
+                                        </svg>
+                                    </div>
+                                    <div class="flex-grow">
+                                        <h4 class="text-base font-semibold text-gray-900 dark:text-white">Contado</h4>
+                                        <p class="text-xs text-gray-500 dark:text-gray-400">Pago único sin intereses</p>
+                                    </div>
+                                    <div class="radio-indicator hidden">
+                                        <svg class="w-6 h-6 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                                        </svg>
+                                    </div>
+                                </div>
+                            </label>
+                            <label class="relative flex items-center p-4 cursor-pointer bg-gray-50 dark:bg-gray-700 border-2 rounded-lg transition-all hover:shadow-md tipo-venta-option" data-tipo="credito">
+                                <input type="radio" id="tipo_venta_credito" name="tipo_venta" value="credito" {{ old('tipo_venta', 'credito') == 'credito' ? 'checked' : '' }} class="hidden tipo-venta-radio">
+                                <div class="flex items-center gap-3 w-full">
+                                    <div class="flex-shrink-0">
+                                        <svg class="w-8 h-8 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                                            <path d="M4 4a2 2 0 00-2 2v1h16V6a2 2 0 00-2-2H4z"/>
+                                            <path fill-rule="evenodd" d="M18 9H2v5a2 2 0 002 2h12a2 2 0 002-2V9zM4 13a1 1 0 011-1h1a1 1 0 110 2H5a1 1 0 01-1-1zm5-1a1 1 0 100 2h1a1 1 0 100-2H9z" clip-rule="evenodd"/>
+                                        </svg>
+                                    </div>
+                                    <div class="flex-grow">
+                                        <h4 class="text-base font-semibold text-gray-900 dark:text-white">Crédito</h4>
+                                        <p class="text-xs text-gray-500 dark:text-gray-400">Pago en cuotas con intereses</p>
+                                    </div>
+                                    <div class="radio-indicator hidden">
+                                        <svg class="w-6 h-6 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                                        </svg>
+                                    </div>
+                                </div>
+                            </label>
+                        </div>
+                        @error('tipo_venta')
+                            <p class="mt-2 text-sm text-red-600 dark:text-red-500">{{ $message }}</p>
+                        @enderror
+                    </div>
+
                     <!-- Sección de Financiamiento -->
-                    <div class="mb-6 p-4 bg-blue-50 dark:bg-gray-700 rounded-lg border border-blue-200 dark:border-gray-600">
+                    <div id="seccionFinanciamiento" class="mb-6 p-4 bg-blue-50 dark:bg-gray-700 rounded-lg border border-blue-200 dark:border-gray-600">
                         <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Opciones de Financiamiento</h3>
 
                         <div class="grid gap-4 md:grid-cols-3">
@@ -542,5 +592,48 @@
         function formatMoney(value) {
             return formatMoney(value);
         }
+
+        // Manejo del tipo de venta
+        document.addEventListener('DOMContentLoaded', function() {
+            const tipoVentaOptions = document.querySelectorAll('.tipo-venta-option');
+            const seccionFinanciamiento = document.getElementById('seccionFinanciamiento');
+
+            // Función para actualizar el estado visual
+            function updateTipoVentaUI() {
+                tipoVentaOptions.forEach(option => {
+                    const radio = option.querySelector('.tipo-venta-radio');
+                    const indicator = option.querySelector('.radio-indicator');
+
+                    if (radio.checked) {
+                        option.classList.add('border-blue-600', 'bg-blue-50', 'dark:bg-blue-900/20');
+                        option.classList.remove('border-gray-300');
+                        indicator.classList.remove('hidden');
+
+                        // Mostrar/ocultar sección de financiamiento
+                        if (radio.value === 'credito') {
+                            seccionFinanciamiento.classList.remove('hidden');
+                        } else {
+                            seccionFinanciamiento.classList.add('hidden');
+                        }
+                    } else {
+                        option.classList.remove('border-blue-600', 'bg-blue-50', 'dark:bg-blue-900/20');
+                        option.classList.add('border-gray-300');
+                        indicator.classList.add('hidden');
+                    }
+                });
+            }
+
+            // Event listeners para las opciones
+            tipoVentaOptions.forEach(option => {
+                option.addEventListener('click', function() {
+                    const radio = this.querySelector('.tipo-venta-radio');
+                    radio.checked = true;
+                    updateTipoVentaUI();
+                });
+            });
+
+            // Inicializar el estado visual
+            updateTipoVentaUI();
+        });
     </script>
 </x-flowbite-layout>

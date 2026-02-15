@@ -20,6 +20,7 @@ class Cotizacion extends Model
         'subtotal',
         'descuento',
         'total',
+        'tipo_venta',
         'plazo_meses',
         'tasa_interes_anual',
         'enganche',
