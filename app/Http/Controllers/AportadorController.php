@@ -183,10 +183,7 @@ class AportadorController extends Controller
             ->get()
             ->reverse();
 
-        // NUEVO: Historial de Movimientos Detallado
-        $movimientos = $this->generarHistorialMovimientos($aportador);
-
-        return view('aportadores.show', compact('aportador', 'stats', 'aportacionesActivas', 'aportacionesRecuperadas', 'distribucionesPagos', 'evolucion', 'movimientos'));
+        return view('aportadores.show', compact('aportador', 'stats', 'aportacionesActivas', 'aportacionesRecuperadas', 'distribucionesPagos', 'evolucion'));
     }
 
     /**
@@ -385,5 +382,15 @@ class AportadorController extends Controller
             \Log::error('Error al recalcular aportadores: ' . $e->getMessage());
             return back()->with('error', 'Error al recalcular: ' . $e->getMessage());
         }
+    }
+
+    /**
+     * Mostrar historial de movimientos de capital de un aportador
+     */
+    public function movimientos(Aportador $aportador)
+    {
+        $movimientos = $this->generarHistorialMovimientos($aportador);
+
+        return view('aportadores.movimientos', compact('aportador', 'movimientos'));
     }
 }

@@ -60,15 +60,46 @@ class ComprobantePagoController extends Controller
                 return back()->with('error', 'Este comprobante ya fue procesado.');
             }
 
-            // Crear el pago
+            // Verificar si ya existe un pago asociado a este comprobante
+            if ($comprobante->pago_id) {
+                return back()->with('error', 'Este comprobante ya tiene un pago asociado.');
+            }
+
+            // Obtener el préstamo con su tabla de amortización
+            $prestamo = Prestamo::findOrFail($comprobante->prestamo_id);
+            $tablaAmortizacion = $prestamo->generarTablaAmortizacion();
+
+            // Buscar la próxima cuota pendiente
+            $cuotaPendiente = collect($tablaAmortizacion)->first(function ($cuota) {
+                return $cuota['estado'] === 'pendiente' || $cuota['estado'] === 'vencida';
+            });
+
+            if (!$cuotaPendiente) {
+                return back()->with('error', 'No hay cuotas pendientes para este préstamo.');
+            }
+
+            // Verificar si ya existe un pago para esta cuota
+            $pagoExistente = Pago::where('prestamo_id', $comprobante->prestamo_id)
+                ->where('numero_cuota', $cuotaPendiente['numero_cuota'])
+                ->first();
+
+            if ($pagoExistente) {
+                return back()->with('error', 'Ya existe un pago registrado para la cuota #' . $cuotaPendiente['numero_cuota'] . '.');
+            }
+
+            // Crear el pago con toda la información de la cuota
             $pago = Pago::create([
                 'prestamo_id' => $comprobante->prestamo_id,
                 'cliente_id' => $comprobante->cliente_id,
+                'numero_cuota' => $cuotaPendiente['numero_cuota'],
+                'monto_cuota_esperado' => $cuotaPendiente['cuota'],
                 'monto_pagado' => $request->monto_pagado,
+                'fecha_vencimiento' => $cuotaPendiente['fecha_vencimiento'],
                 'fecha_pago' => $request->fecha_pago,
-                'metodo_pago' => $comprobante->metodo_pago ?? 'Transferencia',
-                'numero_referencia' => $comprobante->referencia_pago,
-                'notas' => $request->notas,
+                'saldo_anterior' => $cuotaPendiente['saldo_anterior'],
+                'saldo_nuevo' => max(0, $cuotaPendiente['saldo_anterior'] - $request->monto_pagado),
+                'observaciones' => $request->notas,
+                'user_id' => auth()->id(),
             ]);
 
             // Actualizar el comprobante

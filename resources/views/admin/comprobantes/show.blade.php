@@ -124,30 +124,49 @@
             <div class="p-6">
                 @php
                     $extension = pathinfo($comprobante->archivo_comprobante, PATHINFO_EXTENSION);
+                    $urlArchivo = asset('storage/' . $comprobante->archivo_comprobante);
                 @endphp
 
                 @if(in_array(strtolower($extension), ['jpg', 'jpeg', 'png']))
-                    <img src="{{ Storage::url($comprobante->archivo_comprobante) }}"
-                        alt="Comprobante"
-                        class="w-full rounded-lg border border-gray-300">
+                    <div class="border border-gray-300 rounded-lg overflow-hidden bg-gray-50 dark:bg-gray-900">
+                        <img src="{{ $urlArchivo }}"
+                            alt="Comprobante"
+                            class="w-full h-auto"
+                            onerror="this.parentElement.innerHTML='<div class=\'p-8 text-center\'><svg class=\'mx-auto h-16 w-16 text-gray-400\' fill=\'none\' stroke=\'currentColor\' viewBox=\'0 0 24 24\'><path stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'2\' d=\'M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z\'></path></svg><p class=\'mt-2 text-sm text-red-600\'>Error al cargar la imagen</p><p class=\'text-xs text-gray-500 mt-1\'>' + this.src + '</p></div>';">
+                    </div>
                 @elseif(strtolower($extension) === 'pdf')
+                    <div class="border border-gray-300 rounded-lg">
+                        <iframe src="{{ $urlArchivo }}"
+                            class="w-full h-[600px] rounded-lg"
+                            type="application/pdf">
+                        </iframe>
+                    </div>
+                    <div class="text-center mt-4">
+                        <a href="{{ $urlArchivo }}"
+                            target="_blank"
+                            class="inline-flex items-center text-white bg-red-600 hover:bg-red-700 font-medium rounded-lg text-sm px-5 py-2.5">
+                            <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" clip-rule="evenodd" />
+                            </svg>
+                            Abrir PDF en nueva pestaña
+                        </a>
+                    </div>
+                @else
                     <div class="text-center py-8">
-                        <svg class="mx-auto h-24 w-24 text-red-500" fill="currentColor" viewBox="0 0 20 20">
+                        <svg class="mx-auto h-24 w-24 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
                             <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" clip-rule="evenodd" />
                         </svg>
-                        <p class="mt-4 text-sm text-gray-500 dark:text-gray-400">Documento PDF</p>
-                        <a href="{{ Storage::url($comprobante->archivo_comprobante) }}"
-                            target="_blank"
-                            class="mt-4 inline-block text-white bg-red-600 hover:bg-red-700 font-medium rounded-lg text-sm px-5 py-2.5">
-                            Ver PDF
-                        </a>
+                        <p class="mt-4 text-sm text-gray-500 dark:text-gray-400">Archivo: {{ basename($comprobante->archivo_comprobante) }}</p>
                     </div>
                 @endif
 
                 <div class="mt-4">
-                    <a href="{{ Storage::url($comprobante->archivo_comprobante) }}"
+                    <a href="{{ $urlArchivo }}"
                         download
-                        class="w-full text-center block text-white bg-gray-600 hover:bg-gray-700 focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5">
+                        class="w-full text-center flex items-center justify-center text-white bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5">
+                        <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd" />
+                        </svg>
                         Descargar Archivo
                     </a>
                 </div>

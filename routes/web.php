@@ -54,6 +54,7 @@ Route::middleware([
     // Rutas de Aportadores
     Route::get('aportadores/dashboard', [\App\Http\Controllers\AportadorController::class, 'dashboard'])->name('aportadores.dashboard');
     Route::post('aportadores/recalcular', [\App\Http\Controllers\AportadorController::class, 'recalcularTodos'])->name('aportadores.recalcular');
+    Route::get('aportadores/{aportador}/movimientos', [\App\Http\Controllers\AportadorController::class, 'movimientos'])->name('aportadores.movimientos');
     Route::resource('aportadores', \App\Http\Controllers\AportadorController::class)->parameters(['aportadores' => 'aportador']);
     Route::post('aportadores/{aportador}/agregar-capital', [\App\Http\Controllers\AportadorController::class, 'agregarCapital'])->name('aportadores.agregar-capital');
     Route::post('aportadores/{aportador}/retirar-capital', [\App\Http\Controllers\AportadorController::class, 'retirarCapital'])->name('aportadores.retirar-capital');

@@ -49,8 +49,21 @@ class Pago extends Model
 
         static::creating(function ($pago) {
             if (empty($pago->numero_recibo)) {
+                // Obtener el último número de recibo del año actual
+                $ultimoRecibo = self::whereYear('created_at', date('Y'))
+                    ->lockForUpdate()
+                    ->orderBy('id', 'desc')
+                    ->first();
+
+                $ultimoNumero = 0;
+                if ($ultimoRecibo && $ultimoRecibo->numero_recibo) {
+                    // Extraer el número del formato R-YYYY-NNNNNN
+                    preg_match('/R-\d{4}-(\d+)/', $ultimoRecibo->numero_recibo, $matches);
+                    $ultimoNumero = isset($matches[1]) ? intval($matches[1]) : 0;
+                }
+
                 $pago->numero_recibo = 'R-' . date('Y') . '-' . str_pad(
-                    self::whereYear('created_at', date('Y'))->count() + 1,
+                    $ultimoNumero + 1,
                     6,
                     '0',
                     STR_PAD_LEFT
@@ -63,24 +76,41 @@ class Pago extends Model
                 $pago->dias_atraso = $dias < 0 ? abs($dias) : 0;
             }
 
-            // Determinar estado del pago - Por defecto 'completado' para pagos procesados
+            // Determinar estado del pago según la lógica del negocio
             if (empty($pago->estado)) {
-                // Todos los pagos registrados se consideran completados por defecto
-                $pago->estado = 'completado';
-
-                // Guardar información adicional en observaciones si es necesario
-                $estadoInfo = [];
-                if ($pago->dias_atraso > 0) {
-                    $estadoInfo[] = 'pago con atraso de ' . $pago->dias_atraso . ' días';
-                } elseif ($pago->monto_pagado < $pago->monto_cuota_esperado) {
-                    $estadoInfo[] = 'pago parcial';
+                // Determinar estado basado en las condiciones del pago
+                if ($pago->monto_pagado < $pago->monto_cuota_esperado) {
+                    // Pago parcial: monto pagado es menor al esperado
+                    $pago->estado = 'parcial';
+                } elseif ($pago->dias_atraso > 0) {
+                    // Pago atrasado: se pagó después de la fecha de vencimiento
+                    $pago->estado = 'atrasado';
                 } elseif ($pago->fecha_pago < $pago->fecha_vencimiento) {
-                    $estadoInfo[] = 'pago anticipado';
+                    // Pago anticipado: se pagó antes de la fecha de vencimiento
+                    $pago->estado = 'anticipado';
+                } else {
+                    // Pago puntual: se pagó exactamente en la fecha o sin atraso
+                    $pago->estado = 'puntual';
                 }
 
-                // Opcional: agregar info al final de observaciones
-                if (!empty($estadoInfo) && empty($pago->observaciones)) {
-                    $pago->observaciones = ucfirst(implode(', ', $estadoInfo));
+                // Agregar información del estado a observaciones si es necesario
+                $estadoInfo = [];
+                if ($pago->dias_atraso > 0) {
+                    $estadoInfo[] = 'Pago con atraso de ' . $pago->dias_atraso . ' días';
+                } elseif ($pago->estado === 'parcial') {
+                    $estadoInfo[] = 'Pago parcial (Q' . number_format($pago->monto_pagado, 2) . ' de Q' . number_format($pago->monto_cuota_esperado, 2) . ')';
+                } elseif ($pago->estado === 'anticipado') {
+                    $estadoInfo[] = 'Pago anticipado';
+                }
+
+                // Agregar info al inicio de observaciones
+                if (!empty($estadoInfo)) {
+                    $info = ucfirst(implode(', ', $estadoInfo));
+                    if (!empty($pago->observaciones)) {
+                        $pago->observaciones = $info . '. ' . $pago->observaciones;
+                    } else {
+                        $pago->observaciones = $info;
+                    }
                 }
             }
         });

@@ -68,26 +68,31 @@
                         {{-- Método de Pago --}}
                         <div class="mb-4">
                             <label for="metodo_pago" class="block mb-2 text-sm font-medium text-gray-900">
-                                Método de Pago
+                                Método de Pago <span class="text-red-500">*</span>
                             </label>
-                            <select name="metodo_pago" id="metodo_pago"
+                            <select name="metodo_pago" id="metodo_pago" required
                                 class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
-                                <option value="Transferencia">Transferencia Bancaria</option>
-                                <option value="Depósito">Depósito en Banco</option>
-                                <option value="Efectivo">Efectivo</option>
-                                <option value="Cheque">Cheque</option>
+                                <option value="">Seleccionar...</option>
+                                <option value="transferencia" {{ old('metodo_pago') == 'transferencia' ? 'selected' : '' }}>Transferencia Bancaria</option>
+                                <option value="deposito" {{ old('metodo_pago') == 'deposito' ? 'selected' : '' }}>Depósito en Banco</option>
+                                <option value="efectivo" {{ old('metodo_pago') == 'efectivo' ? 'selected' : '' }}>Efectivo</option>
+                                <option value="cheque" {{ old('metodo_pago') == 'cheque' ? 'selected' : '' }}>Cheque</option>
+                                <option value="otro" {{ old('metodo_pago') == 'otro' ? 'selected' : '' }}>Otro</option>
                             </select>
+                            @error('metodo_pago')
+                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                            @enderror
                         </div>
 
                         {{-- Referencia de Pago --}}
                         <div class="mb-4">
-                            <label for="referencia_pago" class="block mb-2 text-sm font-medium text-gray-900">
+                            <label for="numero_referencia" class="block mb-2 text-sm font-medium text-gray-900">
                                 Número de Referencia / Boleta
                             </label>
-                            <input type="text" name="referencia_pago" id="referencia_pago"
+                            <input type="text" name="numero_referencia" id="numero_referencia"
                                 class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-                                value="{{ old('referencia_pago') }}">
-                            @error('referencia_pago')
+                                value="{{ old('numero_referencia') }}">
+                            @error('numero_referencia')
                                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                             @enderror
                         </div>
@@ -109,12 +114,15 @@
 
                         {{-- Notas --}}
                         <div class="mb-6">
-                            <label for="notas" class="block mb-2 text-sm font-medium text-gray-900">
-                                Notas Adicionales
+                            <label for="observaciones" class="block mb-2 text-sm font-medium text-gray-900">
+                                Observaciones
                             </label>
-                            <textarea name="notas" id="notas" rows="3"
+                            <textarea name="observaciones" id="observaciones" rows="3"
                                 class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-                                placeholder="Agrega cualquier información adicional sobre este pago...">{{ old('notas') }}</textarea>
+                                placeholder="Agrega cualquier información adicional sobre este pago...">{{ old('observaciones') }}</textarea>
+                            @error('observaciones')
+                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                            @enderror
                         </div>
 
                         {{-- Botones --}}

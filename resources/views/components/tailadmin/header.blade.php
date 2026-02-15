@@ -45,6 +45,157 @@
         </div>
 
         <div class="flex items-center gap-3 2xsm:gap-7">
+            <!-- Calculadora -->
+            <div x-data="{
+                calcOpen: false,
+                display: '0',
+                currentValue: null,
+                operator: null,
+                waitingForOperand: false,
+                inputDigit(digit) {
+                    if (this.waitingForOperand) {
+                        this.display = String(digit);
+                        this.waitingForOperand = false;
+                    } else {
+                        this.display = this.display === '0' ? String(digit) : this.display + digit;
+                    }
+                },
+                inputDecimal() {
+                    if (this.waitingForOperand) {
+                        this.display = '0.';
+                        this.waitingForOperand = false;
+                    } else if (this.display.indexOf('.') === -1) {
+                        this.display += '.';
+                    }
+                },
+                clear() {
+                    this.display = '0';
+                    this.currentValue = null;
+                    this.operator = null;
+                    this.waitingForOperand = false;
+                },
+                clearEntry() {
+                    this.display = '0';
+                    this.waitingForOperand = false;
+                },
+                backspace() {
+                    if (this.display.length > 1) {
+                        this.display = this.display.slice(0, -1);
+                    } else {
+                        this.display = '0';
+                    }
+                },
+                toggleSign() {
+                    const value = parseFloat(this.display);
+                    this.display = String(value * -1);
+                },
+                percentage() {
+                    const value = parseFloat(this.display);
+                    if (this.currentValue !== null && this.operator) {
+                        // Si hay una operación pendiente, calcula el porcentaje del valor actual
+                        this.display = String((this.currentValue * value) / 100);
+                    } else {
+                        // Si no hay operación, divide entre 100
+                        this.display = String(value / 100);
+                    }
+                    this.waitingForOperand = true;
+                },
+                performOperation(nextOperator) {
+                    const inputValue = parseFloat(this.display);
+                    if (this.currentValue === null) {
+                        this.currentValue = inputValue;
+                    } else if (this.operator) {
+                        const result = this.calculate(this.currentValue, inputValue, this.operator);
+                        this.display = String(result);
+                        this.currentValue = result;
+                    }
+                    this.waitingForOperand = true;
+                    this.operator = nextOperator;
+                },
+                calculate(firstOperand, secondOperand, operator) {
+                    switch (operator) {
+                        case '+': return firstOperand + secondOperand;
+                        case '-': return firstOperand - secondOperand;
+                        case '*': return firstOperand * secondOperand;
+                        case '/': return firstOperand / secondOperand;
+                        case '=': return secondOperand;
+                        default: return secondOperand;
+                    }
+                }
+            }" class="relative">
+                <button
+                    @click="calcOpen = !calcOpen"
+                    class="relative flex h-8.5 w-8.5 items-center justify-center rounded-full border border-gray-200 hover:bg-gray-100 dark:border-gray-800 dark:hover:bg-white/5"
+                    title="Calculadora"
+                >
+                    <svg class="fill-current text-gray-700 dark:text-gray-300" width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M14.25 0.75H3.75C2.50781 0.75 1.5 1.75781 1.5 3V15C1.5 16.2422 2.50781 17.25 3.75 17.25H14.25C15.4922 17.25 16.5 16.2422 16.5 15V3C16.5 1.75781 15.4922 0.75 14.25 0.75ZM15 15C15 15.4125 14.6625 15.75 14.25 15.75H3.75C3.3375 15.75 3 15.4125 3 15V3C3 2.5875 3.3375 2.25 3.75 2.25H14.25C14.6625 2.25 15 2.5875 15 3V15Z"/>
+                        <path d="M5.25 5.25H6.75V6.75H5.25V5.25ZM8.25 5.25H9.75V6.75H8.25V5.25ZM11.25 5.25H12.75V6.75H11.25V5.25ZM5.25 8.25H6.75V9.75H5.25V8.25ZM8.25 8.25H9.75V9.75H8.25V8.25ZM11.25 8.25H12.75V9.75H11.25V8.25ZM5.25 11.25H6.75V12.75H5.25V11.25ZM8.25 11.25H9.75V12.75H8.25V11.25ZM11.25 11.25H12.75V12.75H11.25V11.25Z"/>
+                    </svg>
+                </button>
+
+                <!-- Dropdown Calculadora -->
+                <div
+                    x-show="calcOpen"
+                    @click.outside="calcOpen = false"
+                    x-transition
+                    class="absolute right-0 mt-2.5 w-72 rounded-lg border border-gray-200 bg-white shadow-xl dark:border-gray-800 dark:bg-gray-900 z-50"
+                    style="display: none;"
+                >
+                    <div class="p-4">
+                        <div class="flex items-center justify-between mb-3">
+                            <h3 class="text-sm font-semibold text-gray-700 dark:text-gray-300">Calculadora</h3>
+                            <button @click="calcOpen = false" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/>
+                                </svg>
+                            </button>
+                        </div>
+
+                        <div class="mb-3">
+                            <div class="bg-gray-100 dark:bg-gray-800 rounded-lg px-4 py-4 text-right border-2 border-gray-200 dark:border-gray-700">
+                                <div x-text="display" class="text-3xl font-mono font-bold text-gray-900 dark:text-white break-all min-h-[2.5rem]"></div>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-4 gap-2">
+                            <!-- Primera fila: C, CE, ←, / -->
+                            <button @click="clear()" class="bg-red-500 hover:bg-red-600 text-white font-semibold py-3 rounded-lg transition text-sm">AC</button>
+                            <button @click="clearEntry()" class="bg-orange-500 hover:bg-orange-600 text-white font-semibold py-3 rounded-lg transition text-sm">CE</button>
+                            <button @click="backspace()" class="bg-gray-400 hover:bg-gray-500 text-white font-semibold py-3 rounded-lg transition">←</button>
+                            <button @click="performOperation('/')" class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-3 rounded-lg transition text-lg">÷</button>
+
+                            <!-- Segunda fila: 7, 8, 9, × -->
+                            <button @click="inputDigit(7)" class="bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-900 dark:text-white font-semibold py-3 rounded-lg transition text-lg">7</button>
+                            <button @click="inputDigit(8)" class="bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-900 dark:text-white font-semibold py-3 rounded-lg transition text-lg">8</button>
+                            <button @click="inputDigit(9)" class="bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-900 dark:text-white font-semibold py-3 rounded-lg transition text-lg">9</button>
+                            <button @click="performOperation('*')" class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-3 rounded-lg transition text-lg">×</button>
+
+                            <!-- Tercera fila: 4, 5, 6, - -->
+                            <button @click="inputDigit(4)" class="bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-900 dark:text-white font-semibold py-3 rounded-lg transition text-lg">4</button>
+                            <button @click="inputDigit(5)" class="bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-900 dark:text-white font-semibold py-3 rounded-lg transition text-lg">5</button>
+                            <button @click="inputDigit(6)" class="bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-900 dark:text-white font-semibold py-3 rounded-lg transition text-lg">6</button>
+                            <button @click="performOperation('-')" class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-3 rounded-lg transition text-lg">−</button>
+
+                            <!-- Cuarta fila: 1, 2, 3, + -->
+                            <button @click="inputDigit(1)" class="bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-900 dark:text-white font-semibold py-3 rounded-lg transition text-lg">1</button>
+                            <button @click="inputDigit(2)" class="bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-900 dark:text-white font-semibold py-3 rounded-lg transition text-lg">2</button>
+                            <button @click="inputDigit(3)" class="bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-900 dark:text-white font-semibold py-3 rounded-lg transition text-lg">3</button>
+                            <button @click="performOperation('+')" class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-3 rounded-lg transition text-lg">+</button>
+
+                            <!-- Quinta fila: +/-, 0, ., = -->
+                            <button @click="toggleSign()" class="bg-gray-300 hover:bg-gray-400 dark:bg-gray-600 dark:hover:bg-gray-500 text-gray-900 dark:text-white font-semibold py-3 rounded-lg transition">+/−</button>
+                            <button @click="inputDigit(0)" class="bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-900 dark:text-white font-semibold py-3 rounded-lg transition text-lg">0</button>
+                            <button @click="inputDecimal()" class="bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-900 dark:text-white font-semibold py-3 rounded-lg transition text-lg">.</button>
+                            <button @click="performOperation('=')" class="bg-green-500 hover:bg-green-600 text-white font-semibold py-3 rounded-lg transition text-lg">=</button>
+
+                            <!-- Sexta fila: % ocupa todo el ancho -->
+                            <button @click="percentage()" class="col-span-4 bg-purple-500 hover:bg-purple-600 text-white font-semibold py-3 rounded-lg transition">Porcentaje (%)</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Dark Mode Toggler -->
             <button
                 @click="darkMode = !darkMode"
