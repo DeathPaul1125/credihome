@@ -85,6 +85,15 @@ Route::middleware([
     Route::resource('prestamos', \App\Http\Controllers\PrestamoController::class);
     Route::post('prestamos/{prestamo}/aprobar', [\App\Http\Controllers\PrestamoController::class, 'aprobar'])->name('prestamos.aprobar');
 
+    // Rutas de Fondeo de Préstamos
+    Route::prefix('fondeo')->name('fondeo.')->middleware(['can:ver-fondeo-prestamos'])->group(function () {
+        Route::get('/', [\App\Http\Controllers\FondeoController::class, 'index'])->name('index');
+        Route::get('/{prestamo}/gestionar', [\App\Http\Controllers\FondeoController::class, 'gestionar'])->name('gestionar')->middleware('can:gestionar-fondeo-prestamos');
+        Route::post('/{prestamo}/agregar-aportacion', [\App\Http\Controllers\FondeoController::class, 'agregarAportacion'])->name('agregar-aportacion')->middleware('can:gestionar-fondeo-prestamos');
+        Route::delete('/{prestamo}/aportacion/{aportacion}', [\App\Http\Controllers\FondeoController::class, 'eliminarAportacion'])->name('eliminar-aportacion')->middleware('can:gestionar-fondeo-prestamos');
+        Route::post('/{prestamo}/aprobar', [\App\Http\Controllers\FondeoController::class, 'aprobar'])->name('aprobar')->middleware('can:aprobar-fondeo-prestamos');
+    });
+
     // Rutas de Pagos
     Route::resource('pagos', \App\Http\Controllers\PagoController::class);
     Route::get('pagos/{pago}/recibo', [\App\Http\Controllers\PagoController::class, 'recibo'])->name('pagos.recibo');

@@ -292,6 +292,17 @@
                         <span class="flex-1 ms-3 whitespace-nowrap">Préstamos</span>
                     </a>
                 </li>
+                @can('ver-fondeo-prestamos')
+                <li>
+                    <a href="{{ route('fondeo.index') }}" class="flex items-center p-2 text-white rounded-lg hover:bg-gray-700 group {{ request()->routeIs('fondeo.*') ? 'bg-gray-700' : '' }}">
+                        <svg class="flex-shrink-0 w-5 h-5 text-gray-400 transition duration-75 group-hover:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M11.074 4 8.442.408A.95.95 0 0 0 7.014.254L2.926 4h8.148ZM9 13v-1a4 4 0 0 1 4-4h6V6a1 1 0 0 0-1-1H1a1 1 0 0 0-1 1v13a1 1 0 0 0 1 1h17a1 1 0 0 0 1-1v-2h-6a4 4 0 0 1-4-4Z"/>
+                            <path d="M19 10h-6a2 2 0 0 0-2 2v1a2 2 0 0 0 2 2h6a1 1 0 0 0 1-1v-3a1 1 0 0 0-1-1Zm-4.5 3.5a1 1 0 1 1 0-2 1 1 0 0 1 0 2ZM12.62 4h2.78L12.539.41a1.086 1.086 0 1 0-1.7 1.352L12.62 4Z"/>
+                        </svg>
+                        <span class="flex-1 ms-3 whitespace-nowrap">Fondeo</span>
+                    </a>
+                </li>
+                @endcan
                 <li>
                     <a href="{{ route('pagos.index') }}" class="flex items-center p-2 text-white rounded-lg hover:bg-gray-700 group {{ request()->routeIs('pagos.*') ? 'bg-gray-700' : '' }}">
                         <svg class="flex-shrink-0 w-5 h-5 text-gray-400 transition duration-75 group-hover:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">

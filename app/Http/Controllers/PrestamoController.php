@@ -57,10 +57,6 @@ class PrestamoController extends Controller
     public function create(Request $request)
     {
         $clientes = Cliente::where('estado', 'activo')->orderBy('nombre_completo')->get();
-        $aportadores = Aportador::where('estado', 'activo')
-            ->where('capital_disponible', '>', 0)
-            ->orderBy('nombre')
-            ->get();
 
         $clienteSeleccionado = null;
         $cotizacion = null;
@@ -75,7 +71,7 @@ class PrestamoController extends Controller
             $clienteSeleccionado = Cliente::find($request->cliente_id);
         }
 
-        return view('prestamos.create-flowbite', compact('clientes', 'clienteSeleccionado', 'aportadores', 'cotizacion'));
+        return view('prestamos.create-flowbite', compact('clientes', 'clienteSeleccionado', 'cotizacion'));
     }
 
     /**
@@ -86,15 +82,6 @@ class PrestamoController extends Controller
         // Log de debug
         \Log::info('=== INTENTO DE CREAR PRÉSTAMO ===');
         \Log::info('Request data:', $request->all());
-
-        // Limpiar aportadores vacíos antes de validar
-        if ($request->has('aportadores') && is_array($request->aportadores)) {
-            $aportadoresFiltrados = array_filter($request->aportadores, function($aportador) {
-                return !empty($aportador['id']) && !empty($aportador['monto']) && $aportador['monto'] > 0;
-            });
-            $request->merge(['aportadores' => array_values($aportadoresFiltrados)]);
-            \Log::info('Aportadores filtrados:', $request->aportadores);
-        }
 
         try {
             $validated = $request->validate([
@@ -109,51 +96,12 @@ class PrestamoController extends Controller
                 'tipo_garantia' => 'required|in:ninguna,prenda,hipoteca,fiador,otro',
                 'descripcion_garantia' => 'nullable|string',
                 'notas' => 'nullable|string',
-                'aportadores' => 'nullable|array',
-                'aportadores.*.id' => 'required|exists:aportadores,id',
-                'aportadores.*.monto' => 'required|numeric|min:0.01',
             ]);
 
             \Log::info('Validación exitosa');
         } catch (\Illuminate\Validation\ValidationException $e) {
             \Log::error('Error de validación:', $e->errors());
             throw $e;
-        }
-
-        \Log::info('Iniciando validaciones adicionales');
-
-        // Validar que las aportaciones sumen el monto del préstamo
-        if (!empty($validated['aportadores'])) {
-            \Log::info('Validando suma de aportaciones');
-            $totalAportaciones = collect($validated['aportadores'])->sum('monto');
-            $montoPrestamo = (float) $validated['monto_prestado'];
-
-            if (abs($totalAportaciones - $montoPrestamo) > 0.01) {
-                \Log::warning('Total de aportaciones no coincide con monto del préstamo');
-                return back()->withErrors([
-                    'aportadores' => "El total de aportaciones (Q{$totalAportaciones}) debe ser igual al monto del préstamo (Q{$montoPrestamo})."
-                ])->withInput();
-            }
-
-            // Validar que cada aportador tenga suficiente capital
-            \Log::info('Validando capital disponible de aportadores');
-            foreach ($validated['aportadores'] as $aportacionData) {
-                if (empty($aportacionData['id']) || empty($aportacionData['monto'])) {
-                    continue;
-                }
-
-                $aportador = Aportador::find($aportacionData['id']);
-                if (!$aportador) {
-                    continue;
-                }
-
-                if ($aportador->capital_disponible < $aportacionData['monto']) {
-                    \Log::warning("Aportador {$aportador->nombre} no tiene capital suficiente");
-                    return back()->withErrors([
-                        'aportadores' => "El aportador {$aportador->nombre} no tiene suficiente capital disponible (Tiene: Q{$aportador->capital_disponible}, Necesita: Q{$aportacionData['monto']})."
-                    ])->withInput();
-                }
-            }
         }
 
         \Log::info('Iniciando transacción DB');
@@ -182,7 +130,7 @@ class PrestamoController extends Controller
             $prestamo = new Prestamo($validated);
             $prestamo->numero_prestamo = $numeroPrestamo;
             $prestamo->user_id = Auth::id();
-            $prestamo->estado = 'activo';
+            $prestamo->estado = 'pendiente'; // Se activará cuando esté completamente fondeado
 
             // Convertir valores numéricos a tipos correctos
             $validated['plazo'] = (int) $validated['plazo'];
@@ -257,48 +205,15 @@ class PrestamoController extends Controller
                 }
             }
 
-            // Crear aportaciones si se especificaron
-            if (!empty($validated['aportadores'])) {
-                \Log::info('Creando aportaciones');
-                foreach ($validated['aportadores'] as $aportacionData) {
-                    if (empty($aportacionData['id']) || empty($aportacionData['monto'])) {
-                        continue;
-                    }
-
-                    $montoAportado = (float) $aportacionData['monto'];
-                    $porcentaje = ($montoAportado / $prestamo->monto_prestado) * 100;
-
-                    \Log::info("Creando aportación para aportador {$aportacionData['id']}: Q{$montoAportado}");
-
-                    // Crear la aportación
-                    Aportacion::create([
-                        'aportador_id' => $aportacionData['id'],
-                        'prestamo_id' => $prestamo->id,
-                        'monto_aportado' => $montoAportado,
-                        'porcentaje_participacion' => $porcentaje,
-                        'saldo_pendiente' => $montoAportado,
-                        'monto_recuperado' => 0,
-                        'intereses_ganados' => 0,
-                        'fecha_aportacion' => now(),
-                        'estado' => 'Activo',
-                    ]);
-
-                    // Actualizar el capital del aportador
-                    $aportador = Aportador::find($aportacionData['id']);
-                    $aportador->capital_disponible -= $montoAportado;
-                    $aportador->capital_invertido += $montoAportado;
-                    $aportador->save();
-
-                    \Log::info("Aportador actualizado - Disponible: {$aportador->capital_disponible}, Invertido: {$aportador->capital_invertido}");
-                }
-            }
+            // Las aportaciones se agregarán posteriormente desde el módulo de Fondeo
+            \Log::info('Préstamo creado en estado pendiente - se fondeará posteriormente');
 
             \Log::info('Commit de transacción');
             DB::commit();
 
-            \Log::info('Redirigiendo a prestamos.show con ID: ' . $prestamo->id);
-            return redirect()->route('prestamos.show', $prestamo)
-                ->with('success', 'Préstamo creado exitosamente y fondeado por los aportadores.');
+            \Log::info('Redirigiendo a fondeo.gestionar con ID: ' . $prestamo->id);
+            return redirect()->route('fondeo.gestionar', $prestamo)
+                ->with('success', 'Préstamo creado exitosamente. Ahora debe asignar aportadores para fondear el préstamo.');
 
         } catch (\Exception $e) {
             \Log::error('Error al crear préstamo: ' . $e->getMessage());
