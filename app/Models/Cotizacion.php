@@ -23,6 +23,7 @@ class Cotizacion extends Model
         'tipo_venta',
         'plazo_meses',
         'tasa_interes_anual',
+        'tipo_interes',
         'enganche',
         'estado',
         'prestamo_id',

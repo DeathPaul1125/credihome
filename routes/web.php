@@ -43,6 +43,7 @@ Route::middleware([
     })->name('dashboard');
 
     // Rutas de Clientes
+    Route::post('clientes/quick-store', [\App\Http\Controllers\ClienteController::class, 'storeQuick'])->name('clientes.quick-store');
     Route::resource('clientes', \App\Http\Controllers\ClienteController::class);
     Route::post('clientes/{cliente}/archivos', [\App\Http\Controllers\ClienteController::class, 'subirArchivo'])->name('clientes.archivos.store');
     Route::delete('clientes/{cliente}/archivos/{archivo}', [\App\Http\Controllers\ClienteController::class, 'eliminarArchivo'])->name('clientes.archivos.destroy');
@@ -114,11 +115,11 @@ Route::middleware([
         Route::get('/{contratista}/edit', [\App\Http\Controllers\ContratistaController::class, 'edit'])->name('edit')->middleware('can:editar-contratistas');
         Route::put('/{contratista}', [\App\Http\Controllers\ContratistaController::class, 'update'])->name('update')->middleware('can:editar-contratistas');
         Route::delete('/{contratista}', [\App\Http\Controllers\ContratistaController::class, 'destroy'])->name('destroy')->middleware('can:eliminar-contratistas');
-        
+
         // Proyectos
         Route::post('/{contratista}/proyectos', [\App\Http\Controllers\ContratistaController::class, 'agregarProyecto'])->name('agregar-proyecto')->middleware('can:crear-contratistas');
         Route::delete('/{contratista}/proyectos/{proyecto}', [\App\Http\Controllers\ContratistaController::class, 'eliminarProyecto'])->name('eliminar-proyecto')->middleware('can:eliminar-contratistas');
-        
+
         // Archivos
         Route::post('/{contratista}/archivos', [\App\Http\Controllers\ContratistaController::class, 'subirArchivo'])->name('subir-archivo')->middleware('can:crear-contratistas');
         Route::get('/{contratista}/archivos/{archivo}/descargar', [\App\Http\Controllers\ContratistaController::class, 'descargarArchivo'])->name('descargar-archivo');
@@ -179,7 +180,7 @@ Route::middleware([
     Route::post('/prestamo/{prestamo_id}/comprobante', [\App\Http\Controllers\PortalClienteController::class, 'guardarComprobante'])->name('guardar-comprobante');
     Route::get('/mis-comprobantes', [\App\Http\Controllers\PortalClienteController::class, 'misComprobantes'])->name('mis-comprobantes');
     Route::get('/comprobante/{id}', [\App\Http\Controllers\PortalClienteController::class, 'verComprobante'])->name('comprobante');
-    
+
     // Rutas para fotos de avance del proyecto
     Route::get('/mis-avances', [\App\Http\Controllers\PortalClienteController::class, 'misAvances'])->name('mis-avances');
     Route::post('/avance', [\App\Http\Controllers\PortalClienteController::class, 'guardarAvance'])->name('guardar-avance');

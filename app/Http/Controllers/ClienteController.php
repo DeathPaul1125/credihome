@@ -83,10 +83,71 @@ class ClienteController extends Controller
         $validated['user_id'] = Auth::id();
         $validated['estado'] = 'activo';
 
-        Cliente::create($validated);
+        $cliente = Cliente::create($validated);
+
+        // Si es una petición AJAX, devolver JSON
+        if ($request->wantsJson() || $request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Cliente creado exitosamente.',
+                'cliente' => [
+                    'id' => $cliente->id,
+                    'nombre_completo' => $cliente->nombre_completo,
+                    'dpi' => $cliente->dpi,
+                    'telefono' => $cliente->telefono,
+                ]
+            ], 201);
+        }
 
         return redirect()->route('clientes.index')
             ->with('success', 'Cliente creado exitosamente.');
+    }
+
+    /**
+     * Store a newly created client quick (for AJAX requests from quotations, etc.)
+     */
+    public function storeQuick(Request $request)
+    {
+        $validated = $request->validate([
+            'nombre_completo' => 'required|string|max:255',
+            'dpi' => 'required|string|size:13|unique:clientes,dpi',
+            'telefono' => 'required|string|max:20',
+            'email' => 'nullable|email|max:255',
+            'direccion_completa' => 'nullable|string',
+            'departamento' => 'nullable|string|max:255',
+            'municipio' => 'nullable|string|max:255',
+        ]);
+
+        // Campos con valores por defecto para creación rápida
+        $validated['user_id'] = Auth::id();
+        $validated['estado'] = 'activo';
+        $validated['fecha_nacimiento'] = '2000-01-01';
+        $validated['genero'] = 'masculino';
+        $validated['estado_civil'] = 'soltero';
+
+        // Solo aplicar default si no se proporcionaron
+        if (!isset($validated['departamento'])) {
+            $validated['departamento'] = 'Guatemala';
+        }
+        if (!isset($validated['municipio'])) {
+            $validated['municipio'] = 'Guatemala';
+        }
+        if (!isset($validated['direccion_completa'])) {
+            $validated['direccion_completa'] = 'Sin dirección';
+        }
+
+        $cliente = Cliente::create($validated);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Cliente creado exitosamente.',
+            'cliente' => [
+                'id' => $cliente->id,
+                'nombre_completo' => $cliente->nombre_completo,
+                'dpi' => $cliente->dpi,
+                'telefono' => $cliente->telefono,
+            ]
+        ], 201);
     }
 
     /**

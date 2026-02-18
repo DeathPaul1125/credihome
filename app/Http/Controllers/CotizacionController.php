@@ -62,6 +62,7 @@ class CotizacionController extends Controller
             'tipo_venta' => 'required|in:contado,credito',
             'plazo_meses' => 'nullable|integer|min:1|required_if:tipo_venta,credito',
             'tasa_interes_anual' => 'nullable|numeric|min:0|max:100|required_if:tipo_venta,credito',
+            'tipo_interes' => 'nullable|in:cuota_fija,flat,sobre_saldos|required_if:tipo_venta,credito',
             'enganche' => 'nullable|numeric|min:0',
         ]);
 
@@ -94,6 +95,7 @@ class CotizacionController extends Controller
                 'tipo_venta' => $request->tipo_venta,
                 'plazo_meses' => $request->tipo_venta === 'credito' ? $request->plazo_meses : null,
                 'tasa_interes_anual' => $request->tipo_venta === 'credito' ? $request->tasa_interes_anual : null,
+                'tipo_interes' => $request->tipo_venta === 'credito' ? $request->tipo_interes : 'cuota_fija',
                 'enganche' => $request->tipo_venta === 'credito' ? $request->enganche : null,
                 'estado' => 'pendiente',
                 'notas' => $request->notas,
@@ -130,6 +132,12 @@ class CotizacionController extends Controller
 
     public function edit(Cotizacion $cotizacion)
     {
+        // Prevenir edición de cotizaciones convertidas en préstamos
+        if ($cotizacion->estado === 'convertida') {
+            return redirect()->route('cotizaciones.show', $cotizacion)
+                ->with('error', 'No se puede editar una cotización que ya fue convertida en préstamo.');
+        }
+
         $cotizacion->load('items');
         $clientes = Cliente::where('estado', 'activo')->orderBy('nombre_completo')->get();
         $recetas = Receta::where('estado', 'activo')->orderBy('nombre')->get();
@@ -140,6 +148,12 @@ class CotizacionController extends Controller
 
     public function update(Request $request, Cotizacion $cotizacion)
     {
+        // Prevenir edición de cotizaciones convertidas en préstamos
+        if ($cotizacion->estado === 'convertida') {
+            return redirect()->route('cotizaciones.show', $cotizacion)
+                ->with('error', 'No se puede editar una cotización que ya fue convertida en préstamo.');
+        }
+
         $request->validate([
             'cliente_id' => 'required|exists:clientes,id',
             'receta_id' => 'nullable|exists:recetas,id',
@@ -156,6 +170,7 @@ class CotizacionController extends Controller
             'tipo_venta' => 'required|in:contado,credito',
             'plazo_meses' => 'nullable|integer|min:1|required_if:tipo_venta,credito',
             'tasa_interes_anual' => 'nullable|numeric|min:0|max:100|required_if:tipo_venta,credito',
+            'tipo_interes' => 'nullable|in:cuota_fija,flat,sobre_saldos|required_if:tipo_venta,credito',
             'enganche' => 'nullable|numeric|min:0',
         ]);
 
@@ -180,6 +195,7 @@ class CotizacionController extends Controller
                 'tipo_venta' => $request->tipo_venta,
                 'plazo_meses' => $request->tipo_venta === 'credito' ? $request->plazo_meses : null,
                 'tasa_interes_anual' => $request->tipo_venta === 'credito' ? $request->tasa_interes_anual : null,
+                'tipo_interes' => $request->tipo_venta === 'credito' ? $request->tipo_interes : 'cuota_fija',
                 'enganche' => $request->tipo_venta === 'credito' ? $request->enganche : null,
                 'estado' => $request->estado,
                 'notas' => $request->notas,

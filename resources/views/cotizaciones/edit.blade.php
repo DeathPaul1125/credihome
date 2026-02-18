@@ -137,6 +137,134 @@
                         @enderror
                     </div>
 
+                    <!-- Sección de Financiamiento -->
+                    <div id="seccionFinanciamiento" class="mb-6 p-4 bg-blue-50 dark:bg-gray-700 rounded-lg border border-blue-200 dark:border-gray-600" style="{{ old('tipo_venta', $cotizacion->tipo_venta ?? 'credito') == 'contado' ? 'display: none;' : '' }}">
+                        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Opciones de Financiamiento</h3>
+
+                        <div class="grid gap-4 md:grid-cols-4 mb-4">
+                            <!-- Plazo -->
+                            <div>
+                                <label for="plazo_meses" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Plazo (Meses)</label>
+                                <input type="number" id="plazo_meses" name="plazo_meses" value="{{ old('plazo_meses', $cotizacion->plazo_meses ?? 12) }}" min="1" max="360" step="1" class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:text-white">
+                                <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Número de cuotas mensuales</p>
+                            </div>
+
+                            <!-- Tasa de Interés Anual -->
+                            <div>
+                                <label for="tasa_interes_anual" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Tasa de Interés Anual (%)</label>
+                                <input type="number" id="tasa_interes_anual" name="tasa_interes_anual" value="{{ old('tasa_interes_anual', $cotizacion->tasa_interes_anual ?? 24) }}" min="0" max="100" step="0.01" class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:text-white">
+                                <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Tasa anual efectiva</p>
+                            </div>
+
+                            <!-- Tipo de Interés -->
+                            <div>
+                                <label for="tipo_interes" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Plan de Cotización</label>
+                                <select id="tipo_interes" name="tipo_interes" class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:text-white">
+                                    <option value="cuota_fija" {{ old('tipo_interes', $cotizacion->tipo_interes ?? 'cuota_fija') == 'cuota_fija' ? 'selected' : '' }}>Nivelada</option>
+                                    <option value="flat" {{ old('tipo_interes', $cotizacion->tipo_interes) == 'flat' ? 'selected' : '' }}>Flat Cuota Fija</option>
+                                    <option value="sobre_saldos" {{ old('tipo_interes', $cotizacion->tipo_interes) == 'sobre_saldos' ? 'selected' : '' }}>Sobre Saldos</option>
+                                </select>
+                                <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Tipo de plan de pago</p>
+                            </div>
+
+                            <!-- Enganche -->
+                            <div>
+                                <label for="enganche" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Enganche (Q)</label>
+                                <input type="number" id="enganche" name="enganche" value="{{ old('enganche', $cotizacion->enganche ?? 0) }}" min="0" step="0.01" class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:text-white">
+                                <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Pago inicial (opcional)</p>
+                            </div>
+                        </div>
+
+                        <!-- Botón calcular -->
+                        <div class="mb-4">
+                            <button type="button" id="calcularPlanBtn" class="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-green-700 border border-transparent rounded-lg hover:bg-green-800 focus:ring-4 focus:ring-green-300 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800">
+                                <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M9 2a2 2 0 00-2 2v8a2 2 0 002 2h6a2 2 0 002-2V6.414A2 2 0 0016.414 5L14 2.586A2 2 0 0012.586 2H9z"/>
+                                    <path d="M3 8a2 2 0 012-2v10h8a2 2 0 01-2 2H5a2 2 0 01-2-2V8z"/>
+                                </svg>
+                                Calcular Plan de Pagos
+                            </button>
+                        </div>
+
+                        <!-- Resultados de cálculo -->
+                        <div id="resultadosFinanciamiento" class="mt-4 hidden">
+                            <!-- Resumen Principal -->
+                            <div class="bg-gray-100 dark:bg-gray-700 border-2 border-gray-300 dark:border-gray-600 rounded-lg p-6 mb-4">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex-1">
+                                        <p class="text-sm text-gray-600 dark:text-gray-400 mb-2">Resumen del Financiamiento</p>
+                                        <h3 class="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white" id="resumenPrincipal">
+                                            Usted pagará Q 0.00 en 0 meses
+                                        </h3>
+                                        <p class="text-sm text-gray-700 dark:text-gray-300 mt-2" id="resumenDetalle">
+                                            Con cuotas mensuales de <span class="font-semibold text-gray-900 dark:text-white" id="resumenCuota">Q 0.00</span>
+                                        </p>
+                                    </div>
+                                    <div class="hidden md:flex items-center justify-center">
+                                        <svg class="w-16 h-16 text-gray-400 dark:text-gray-500" fill="currentColor" viewBox="0 0 20 20">
+                                            <path d="M8.433 7.418c.155-.103.346-.196.567-.267v1.698a2.305 2.305 0 01-.567-.267C8.07 8.34 8 8.114 8 8c0-.114.07-.34.433-.582zM11 12.849v-1.698c.22.071.412.164.567.267.364.243.433.468.433.582 0 .114-.07.34-.433.582a2.305 2.305 0 01-.567.267z"/>
+                                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-13a1 1 0 10-2 0v.092a4.535 4.535 0 00-1.676.662C6.602 6.234 6 7.009 6 8c0 .99.602 1.765 1.324 2.246.48.32 1.054.545 1.676.662v1.941c-.391-.127-.68-.317-.843-.504a1 1 0 10-1.51 1.31c.562.649 1.413 1.076 2.353 1.253V15a1 1 0 102 0v-.092a4.535 4.535 0 001.676-.662C13.398 13.766 14 12.991 14 12c0-.99-.602-1.765-1.324-2.246A4.535 4.535 0 0011 9.092V7.151c.391.127.68.317.843.504a1 1 0 101.511-1.31c-.563-.649-1.413-1.076-2.354-1.253V5z" clip-rule="evenodd"/>
+                                        </svg>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Detalles del Plan -->
+                            <div class="grid gap-4 md:grid-cols-4 mb-4">
+                                <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-600 p-4">
+                                    <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">Monto a Financiar</p>
+                                    <p class="text-xl font-bold text-blue-600 dark:text-blue-400" id="montoFinanciar">Q 0.00</p>
+                                </div>
+                                <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-600 p-4">
+                                    <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">Cuota Mensual</p>
+                                    <p class="text-xl font-bold text-green-600 dark:text-green-400" id="cuotaMensual">Q 0.00</p>
+                                </div>
+                                <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-600 p-4">
+                                    <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">Total de Intereses</p>
+                                    <p class="text-xl font-bold text-yellow-600 dark:text-yellow-400" id="totalIntereses">Q 0.00</p>
+                                </div>
+                                <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-600 p-4">
+                                    <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">Total a Pagar</p>
+                                    <p class="text-xl font-bold text-purple-600 dark:text-purple-400" id="totalPagar">Q 0.00</p>
+                                </div>
+                            </div>
+
+                            <!-- Botones de Acción -->
+                            <div class="flex gap-3 mb-4">
+                                <button type="button" id="verTablaBtn" class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 dark:bg-gray-700 dark:text-white dark:border-gray-600 dark:hover:bg-gray-600">
+                                    <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd"/>
+                                    </svg>
+                                    Ver Tabla de Amortización Completa
+                                </button>
+                                <button type="button" id="imprimirPlanBtn" class="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-red-700 rounded-lg hover:bg-red-800 dark:bg-red-600 dark:hover:bg-red-700">
+                                    <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M5 4v3H4a2 2 0 00-2 2v3a2 2 0 002 2h1v2a2 2 0 002 2h6a2 2 0 002-2v-2h1a2 2 0 002-2V9a2 2 0 00-2-2h-1V4a2 2 0 00-2-2H7a2 2 0 00-2 2zm8 0H7v3h6V4zm0 8H7v4h6v-4z" clip-rule="evenodd"/>
+                                    </svg>
+                                    Imprimir Plan de Pagos
+                                </button>
+                            </div>
+
+                            <!-- Tabla de Amortización (oculta inicialmente) -->
+                            <div id="tablaAmortizacion" class="hidden overflow-x-auto">
+                                <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
+                                    <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+                                        <tr>
+                                            <th class="px-4 py-3">Cuota</th>
+                                            <th class="px-4 py-3">Cuota Mensual</th>
+                                            <th class="px-4 py-3">Capital</th>
+                                            <th class="px-4 py-3">Interés</th>
+                                            <th class="px-4 py-3">Saldo</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tablaAmortizacionBody">
+                                        <!-- Se llenará con JavaScript -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- Notas -->
                     <div class="mb-6">
                         <label for="notas" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Notas</label>
@@ -298,18 +426,6 @@
     <script>
         let productoIndex = {{ count($cotizacion->items) }};
 
-        document.getElementById('addProductoBtn').addEventListener('click', function() {
-            addProducto();
-        });
-
-        // Cargar productos desde receta si se selecciona
-        document.getElementById('receta_id').addEventListener('change', function() {
-            const recetaId = this.value;
-            if (recetaId) {
-                loadRecetaProductos(recetaId);
-            }
-        });
-
         function addProducto(productoData = null) {
             const template = document.getElementById('productoTemplate').innerHTML;
             const productoHtml = template.replace(/{index}/g, productoIndex);
@@ -326,14 +442,19 @@
                 const cantidad = newProducto.querySelector('.producto-cantidad');
                 const precio = newProducto.querySelector('.producto-precio');
                 const descripcion = newProducto.querySelector('.producto-descripcion');
+                const unidad = newProducto.querySelector('.producto-unidad');
 
                 select.value = productoData.producto_id;
                 cantidad.value = productoData.cantidad;
                 precio.value = productoData.precio_unitario;
                 descripcion.value = productoData.descripcion || productoData.producto?.nombre || '';
 
-                // Trigger change event to update unidad and subtotal
-                select.dispatchEvent(new Event('change'));
+                if (productoData.unidad) {
+                    unidad.value = productoData.unidad;
+                }
+
+                // Calcular subtotal
+                calculateProductoSubtotal(cantidad, precio, newProducto.querySelector('.producto-subtotal'));
             }
 
             productoIndex++;
@@ -404,25 +525,75 @@
             // Limpiar productos existentes
             document.getElementById('productosContainer').innerHTML = '';
 
-            // Aquí iría una llamada AJAX para cargar los productos de la receta
-            // Por ahora, solo limpiamos y esperamos que el usuario agregue manualmente
-            console.log('Cargando productos de receta:', recetaId);
+            if (!recetaId) {
+                // Si no hay receta seleccionada, agregar un producto vacío
+                addProducto();
+                return;
+            }
+
+            // Cargar productos de la receta mediante AJAX
+            fetch(`/api/recetas/${recetaId}/items`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.items && data.items.length > 0) {
+                        data.items.forEach(item => {
+                            addProducto({
+                                producto_id: item.producto_id,
+                                cantidad: item.cantidad,
+                                precio_unitario: item.precio_unitario,
+                                descripcion: item.producto.nombre,
+                                unidad: item.producto.unidad_medida
+                            });
+                        });
+                        updateTotal();
+                    } else {
+                        alert('Esta receta no tiene productos asociados.');
+                        addProducto();
+                    }
+                })
+                .catch(error => {
+                    console.error('Error cargando productos de receta:', error);
+                    alert('Error al cargar los productos de la receta. Puede agregar productos manualmente con el botón "Agregar Producto".');
+                });
         }
-
-        // Configurar listeners para productos existentes
-        document.querySelectorAll('.producto-row').forEach(function(producto) {
-            setupProductoListeners(producto);
-        });
-
-        // Actualizar total cuando cambia el descuento
-        document.getElementById('descuento').addEventListener('input', updateTotal);
-
-        // Calcular total inicial
-        updateTotal();
 
         // Manejo del tipo de venta
         document.addEventListener('DOMContentLoaded', function() {
+            // Configurar listeners para productos existentes
+            document.querySelectorAll('.producto-row').forEach(function(producto) {
+                setupProductoListeners(producto);
+            });
+
+            // Actualizar total cuando cambia el descuento
+            const descuentoInput = document.getElementById('descuento');
+            if (descuentoInput) {
+                descuentoInput.addEventListener('input', updateTotal);
+            }
+
+            // Calcular total inicial
+            updateTotal();
+
+            // Botón agregar producto
+            const addProductoBtn = document.getElementById('addProductoBtn');
+            if (addProductoBtn) {
+                addProductoBtn.addEventListener('click', function() {
+                    addProducto();
+                });
+            }
+
+            // Cargar productos desde receta si se selecciona
+            const recetaSelect = document.getElementById('receta_id');
+            if (recetaSelect) {
+                recetaSelect.addEventListener('change', function() {
+                    const recetaId = this.value;
+                    if (recetaId) {
+                        loadRecetaProductos(recetaId);
+                    }
+                });
+            }
+
             const tipoVentaOptions = document.querySelectorAll('.tipo-venta-option');
+            const seccionFinanciamiento = document.getElementById('seccionFinanciamiento');
 
             // Función para actualizar el estado visual
             function updateTipoVentaUI() {
@@ -434,6 +605,13 @@
                         option.classList.add('border-blue-600', 'bg-blue-50', 'dark:bg-blue-900/20');
                         option.classList.remove('border-gray-300');
                         indicator.classList.remove('hidden');
+
+                        // Mostrar/ocultar sección de financiamiento
+                        if (radio.value === 'credito') {
+                            seccionFinanciamiento.style.display = 'block';
+                        } else {
+                            seccionFinanciamiento.style.display = 'none';
+                        }
                     } else {
                         option.classList.remove('border-blue-600', 'bg-blue-50', 'dark:bg-blue-900/20');
                         option.classList.add('border-gray-300');
@@ -453,6 +631,239 @@
 
             // Inicializar el estado visual
             updateTipoVentaUI();
+
+            // ==========================================
+            // CÁLCULO DE PLAN DE PAGOS
+            // ==========================================
+
+            // Botón calcular plan de pagos
+            document.getElementById('calcularPlanBtn')?.addEventListener('click', function() {
+                calcularPlanPagos();
+            });
+
+            // Botón ver tabla
+            document.getElementById('verTablaBtn')?.addEventListener('click', function() {
+                const tabla = document.getElementById('tablaAmortizacion');
+                if (tabla.classList.contains('hidden')) {
+                    tabla.classList.remove('hidden');
+                    this.textContent = 'Ocultar Tabla de Amortización';
+                } else {
+                    tabla.classList.add('hidden');
+                    this.textContent = 'Ver Tabla de Amortización Completa';
+                }
+            });
+
+            // Botón imprimir plan
+            document.getElementById('imprimirPlanBtn')?.addEventListener('click', function() {
+                imprimirPlan();
+            });
         });
+
+        function calcularPlanPagos() {
+            // Obtener valores
+            const totalElement = document.getElementById('totalDisplay');
+            if (!totalElement) {
+                console.error('No se encontró el elemento totalDisplay');
+                return;
+            }
+
+            // Extraer solo números y puntos decimales del texto
+            const totalText = totalElement.textContent.trim();
+            const totalMatch = totalText.match(/[\d,]+\.?\d*/);
+            const total = totalMatch ? parseFloat(totalMatch[0].replace(/,/g, '')) : 0;
+
+            const enganche = parseFloat(document.getElementById('enganche').value) || 0;
+            const plazo = parseInt(document.getElementById('plazo_meses').value) || 12;
+            const tasaAnual = parseFloat(document.getElementById('tasa_interes_anual').value) || 0;
+            const tipoInteres = document.getElementById('tipo_interes').value;
+
+            console.log('Calculando plan:', {total, enganche, plazo, tasaAnual, tipoInteres});
+
+            if (total <= 0) {
+                alert('Debe agregar productos antes de calcular el plan de pagos.');
+                return;
+            }
+
+            if (plazo <= 0) {
+                alert('El plazo debe ser mayor a 0 meses.');
+                return;
+            }
+
+            // Calcular monto a financiar
+            const montoFinanciar = total - enganche;
+
+            if (montoFinanciar <= 0) {
+                alert('El enganche no puede ser mayor o igual al total.');
+                return;
+            }
+
+            // Calcular tasa mensual
+            const tasaMensual = tasaAnual / 12 / 100;
+
+            // Calcular cuota según el tipo de interés
+            let cuotaMensual;
+            let totalIntereses;
+            let totalPagar;
+
+            if (tipoInteres === 'cuota_fija') {
+                // Cuota Fija (Sistema Francés) - cuota constante
+                if (tasaMensual === 0) {
+                    cuotaMensual = montoFinanciar / plazo;
+                    totalIntereses = 0;
+                    totalPagar = montoFinanciar;
+                } else {
+                    const factor = Math.pow(1 + tasaMensual, plazo);
+                    cuotaMensual = montoFinanciar * (tasaMensual * factor) / (factor - 1);
+                    totalPagar = cuotaMensual * plazo;
+                    totalIntereses = totalPagar - montoFinanciar;
+                }
+            } else if (tipoInteres === 'flat') {
+                // Flat - interés sobre capital original, cuota constante
+                const interesMensual = (montoFinanciar * tasaAnual / 100) / 12;
+                const capitalMensual = montoFinanciar / plazo;
+                cuotaMensual = capitalMensual + interesMensual;
+                totalIntereses = interesMensual * plazo;
+                totalPagar = montoFinanciar + totalIntereses;
+            } else if (tipoInteres === 'sobre_saldos') {
+                // Sobre Saldos (Sistema Alemán) - capital constante, cuota decreciente
+                const capitalMensual = montoFinanciar / plazo;
+                const primerInteres = montoFinanciar * tasaMensual;
+                cuotaMensual = capitalMensual + primerInteres;
+                totalIntereses = (montoFinanciar * tasaMensual * (plazo + 1)) / 2;
+                totalPagar = montoFinanciar + totalIntereses;
+            }
+
+            // Mostrar resultados
+            document.getElementById('montoFinanciar').textContent = formatMoneySymbol(montoFinanciar);
+
+            if (tipoInteres === 'sobre_saldos') {
+                document.getElementById('cuotaMensual').textContent = formatMoneySymbol(cuotaMensual) + ' (inicial)';
+            } else {
+                document.getElementById('cuotaMensual').textContent = formatMoneySymbol(cuotaMensual);
+            }
+
+            document.getElementById('totalIntereses').textContent = formatMoneySymbol(totalIntereses);
+            document.getElementById('totalPagar').textContent = formatMoneySymbol(totalPagar + enganche);
+
+            // Actualizar resumen principal
+            const totalConEnganche = totalPagar + enganche;
+            const plazoTexto = plazo === 1 ? 'mes' : 'meses';
+            document.getElementById('resumenPrincipal').textContent =
+                `Usted pagará ${formatMoneySymbol(totalConEnganche)} en ${plazo} ${plazoTexto}`;
+
+            const cuotaTexto = tipoInteres === 'sobre_saldos'
+                ? `${formatMoneySymbol(cuotaMensual)} (cuota inicial, luego decrece)`
+                : formatMoneySymbol(cuotaMensual);
+            document.getElementById('resumenCuota').textContent = cuotaTexto;
+
+            // Mostrar sección de resultados
+            document.getElementById('resultadosFinanciamiento').classList.remove('hidden');
+
+            // Generar tabla de amortización
+            generarTablaAmortizacion(montoFinanciar, tasaMensual, plazo, tipoInteres);
+        }
+
+        function generarTablaAmortizacion(montoInicial, tasaMensual, plazo, tipoInteres) {
+            const tbody = document.getElementById('tablaAmortizacionBody');
+            if (!tbody) return;
+
+            tbody.innerHTML = '';
+            let saldo = montoInicial;
+
+            if (tipoInteres === 'cuota_fija') {
+                let cuota;
+                if (tasaMensual === 0) {
+                    cuota = montoInicial / plazo;
+                } else {
+                    const factor = Math.pow(1 + tasaMensual, plazo);
+                    cuota = montoInicial * (tasaMensual * factor) / (factor - 1);
+                }
+
+                for (let i = 1; i <= plazo; i++) {
+                    const interes = saldo * tasaMensual;
+                    const capital = cuota - interes;
+                    saldo = saldo - capital;
+
+                    if (i === plazo) saldo = 0;
+
+                    const row = `
+                        <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
+                            <td class="px-4 py-2">${i}</td>
+                            <td class="px-4 py-2 font-medium">${formatMoneySymbol(cuota)}</td>
+                            <td class="px-4 py-2 text-blue-600">${formatMoneySymbol(capital)}</td>
+                            <td class="px-4 py-2 text-yellow-600">${formatMoneySymbol(interes)}</td>
+                            <td class="px-4 py-2 font-medium">${formatMoneySymbol(saldo)}</td>
+                        </tr>
+                    `;
+                    tbody.insertAdjacentHTML('beforeend', row);
+                }
+            } else if (tipoInteres === 'flat') {
+                const interesMensual = (montoInicial * tasaMensual);
+                const capitalMensual = montoInicial / plazo;
+                const cuota = capitalMensual + interesMensual;
+
+                for (let i = 1; i <= plazo; i++) {
+                    saldo = saldo - capitalMensual;
+                    if (i === plazo) saldo = 0;
+
+                    const row = `
+                        <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
+                            <td class="px-4 py-2">${i}</td>
+                            <td class="px-4 py-2 font-medium">${formatMoneySymbol(cuota)}</td>
+                            <td class="px-4 py-2 text-blue-600">${formatMoneySymbol(capitalMensual)}</td>
+                            <td class="px-4 py-2 text-yellow-600">${formatMoneySymbol(interesMensual)}</td>
+                            <td class="px-4 py-2 font-medium">${formatMoneySymbol(saldo)}</td>
+                        </tr>
+                    `;
+                    tbody.insertAdjacentHTML('beforeend', row);
+                }
+            } else if (tipoInteres === 'sobre_saldos') {
+                const capitalMensual = montoInicial / plazo;
+
+                for (let i = 1; i <= plazo; i++) {
+                    const interes = saldo * tasaMensual;
+                    const cuota = capitalMensual + interes;
+                    saldo = saldo - capitalMensual;
+
+                    if (i === plazo) saldo = 0;
+
+                    const row = `
+                        <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
+                            <td class="px-4 py-2">${i}</td>
+                            <td class="px-4 py-2 font-medium">${formatMoneySymbol(cuota)}</td>
+                            <td class="px-4 py-2 text-blue-600">${formatMoneySymbol(capitalMensual)}</td>
+                            <td class="px-4 py-2 text-yellow-600">${formatMoneySymbol(interes)}</td>
+                            <td class="px-4 py-2 font-medium">${formatMoneySymbol(saldo)}</td>
+                        </tr>
+                    `;
+                    tbody.insertAdjacentHTML('beforeend', row);
+                }
+            }
+        }
+
+        function imprimirPlan() {
+            const printWindow = window.open('', '', 'height=800,width=900');
+            const tabla = document.getElementById('tablaAmortizacion').innerHTML;
+            const resumen = document.getElementById('resultadosFinanciamiento').innerHTML;
+
+            printWindow.document.write('<html><head><title>Plan de Pagos</title>');
+            printWindow.document.write('<style>');
+            printWindow.document.write('body { font-family: Arial, sans-serif; padding: 20px; }');
+            printWindow.document.write('table { width: 100%; border-collapse: collapse; margin-top: 20px; }');
+            printWindow.document.write('th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }');
+            printWindow.document.write('th { background-color: #4CAF50; color: white; }');
+            printWindow.document.write('.resumen { margin-bottom: 20px; padding: 15px; background: #f5f5f5; border-radius: 8px; }');
+            printWindow.document.write('</style>');
+            printWindow.document.write('</head><body>');
+            printWindow.document.write('<h1>Plan de Pagos - Cotización</h1>');
+            printWindow.document.write('<div class="resumen">' + resumen + '</div>');
+            printWindow.document.write(tabla);
+            printWindow.document.write('</body></html>');
+            printWindow.document.close();
+
+            setTimeout(function() {
+                printWindow.print();
+            }, 250);
+        }
     </script>
 </x-flowbite-layout>

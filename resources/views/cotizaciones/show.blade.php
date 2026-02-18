@@ -10,8 +10,15 @@
                 </div>
                 <div class="flex gap-3">
                     @can('editar-cotizaciones')
-                    @if(!in_array($cotizacion->estado, ['aprobada', 'convertida', 'rechazada']))
+                    @if($cotizacion->estado !== 'convertida')
                     <a href="{{ route('cotizaciones.edit', $cotizacion) }}" class="text-white bg-blue-700 hover:bg-blue-800 rounded-lg text-sm px-5 py-2.5">Editar</a>
+                    @else
+                    <span class="inline-flex items-center px-5 py-2.5 text-sm font-medium text-gray-500 bg-gray-200 rounded-lg cursor-not-allowed dark:bg-gray-700 dark:text-gray-400" title="No se puede editar una cotización convertida en préstamo">
+                        <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/>
+                        </svg>
+                        Editar
+                    </span>
                     @endif
                     @endcan
 
@@ -130,7 +137,7 @@
             <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 mt-6">
                 <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-4">Plan de Financiamiento</h2>
 
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
                     <div>
                         <p class="text-sm text-gray-500 dark:text-gray-400">Plazo</p>
                         <p class="text-lg font-semibold text-gray-900 dark:text-white">{{ $cotizacion->plazo_meses }} meses</p>
@@ -138,6 +145,20 @@
                     <div>
                         <p class="text-sm text-gray-500 dark:text-gray-400">Tasa de Interés Anual</p>
                         <p class="text-lg font-semibold text-gray-900 dark:text-white">{{ percentage($cotizacion->tasa_interes_anual) }}</p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">Plan de Cotización</p>
+                        <p class="text-lg font-semibold text-gray-900 dark:text-white">
+                            @if($cotizacion->tipo_interes === 'cuota_fija')
+                                Nivelada
+                            @elseif($cotizacion->tipo_interes === 'flat')
+                                Flat Cuota Fija
+                            @elseif($cotizacion->tipo_interes === 'sobre_saldos')
+                                Sobre Saldos
+                            @else
+                                Nivelada
+                            @endif
+                        </p>
                     </div>
                     @if($cotizacion->enganche > 0)
                     <div>
